@@ -3,7 +3,7 @@ import { Container } from '@/components/container'
 import { Footer } from '@/components/footer'
 import { Link } from '@/components/link'
 import { Navbar } from '@/components/navbar'
-import { Heading, Subheading } from '@/components/text'
+import { Heading } from '@/components/text'
 import { image } from '@/sanity/image'
 import { getPost } from '@/sanity/queries'
 import { CaretLeftIcon } from '@phosphor-icons/react/dist/ssr'
@@ -69,37 +69,43 @@ export default async function BlogPost(props: {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen overflow-hidden bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
-        <Container className="py-24">
-          <Subheading className="text-gray-300">
-            {dayjs(post.publishedAt).format('dddd, MMMM D, YYYY')}
-          </Subheading>
-          <Heading as="h1" className="mt-2 text-white">
-            {post.title}
-          </Heading>
-          <div className="mt-16 grid grid-cols-1 gap-8 pb-24 lg:grid-cols-[15rem_1fr] xl:grid-cols-[15rem_1fr_15rem]">
-            <div className="flex flex-wrap items-center gap-8 max-lg:justify-between lg:flex-col lg:items-start">
+      <main className="overflow-hidden">
+        <Container className="py-16 sm:py-24">
+          <article className="mx-auto max-w-4xl">
+            <div className="mb-12 text-center">
+              <time className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                {dayjs(post.publishedAt).format('MMMM D, YYYY')}
+              </time>
+              <Heading
+                as="h1"
+                className="dark:text-neutral-0 mt-4 text-neutral-950"
+              >
+                {post.title}
+              </Heading>
+            </div>
+
+            <div className="mb-12 flex flex-wrap items-center justify-center gap-6">
               {post.author && (
                 <div className="flex items-center gap-3">
                   {post.author.image && (
                     <img
                       alt=""
-                      src={image(post.author.image).size(64, 64).url()}
-                      className="aspect-square size-6 rounded-full object-cover"
+                      src={image(post.author.image).size(40, 40).url()}
+                      className="size-10 rounded-full object-cover ring-1 ring-neutral-200 dark:ring-neutral-700"
                     />
                   )}
-                  <div className="text-sm/5 text-gray-300">
+                  <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                     {post.author.name}
-                  </div>
+                  </span>
                 </div>
               )}
-              {Array.isArray(post.categories) && (
+              {Array.isArray(post.categories) && post.categories.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {post.categories.map((category) => (
                     <Link
                       key={category.slug}
                       href={`/blog?category=${category.slug}`}
-                      className="rounded-full border border-dotted border-gray-600 bg-gray-800 px-2 text-sm/6 font-medium text-gray-400"
+                      className="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-medium text-neutral-600 hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
                     >
                       {category.title}
                     </Link>
@@ -107,120 +113,18 @@ export default async function BlogPost(props: {
                 </div>
               )}
             </div>
-            <div className="text-gray-300">
+
+            <div className="prose prose-neutral prose-headings:font-medium prose-headings:tracking-tight prose-headings:text-neutral-950 prose-p:text-neutral-700 prose-p:leading-relaxed prose-a:text-orange-600 prose-a:no-underline hover:prose-a:text-orange-700 prose-strong:font-medium prose-strong:text-neutral-950 prose-code:rounded prose-code:bg-neutral-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-sm prose-code:font-medium prose-pre:rounded-lg prose-pre:border prose-pre:border-neutral-200 prose-pre:bg-neutral-50 prose-ul:space-y-2 prose-ol:space-y-2 prose-li:text-neutral-700 prose-blockquote:border-l-2 prose-blockquote:border-neutral-300 prose-blockquote:pl-6 prose-blockquote:font-normal prose-blockquote:not-italic prose-blockquote:text-neutral-600 prose-img:rounded-xl prose-img:shadow-sm prose-img:ring-1 prose-img:ring-neutral-200 dark:prose-headings:text-neutral-0 dark:prose-p:text-neutral-300 dark:prose-a:text-orange-400 hover:dark:prose-a:text-orange-300 dark:prose-strong:text-neutral-0 dark:prose-code:bg-neutral-800 dark:prose-code:text-neutral-200 dark:prose-pre:border-neutral-700 dark:prose-pre:bg-neutral-800 dark:prose-li:text-neutral-300 dark:prose-blockquote:border-neutral-600 dark:prose-blockquote:text-neutral-400 dark:prose-img:ring-neutral-700 mx-auto max-w-none">
               <div className="max-w-2xl xl:mx-auto">
                 {post.mainImage && (
                   <img
                     alt={post.mainImage.alt || ''}
-                    src={image(post.mainImage).size(2016, 1344).url()}
-                    className="mb-10 aspect-3/2 w-full rounded-2xl object-cover shadow-xl"
+                    src={image(post.mainImage).size(1600, 900).url()}
+                    className="mb-12 w-full rounded-xl object-cover shadow-sm ring-1 ring-neutral-200 dark:ring-neutral-700"
                   />
                 )}
-                {post.body && (
-                  <PortableText
-                    value={post.body}
-                    components={{
-                      block: {
-                        normal: ({ children }) => (
-                          <p className="my-10 text-base/8 first:mt-0 last:mb-0 dark:text-gray-300">
-                            {children}
-                          </p>
-                        ),
-                        h2: ({ children }) => (
-                          <h2 className="mt-12 mb-10 text-2xl/8 font-medium tracking-tight text-gray-950 first:mt-0 last:mb-0 dark:text-white">
-                            {children}
-                          </h2>
-                        ),
-                        h3: ({ children }) => (
-                          <h3 className="mt-12 mb-10 text-xl/8 font-medium tracking-tight text-gray-950 first:mt-0 last:mb-0 dark:text-white">
-                            {children}
-                          </h3>
-                        ),
-                        blockquote: ({ children }) => (
-                          <blockquote className="my-10 border-l-2 border-l-gray-300 pl-6 text-base/8 text-gray-950 first:mt-0 last:mb-0 dark:border-l-gray-600 dark:text-gray-300">
-                            {children}
-                          </blockquote>
-                        ),
-                      },
-                      types: {
-                        image: ({ value }) => (
-                          <img
-                            alt={value.alt || ''}
-                            src={image(value).width(2000).url()}
-                            className="w-full rounded-2xl"
-                          />
-                        ),
-                        separator: ({ value }) => {
-                          switch (value.style) {
-                            case 'line':
-                              return (
-                                <hr className="my-8 border-t border-gray-700" />
-                              )
-                            case 'space':
-                              return <div className="my-8" />
-                            default:
-                              return null
-                          }
-                        },
-                      },
-                      list: {
-                        bullet: ({ children }) => (
-                          <ul className="list-disc pl-4 text-base/8 marker:text-gray-500">
-                            {children}
-                          </ul>
-                        ),
-                        number: ({ children }) => (
-                          <ol className="list-decimal pl-4 text-base/8 marker:text-gray-500">
-                            {children}
-                          </ol>
-                        ),
-                      },
-                      listItem: {
-                        bullet: ({ children }) => {
-                          return (
-                            <li className="my-2 pl-2 has-[br]:mb-8 dark:text-gray-300">
-                              {children}
-                            </li>
-                          )
-                        },
-                        number: ({ children }) => {
-                          return (
-                            <li className="my-2 pl-2 has-[br]:mb-8 dark:text-gray-300">
-                              {children}
-                            </li>
-                          )
-                        },
-                      },
-                      marks: {
-                        strong: ({ children }) => (
-                          <strong className="font-semibold text-gray-950 dark:text-white">
-                            {children}
-                          </strong>
-                        ),
-                        code: ({ children }) => (
-                          <>
-                            <span aria-hidden>`</span>
-                            <code className="text-[15px]/8 font-semibold text-white">
-                              {children}
-                            </code>
-                            <span aria-hidden>`</span>
-                          </>
-                        ),
-                        link: ({ value, children }) => {
-                          return (
-                            <Link
-                              href={value.href}
-                              className="font-medium text-teal-400 underline decoration-teal-400 underline-offset-4 data-hover:decoration-teal-300"
-                            >
-                              {children}
-                            </Link>
-                          )
-                        },
-                      },
-                    }}
-                  />
-                )}
-                <div className="mt-10">
+                {post.body && <PortableText value={post.body} />}
+                <div className="mt-12 border-t border-neutral-200 pt-8 dark:border-neutral-800">
                   <Button variant="outline" href="/blog">
                     <CaretLeftIcon className="size-4" />
                     Back to blog
@@ -228,7 +132,7 @@ export default async function BlogPost(props: {
                 </div>
               </div>
             </div>
-          </div>
+          </article>
         </Container>
       </main>
       <Footer />

@@ -45,25 +45,25 @@ async function Categories({ selected }: { selected?: string }) {
   }
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-2">
+    <div className="flex flex-wrap items-center justify-between gap-4">
       <Menu>
-        <MenuButton className="flex items-center justify-between gap-2 font-medium text-white">
+        <MenuButton className="bg-neutral-0 flex items-center justify-between gap-2 rounded-lg border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800">
           {categories.find(({ slug }) => slug === selected)?.title ||
             'All categories'}
-          <CaretUpDownIcon className="size-4 fill-white" />
+          <CaretUpDownIcon className="size-4 text-neutral-500" />
         </MenuButton>
         <MenuItems
           anchor="bottom start"
-          className="min-w-40 rounded-lg bg-gray-800 p-1 shadow-lg ring-1 ring-gray-700 [--anchor-gap:6px] [--anchor-offset:-4px] [--anchor-padding:10px]"
+          className="bg-neutral-0 min-w-48 rounded-lg border border-neutral-200 p-1 shadow-lg [--anchor-gap:6px] [--anchor-offset:-4px] [--anchor-padding:10px] dark:border-neutral-700 dark:bg-neutral-900"
         >
           <MenuItem>
             <Link
               href="/blog"
               data-selected={selected === undefined ? true : undefined}
-              className="group grid grid-cols-[1rem_1fr] items-center gap-2 rounded-md px-2 py-1 data-focus:bg-gray-700/50"
+              className="group grid grid-cols-[20px_1fr] items-center gap-3 rounded-md px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
             >
-              <CheckIcon className="hidden size-4 group-data-selected:block" />
-              <p className="col-start-2 text-sm/6 text-white">All categories</p>
+              <CheckIcon className="hidden size-4 text-orange-600 group-data-selected:block dark:text-orange-400" />
+              <span className="col-start-2">All categories</span>
             </Link>
           </MenuItem>
           {categories.map((category) => (
@@ -71,18 +71,16 @@ async function Categories({ selected }: { selected?: string }) {
               <Link
                 href={`/blog?category=${category.slug}`}
                 data-selected={category.slug === selected ? true : undefined}
-                className="group grid grid-cols-[16px_1fr] items-center gap-2 rounded-md px-2 py-1 data-focus:bg-gray-700/50"
+                className="group grid grid-cols-[20px_1fr] items-center gap-3 rounded-md px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
               >
-                <CheckIcon className="hidden size-4 group-data-selected:block" />
-                <p className="col-start-2 text-sm/6 text-white">
-                  {category.title}
-                </p>
+                <CheckIcon className="hidden size-4 text-orange-600 group-data-selected:block dark:text-orange-400" />
+                <span className="col-start-2">{category.title}</span>
               </Link>
             </MenuItem>
           ))}
         </MenuItems>
       </Menu>
-      <Button variant="outline" href="/blog/feed.xml" className="gap-1">
+      <Button variant="outline" href="/blog/feed.xml" className="gap-2">
         <RssIcon className="size-4" />
         RSS Feed
       </Button>
@@ -103,53 +101,57 @@ async function Posts({ page, category }: { page: number; category?: string }) {
 
   if (!posts || posts.length === 0) {
     return (
-      <p className="mx-auto mt-6 text-center text-gray-400">
-        No blog has been published yet.
+      <p className="mx-auto text-center text-neutral-500 dark:text-neutral-400">
+        No blog posts have been published yet.
       </p>
     )
   }
 
   return (
-    <div className="mt-6">
+    <div className="space-y-8">
       {posts.map((post) => (
-        <div
+        <article
           key={post.slug}
-          className="relative grid grid-cols-1 border-b border-b-gray-800 py-10 first:border-t first:border-t-gray-800 max-sm:gap-3 sm:grid-cols-3"
+          className="relative border-b border-neutral-200 pb-8 last:border-b-0 dark:border-neutral-800"
         >
-          <div>
-            <div className="text-sm/5 text-gray-400 sm:font-medium">
-              {dayjs(post.publishedAt).format('dddd, MMMM D, YYYY')}
-            </div>
-            {post.author && (
-              <div className="mt-2.5 flex items-center gap-3">
-                {post.author.image && (
-                  <img
-                    alt=""
-                    src={image(post.author.image).width(64).height(64).url()}
-                    className="aspect-square size-6 rounded-full object-cover"
-                  />
-                )}
-                <div className="text-sm/5 text-gray-300">
-                  {post.author.name}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-[200px_1fr]">
+            <div className="flex flex-col gap-3">
+              <time className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                {dayjs(post.publishedAt).format('MMM D, YYYY')}
+              </time>
+              {post.author && (
+                <div className="flex items-center gap-3">
+                  {post.author.image && (
+                    <img
+                      alt=""
+                      src={image(post.author.image).width(32).height(32).url()}
+                      className="size-8 rounded-full object-cover ring-1 ring-neutral-200 dark:ring-neutral-700"
+                    />
+                  )}
+                  <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                    {post.author.name}
+                  </span>
                 </div>
-              </div>
-            )}
-          </div>
-          <div className="sm:col-span-2 sm:max-w-2xl">
-            <h2 className="text-sm/5 font-medium text-white">{post.title}</h2>
-            <p className="mt-3 text-sm/6 text-gray-400">{post.excerpt}</p>
-            <div className="mt-4">
+              )}
+            </div>
+            <div>
+              <h2 className="dark:text-neutral-0 mb-3 text-xl font-medium tracking-tight text-neutral-950">
+                {post.title}
+              </h2>
+              <p className="mb-4 leading-relaxed text-neutral-600 dark:text-neutral-300">
+                {post.excerpt}
+              </p>
               <Link
                 href={`/blog/${post.slug}`}
-                className="flex items-center gap-1 text-sm/5 font-medium text-teal-400 hover:text-teal-300"
+                className="inline-flex items-center gap-1 text-sm font-medium text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300"
               >
                 <span className="absolute inset-0" />
-                Read more
-                <CaretRightIcon className="size-4 fill-gray-500" />
+                Read article
+                <CaretRightIcon className="size-4" />
               </Link>
             </div>
           </div>
-        </div>
+        </article>
       ))}
     </div>
   )
@@ -185,7 +187,7 @@ async function Pagination({
   }
 
   return (
-    <div className="mt-6 flex items-center justify-between gap-2">
+    <nav className="flex items-center justify-between gap-4">
       <Button
         variant="outline"
         href={previousPageUrl}
@@ -194,17 +196,18 @@ async function Pagination({
         <CaretLeftIcon className="size-4" />
         Previous
       </Button>
-      <div className="flex gap-2 max-sm:hidden">
+      <div className="flex gap-1 max-sm:hidden">
         {Array.from({ length: pageCount }, (_, i) => (
           <Link
             key={i + 1}
             href={url(i + 1)}
             data-active={i + 1 === page ? true : undefined}
             className={clsx(
-              'size-7 rounded-lg text-center text-sm/7 font-medium text-white',
-              'data-hover:bg-gray-800',
-              'data-active:shadow-sm data-active:ring-1 data-active:ring-white/20',
-              'data-active:data-hover:bg-gray-700',
+              'flex size-8 items-center justify-center rounded-lg text-sm font-medium transition-colors',
+              'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-950',
+              'dark:hover:text-neutral-0 dark:text-neutral-400 dark:hover:bg-neutral-800',
+              'data-active:bg-orange-600 data-active:text-white',
+              'dark:data-active:bg-orange-500',
             )}
           >
             {i + 1}
@@ -215,7 +218,7 @@ async function Pagination({
         Next
         <CaretRightIcon className="size-4" />
       </Button>
-    </div>
+    </nav>
   )
 }
 
@@ -238,15 +241,17 @@ export default async function Blog(props: {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen overflow-hidden bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
-        <Container className="py-24">
-          <Heading className="text-center text-white" as="h1">
-            The Teal Horse
-          </Heading>
-          <Lead className="mx-auto mt-6 max-w-3xl text-center text-gray-300">
-            The latest stories, updates, and news from Bitsacco.
-          </Lead>
-          <div className="mt-16">
+      <main className="overflow-hidden">
+        <Container className="py-16 sm:py-24">
+          <div className="mb-16 text-center">
+            <Heading className="dark:text-neutral-0 text-neutral-950" as="h1">
+              The Teal Horse
+            </Heading>
+            <Lead className="mx-auto mt-8 max-w-2xl text-neutral-600 dark:text-neutral-400">
+              The latest stories, updates, and news from Bitsacco.
+            </Lead>
+          </div>
+          <div className="space-y-12">
             <Categories selected={category} />
             <Posts page={page} category={category} />
             <Pagination page={page} category={category} />

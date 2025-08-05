@@ -25,8 +25,9 @@ const navigation: {
   company: [
     { name: 'About', href: '/about' },
     { name: 'Blog', href: '/blog' },
-    { name: 'Contact', href: '/contact' },
     { name: 'Partners', href: '/partners' },
+    { name: 'Media Kit', href: '/media' },
+    { name: 'Contact', href: '/contact' },
   ],
   developers: [
     { name: 'Open Source', href: '/open-source' },
@@ -42,22 +43,22 @@ export function Footer() {
   return (
     <footer className="relative border-t border-gray-800 bg-gray-900">
       <Container>
-        <div className="py-20">
-          <div className="lg:grid lg:grid-cols-5 lg:gap-16">
-            <div className="space-y-6 lg:col-span-2">
-              <Logo className="h-24 w-auto" />
-              <p className="max-w-sm text-sm leading-relaxed text-gray-400">
+        <div className="py-12 sm:py-16 lg:py-20">
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:gap-8">
+            <div className="mb-12 space-y-4 text-center lg:mb-0 lg:max-w-sm lg:text-left">
+              <Logo className="mx-auto h-20 w-auto sm:h-24 lg:mx-0" />
+              <p className="mx-auto max-w-sm text-sm leading-relaxed text-gray-400 lg:mx-0">
                 Bitcoin-powered Savings and Credit Cooperative.
                 <br />
                 We build better money experiences for communities.
               </p>
             </div>
-            <div className="mt-16 grid grid-cols-4 gap-8 lg:col-span-3 lg:mt-0">
-              <div className="text-center">
-                <h3 className="text-xs font-semibold tracking-wider text-gray-400 uppercase">
+            <div className="grid grid-cols-2 gap-8 text-center sm:grid-cols-4 sm:text-left lg:flex lg:gap-x-16 xl:gap-x-20">
+              <div>
+                <h3 className="mb-1 text-sm font-bold tracking-wider text-white uppercase">
                   Products
                 </h3>
-                <ul role="list" className="mt-6 space-y-4">
+                <ul role="list" className="mt-4 space-y-3">
                   {navigation.products.map((item) => (
                     <li key={item.name}>
                       <Link
@@ -73,11 +74,11 @@ export function Footer() {
                   ))}
                 </ul>
               </div>
-              <div className="text-center">
-                <h3 className="text-xs font-semibold tracking-wider text-gray-400 uppercase">
+              <div>
+                <h3 className="mb-1 text-sm font-bold tracking-wider text-white uppercase">
                   Company
                 </h3>
-                <ul role="list" className="mt-6 space-y-4">
+                <ul role="list" className="mt-4 space-y-3">
                   {navigation.company.map((item) => (
                     <li key={item.name}>
                       <Link
@@ -93,11 +94,11 @@ export function Footer() {
                   ))}
                 </ul>
               </div>
-              <div className="text-center">
-                <h3 className="text-xs font-semibold tracking-wider text-gray-400 uppercase">
+              <div>
+                <h3 className="mb-1 text-sm font-bold tracking-wider text-white uppercase">
                   Developers
                 </h3>
-                <ul role="list" className="mt-6 space-y-4">
+                <ul role="list" className="mt-4 space-y-3">
                   {navigation.developers.map((item) => (
                     <li key={item.name}>
                       <Link
@@ -113,11 +114,11 @@ export function Footer() {
                   ))}
                 </ul>
               </div>
-              <div className="text-center">
-                <h3 className="text-xs font-semibold tracking-wider text-gray-400 uppercase">
+              <div>
+                <h3 className="mb-1 text-sm font-bold tracking-wider text-white uppercase">
                   Legal
                 </h3>
-                <ul role="list" className="mt-6 space-y-4">
+                <ul role="list" className="mt-4 space-y-3">
                   {navigation.legal.map((item) => (
                     <li key={item.name}>
                       <Link
@@ -135,7 +136,7 @@ export function Footer() {
               </div>
             </div>
           </div>
-          <div className="mt-16 border-t border-gray-800 pt-8">
+          <div className="mt-12 border-t border-gray-800 pt-8 sm:mt-16">
             <p className="text-center text-xs text-gray-500">
               &copy; {new Date().getFullYear()} Bitsacco. All rights reserved.
             </p>
