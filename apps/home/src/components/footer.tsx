@@ -49,7 +49,7 @@ export function Footer() {
               <p className="max-w-sm text-sm leading-relaxed text-gray-400">
                 Bitcoin-powered Savings and Credit Cooperative.
                 <br />
-                We building better money experiences for communities.
+                We build better money experiences for communities.
               </p>
             </div>
             <div className="mt-16 grid grid-cols-4 gap-8 lg:col-span-3 lg:mt-0">

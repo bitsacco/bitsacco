@@ -1,4 +1,5 @@
 import { getFAQs } from '@/sanity/queries'
+import type { ValidFAQ } from '@/types/faq'
 import { Container } from './container'
 import { FAQClient } from './faq-client'
 import { Heading, Subheading } from './text'
@@ -12,15 +13,7 @@ export async function FAQSection() {
 
   // Filter out FAQs with missing required fields
   const validFaqs = faqs.filter(
-    (
-      faq,
-    ): faq is {
-      _id: string
-      question: string
-      answer: string
-      category: string
-      order: number
-    } => faq.question !== null && faq.answer !== null,
+    (faq): faq is ValidFAQ => faq.question !== null && faq.answer !== null,
   )
 
   return (
