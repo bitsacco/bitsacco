@@ -1,0 +1,20 @@
+{
+  "name": "@bitsacco/types",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "dev": "tsc --project tsconfig.json --watch",
+    "clean": "rm -rf dist",
+    "lint": "eslint \"src/**/*.ts*\""
+  },
+  "devDependencies": {
+    "@bitsacco/eslint": "*",
+    "@bitsacco/tsconf": "*",
+    "typescript": "5.5.4"
+  }
+}
