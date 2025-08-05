@@ -49,13 +49,13 @@ function Hero() {
           </Lead>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button
-              href={`${appUrl}/auth/login`}
+              href={`${appUrl}/auth?q=login`}
               className="inline-flex items-center justify-center rounded-sm border-2 border-teal-400 bg-transparent px-10 py-3 text-base font-semibold tracking-wide text-teal-400 uppercase transition-all hover:bg-teal-400 hover:text-gray-900"
             >
               LOGIN
             </Button>
             <Button
-              href={`${appUrl}/auth/signup`}
+              href={`${appUrl}/auth?q=signup`}
               className="inline-flex items-center justify-center rounded-sm bg-teal-400 px-12 py-3.5 text-lg font-semibold tracking-wide text-gray-900 uppercase transition-all hover:bg-teal-500"
             >
               SIGNUP
