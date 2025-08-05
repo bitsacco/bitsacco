@@ -1,4 +1,4 @@
 module.exports = {
-  extends: ["@bitsacco/eslint/library.js"],
+  extends: [require.resolve("@bitsacco/eslint/library.js")],
   root: true,
 };
