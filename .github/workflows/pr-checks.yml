@@ -1,0 +1,49 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - package.json
+      - package-lock.json
+      - apps/**
+      - packages/**
+      - .github/workflows/pr-checks.yml
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Lint all packages
+        run: npm run lint
+        
+      - name: Build all packages
+        run: npm run build
+        env:
+          # Set required environment variables for build
+          # These can be dummy values for PR checks
+          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID || 'dummy-project-id' }}
+          NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET || 'production' }}
+          NEXT_PUBLIC_SUPPORT_WHATSAPP: ${{ secrets.NEXT_PUBLIC_SUPPORT_WHATSAPP || '+1234567890' }}
+          NEXT_PUBLIC_SUPPORT_EMAIL: ${{ secrets.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@example.com' }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL || 'https://app.example.com' }}
+          
+      - name: Run tests
+        run: npm run test --if-present
+        
+      - name: Type check
+        run: npx turbo run build --filter=@bitsacco/types
