@@ -36,11 +36,11 @@ jobs:
         env:
           # Set required environment variables for build
           # These can be dummy values for PR checks
-          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID || 'dummy-project-id' }}
-          NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET || 'production' }}
-          NEXT_PUBLIC_SUPPORT_WHATSAPP: ${{ secrets.NEXT_PUBLIC_SUPPORT_WHATSAPP || '+1234567890' }}
-          NEXT_PUBLIC_SUPPORT_EMAIL: ${{ secrets.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@example.com' }}
-          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL || 'https://app.example.com' }}
+          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ '' }}
+          NEXT_PUBLIC_SANITY_DATASET: ${{ '' }}
+          NEXT_PUBLIC_SUPPORT_WHATSAPP: ${{ '' }}
+          NEXT_PUBLIC_SUPPORT_EMAIL: ${{ '' }}
+          NEXT_PUBLIC_APP_URL: ${{ '' }}
           
       - name: Run tests
         run: npm run test --if-present
