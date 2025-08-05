@@ -38,11 +38,16 @@ export function Button({
   ...props
 }: ButtonProps) {
   // If a custom className is provided, use it without the variant styles
-  const finalClassName = className || clsx(variants[variant])
+  const baseClassName = clsx(variants[variant])
 
   if (typeof props.href === 'undefined') {
-    return <Headless.Button {...props} className={finalClassName} />
+    // For Headless Button, className can be a string or function
+    return <Headless.Button {...props} className={className || baseClassName} />
   }
 
-  return <Link {...props} className={finalClassName} />
+  // For Link component, className must be a string
+  const linkClassName =
+    typeof className === 'string' ? className : baseClassName
+
+  return <Link {...props} className={linkClassName} />
 }
