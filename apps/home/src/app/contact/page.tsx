@@ -100,11 +100,11 @@ export default function ContactPage() {
                   onClick={() => setShowEmailForm(!showEmailForm)}
                   className={`group rounded-lg border p-6 text-center transition-colors ${
                     showEmailForm
-                      ? 'border-orange-500 bg-orange-50 dark:border-orange-500 dark:bg-orange-900/20'
-                      : 'border-gray-200 hover:border-orange-500 hover:bg-orange-50 dark:border-gray-700 dark:hover:border-orange-500 dark:hover:bg-orange-900/20'
+                      ? 'border-teal-500 bg-teal-50 dark:border-teal-500 dark:bg-teal-900/20'
+                      : 'border-gray-200 hover:border-teal-500 hover:bg-teal-50 dark:border-gray-700 dark:hover:border-teal-500 dark:hover:bg-teal-900/20'
                   }`}
                 >
-                  <EnvelopeSimpleIcon className="mx-auto mb-4 h-12 w-12 text-orange-600 transition-transform group-hover:scale-110" />
+                  <EnvelopeSimpleIcon className="mx-auto mb-4 h-12 w-12 text-teal-600 transition-transform group-hover:scale-110" />
                   <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
                     Email
                   </h3>
@@ -168,7 +168,7 @@ export default function ContactPage() {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-orange-500 focus:ring-orange-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-teal-500 focus:ring-teal-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     />
                   </div>
 
@@ -186,7 +186,7 @@ export default function ContactPage() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-orange-500 focus:ring-orange-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-teal-500 focus:ring-teal-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     />
                   </div>
 
@@ -204,7 +204,7 @@ export default function ContactPage() {
                       value={formData.subject}
                       onChange={handleChange}
                       required
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-orange-500 focus:ring-orange-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-teal-500 focus:ring-teal-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     />
                   </div>
 
@@ -222,7 +222,7 @@ export default function ContactPage() {
                       value={formData.message}
                       onChange={handleChange}
                       required
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-orange-500 focus:ring-orange-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-teal-500 focus:ring-teal-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     />
                   </div>
 
@@ -241,7 +241,7 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full rounded-md bg-orange-600 px-4 py-2 text-white hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                    className="w-full rounded-md bg-teal-600 px-4 py-2 text-white hover:bg-teal-700 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isSubmitting ? 'Sending...' : 'Send Message'}
                   </button>
