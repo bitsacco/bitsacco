@@ -34,18 +34,14 @@ function DesktopNav() {
           {label}
         </Link>
       ))}
-      <Button
-        href={`${appUrl}/auth?q=login`}
-        className="ml-4 inline-flex items-center justify-center rounded-sm border-2 border-teal-400 bg-transparent px-8 py-2.5 text-sm font-semibold tracking-wide text-teal-400 uppercase transition-all hover:bg-teal-400 hover:text-gray-900"
-      >
-        LOGIN
-      </Button>
-      <Button
-        href={`${appUrl}/auth?q=signup`}
-        className="inline-flex items-center justify-center rounded-sm bg-teal-400 px-10 py-3 text-sm font-semibold tracking-wide text-gray-900 uppercase transition-all hover:bg-teal-500"
-      >
-        SIGNUP
-      </Button>
+      <div className="flex items-center gap-3">
+        <Button href={`${appUrl}/auth?q=login`} variant="tealOutline">
+          LOGIN
+        </Button>
+        <Button href={`${appUrl}/auth?q=signup`} variant="tealPrimary">
+          SIGNUP
+        </Button>
+      </div>
     </nav>
   )
 }
@@ -67,7 +63,7 @@ function MobileNav() {
       <div className="flex h-screen flex-col bg-gray-900/95 backdrop-blur-xl">
         <div className="flex items-center justify-between border-b border-gray-800 px-6 py-4">
           <Link href="/" className="flex items-center">
-            <Logo className="h-24 w-auto" />
+            <Logo className="h-18 w-auto" />
           </Link>
           <div className="flex items-center gap-2">
             <DisclosureButton
@@ -149,7 +145,7 @@ export function Navbar({ banner }: { banner?: React.ReactNode }) {
             <div className="relative flex gap-6">
               <PlusGridItem className="py-3">
                 <Link href="/" title="Home" className="flex items-center">
-                  <Logo className="h-24 w-auto" />
+                  <Logo className="h-18 w-auto" />
                 </Link>
               </PlusGridItem>
               {banner && (

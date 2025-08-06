@@ -36,7 +36,15 @@ function Hero() {
             className="mb-6 text-5xl font-bold tracking-tight text-white sm:text-7xl"
             as="h1"
           >
-            PLAN · <span className="text-teal-400">SAVE</span> · GROW
+            <span className="flex flex-col sm:block">
+              <span className="block sm:inline">PLAN</span>
+              <span className="block text-3xl sm:hidden">·</span>
+              <span className="hidden sm:inline"> · </span>
+              <span className="block text-teal-400 sm:inline">SAVE</span>
+              <span className="block text-3xl sm:hidden">·</span>
+              <span className="hidden sm:inline"> · </span>
+              <span className="block sm:inline">GROW</span>
+            </span>
           </Heading>
           <div className="mb-8 inline-flex items-center rounded-sm bg-teal-500/10 px-4 py-2">
             <span className="text-sm font-medium text-teal-400">
@@ -48,16 +56,10 @@ function Hero() {
             together with community, friends and family.
           </Lead>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
-            <Button
-              href={`${appUrl}/auth?q=login`}
-              className="inline-flex items-center justify-center rounded-sm border-2 border-teal-400 bg-transparent px-10 py-3 text-base font-semibold tracking-wide text-teal-400 uppercase transition-all hover:bg-teal-400 hover:text-gray-900"
-            >
+            <Button href={`${appUrl}/auth?q=login`} variant="tealOutline">
               LOGIN
             </Button>
-            <Button
-              href={`${appUrl}/auth?q=signup`}
-              className="inline-flex items-center justify-center rounded-sm bg-teal-400 px-12 py-3.5 text-lg font-semibold tracking-wide text-gray-900 uppercase transition-all hover:bg-teal-500"
-            >
+            <Button href={`${appUrl}/auth?q=signup`} variant="tealPrimary">
               SIGNUP
             </Button>
           </div>
