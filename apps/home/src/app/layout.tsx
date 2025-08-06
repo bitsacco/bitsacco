@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import React from 'react'
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.bitsacco.com'),
   title: 'Bitsacco - Bitcoin-powered financial services',
   icons: {
     icon: '/logo.svg',

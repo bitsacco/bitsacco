@@ -46,7 +46,7 @@ export function Footer() {
         <div className="py-12 sm:py-16 lg:py-20">
           <div className="flex flex-col lg:flex-row lg:justify-between lg:gap-8">
             <div className="mb-12 space-y-4 text-center lg:mb-0 lg:max-w-sm lg:text-left">
-              <Logo className="mx-auto h-20 w-auto sm:h-24 lg:mx-0" />
+              <Logo className="h-18 w-auto" />
               <p className="mx-auto max-w-sm text-sm leading-relaxed text-gray-400 lg:mx-0">
                 Bitcoin-powered Savings and Credit Cooperative.
                 <br />

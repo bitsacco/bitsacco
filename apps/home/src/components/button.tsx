@@ -23,6 +23,27 @@ const variants = {
     'text-sm font-medium whitespace-nowrap text-neutral-950 dark:text-white',
     'data-disabled:bg-transparent data-disabled:opacity-40 data-hover:bg-neutral-50 dark:data-hover:bg-neutral-800',
   ),
+  tealPrimary: clsx(
+    'inline-flex items-center justify-center rounded-md px-12 py-3',
+    'bg-teal-500 text-white',
+    'text-base font-semibold tracking-wide whitespace-nowrap uppercase',
+    'transition-all hover:bg-teal-400',
+    'disabled:cursor-not-allowed disabled:bg-teal-300 disabled:opacity-50',
+    'focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 focus:outline-none',
+  ),
+  tealOutline: clsx(
+    'inline-flex items-center justify-center rounded-md px-12 py-3',
+    'border-2 border-teal-500 bg-transparent text-teal-500',
+    'text-base font-semibold tracking-wide whitespace-nowrap uppercase',
+    'transition-all hover:bg-teal-500/10',
+    'disabled:cursor-not-allowed disabled:border-teal-300 disabled:text-teal-300 disabled:opacity-50',
+    'focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 focus:outline-none',
+  ),
+  tealSubmit: clsx(
+    'w-full rounded-md bg-teal-600 px-4 py-2 text-white',
+    'hover:bg-teal-700 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 focus:outline-none',
+    'disabled:cursor-not-allowed disabled:opacity-50',
+  ),
 }
 
 type ButtonProps = {
