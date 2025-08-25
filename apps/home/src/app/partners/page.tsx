@@ -1,3 +1,5 @@
+import { notFound } from 'next/navigation'
+import { PortableText } from 'next-sanity'
 import { Button } from '@/components/button'
 import { Container } from '@/components/container'
 import { Footer } from '@/components/footer'
@@ -9,8 +11,6 @@ import { Heading, Lead } from '@/components/text'
 import { image } from '@/sanity/image'
 import { getPage } from '@/sanity/queries'
 import type { Metadata } from 'next'
-import { PortableText } from 'next-sanity'
-import { notFound } from 'next/navigation'
 
 const KNOWN_PAGE_SLUG = 'partners'
 const PARTNERS_FORM_URL = process.env.NEXT_PUBLIC_PARTNERS_FORM_URL || ''
@@ -87,7 +87,7 @@ export default async function PartnersPage() {
               </h2>
               <p className="mt-4 text-lg leading-relaxed text-gray-300">
                 Join us in building the future of community-driven finance in
-                Africa. Let's create lasting impact together.
+                Africa. Let&apos;s create lasting impact together.
               </p>
               {PARTNERS_FORM_URL && (
                 <div className="mt-8">

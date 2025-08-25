@@ -5,7 +5,7 @@ import { Heading, Subheading } from './text'
 const KNOWN_PRODUCT_PAGE_TAG = 'product-page'
 
 export async function ProductsSection() {
-  let productPages = await getPagesByTag(KNOWN_PRODUCT_PAGE_TAG)
+  const productPages = await getPagesByTag(KNOWN_PRODUCT_PAGE_TAG)
 
   if (!productPages || productPages.length === 0) {
     return null

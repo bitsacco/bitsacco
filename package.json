@@ -11,12 +11,16 @@
     "stop": "docker compose -p bitsacco down",
     "dc": "docker compose -p bitsacco",
     "dev": "turbo run dev",
-    "dev:web": "turbo dev --filter=@bitsacco/home...",
+    "dev:home": "turbo dev --filter=@bitsacco/home...",
+    "dev:web": "turbo dev --filter=@bitsacco/web...",
     "build": "turbo run build",
-    "build:web": "turbo run build --filter=@bitsacco/home...",
+    "build:home": "turbo run build --filter=@bitsacco/home...",
+    "build:web": "turbo run build --filter=@bitsacco/web...",
     "clean": "turbo run clean",
     "clean:docker": "docker compose -p bitsacco down --volumes --remove-orphans && docker system prune -f",
     "lint": "turbo run lint",
+    "lint:fix": "turbo run lint -- --fix",
+    "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "logs": "docker compose -p bitsacco logs -f"
@@ -26,14 +30,13 @@
     "@types/qrcode": "^1.5.5",
     "axios": "^1.9.0",
     "jsonwebtoken": "^9.0.2",
-    "next-auth": "^4.24.11",
     "qrcode": "^1.5.4"
   },
   "devDependencies": {
-    "prettier": "^3.2.5",
+    "prettier": "^3.3.2",
     "turbo": "^2.3.0"
   },
-  "packageManager": "npm@10.9.2",
+  "packageManager": "npm@10.9.3",
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=7.0.0"

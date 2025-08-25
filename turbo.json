@@ -6,12 +6,21 @@
       "outputs": ["dist/**", ".next/**", "!.next/cache/**", "public/dist/**", "build/**"],
       "dependsOn": ["^build"]
     },
-    "@bitsacco/types#build": {
+    "@bitsacco/core#build": {
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": ["dist/**"],
+      "dependsOn": []
+    },
+    "@bitsacco/ui#build": {
       "inputs": ["$TURBO_DEFAULT$"],
       "outputs": ["dist/**"],
       "dependsOn": []
     },
     "@bitsacco/home#build": {
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**", "public/dist/**"],
+      "dependsOn": ["^build"]
+    },
+    "@bitsacco/web#build": {
       "outputs": ["dist/**", ".next/**", "!.next/cache/**", "public/dist/**"],
       "dependsOn": ["^build"]
     },
@@ -22,17 +31,30 @@
     "lint": {
       "dependsOn": ["^build"]
     },
+    "typecheck": {
+      "dependsOn": ["^build"]
+    },
     "dev": {
       "cache": false,
       "persistent": true,
       "dependsOn": ["^build"]
     },
-    "@bitsacco/types#dev": {
+    "@bitsacco/core#dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": []
+    },
+    "@bitsacco/ui#dev": {
       "cache": false,
       "persistent": true,
       "dependsOn": []
     },
     "@bitsacco/home#dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^build"]
+    },
+    "@bitsacco/web#dev": {
       "cache": false,
       "persistent": true,
       "dependsOn": ["^build"]

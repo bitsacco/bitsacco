@@ -42,7 +42,7 @@ export const postType = defineType({
             return true
           }
 
-          let featuredPosts = await getClient({ apiVersion })
+          const featuredPosts = await getClient({ apiVersion })
             .withConfig({ perspective: 'previewDrafts' })
             .fetch<number>(
               groq`count(*[_type == 'post' && isFeatured == true])`,

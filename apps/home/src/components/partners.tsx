@@ -1,6 +1,6 @@
+import Link from 'next/link'
 import { image } from '@/sanity/image'
 import { getPartners } from '@/sanity/queries'
-import Link from 'next/link'
 import { PartnersCarousel } from './partners-carousel'
 
 export async function Partners() {
