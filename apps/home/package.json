@@ -9,13 +9,13 @@
     "prebuild": "node scripts/check-sanity-config.js",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint . --ext .ts,.tsx --ignore-pattern '.next/**' --ignore-pattern 'node_modules/**'",
+    "typecheck": "tsc --noEmit",
     "extract": "sanity schema extract --path=src/sanity/extract.json",
     "typegen": "npm run extract && sanity typegen generate"
   },
   "dependencies": {
     "@headlessui/react": "^2.1.1",
-    "@bitsacco/types": "*",
     "@phosphor-icons/react": "^2.1.10",
     "@sanity/icons": "^3.7.0",
     "@sanity/image-url": "^1.1.0",
@@ -34,6 +34,7 @@
     "styled-components": "^6.1.18"
   },
   "devDependencies": {
+    "@bitsacco/eslint-config": "*",
     "@bitsacco/tsconf": "*",
     "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^20",

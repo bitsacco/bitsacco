@@ -1,4 +1,3 @@
-import type { SchemaTypeDefinition } from 'sanity'
 
 import { authorType } from './types/author'
 import { blockContentType } from './types/block-content'
@@ -8,6 +7,7 @@ import { pageType } from './types/page'
 import { partnerType } from './types/partner'
 import { postType } from './types/post'
 import { tagType } from './types/tag'
+import type { SchemaTypeDefinition } from 'sanity'
 
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [

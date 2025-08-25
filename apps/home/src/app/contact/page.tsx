@@ -1,13 +1,13 @@
 'use client'
 
+import { EnvelopeSimpleIcon, WhatsappLogoIcon } from '@phosphor-icons/react'
+import { useState } from 'react'
 import { Button } from '@/components/button'
 import { Container } from '@/components/container'
 import { Footer } from '@/components/footer'
 import { FormInput, FormTextarea } from '@/components/form-input'
 import { Navbar } from '@/components/navbar'
 import { Heading, Lead } from '@/components/text'
-import { EnvelopeSimpleIcon, WhatsappLogoIcon } from '@phosphor-icons/react'
-import { useState } from 'react'
 
 export default function ContactPage() {
   const supportNumber = process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || ''

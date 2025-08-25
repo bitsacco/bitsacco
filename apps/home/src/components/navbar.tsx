@@ -1,7 +1,5 @@
 'use client'
 
-import { Container } from '@/components/container'
-import { PlusGrid, PlusGridItem, PlusGridRow } from '@/components/plus-grid'
 import {
   Disclosure,
   DisclosureButton,
@@ -9,6 +7,8 @@ import {
 } from '@headlessui/react'
 import { ListIcon, XIcon } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
+import { Container } from '@/components/container'
+import { PlusGrid, PlusGridItem, PlusGridRow } from '@/components/plus-grid'
 import { Button } from './button'
 import { Link } from './link'
 import { Logo } from './logo'

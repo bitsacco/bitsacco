@@ -1,11 +1,3 @@
-import { Button } from '@/components/button'
-import { Container } from '@/components/container'
-import { Footer } from '@/components/footer'
-import { Link } from '@/components/link'
-import { Navbar } from '@/components/navbar'
-import { Heading, Lead } from '@/components/text'
-import { image } from '@/sanity/image'
-import { getCategories, getPosts, getPostsCount } from '@/sanity/queries'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import {
   CaretLeftIcon,
@@ -16,8 +8,16 @@ import {
 } from '@phosphor-icons/react/dist/ssr'
 import { clsx } from 'clsx'
 import dayjs from 'dayjs'
-import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { Button } from '@/components/button'
+import { Container } from '@/components/container'
+import { Footer } from '@/components/footer'
+import { Link } from '@/components/link'
+import { Navbar } from '@/components/navbar'
+import { Heading, Lead } from '@/components/text'
+import { image } from '@/sanity/image'
+import { getCategories, getPosts, getPostsCount } from '@/sanity/queries'
+import type { Metadata } from 'next'
 
 const title = 'The Teal Horse | Bitsacco Blog'
 const description = 'The latest stories, updates, and news from Bitsacco.'
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 const postsPerPage = 5
 
 async function Categories({ selected }: { selected?: string }) {
-  let categories = await getCategories()
+  const categories = await getCategories()
 
   if (!categories || categories.length === 0) {
     return null
@@ -89,7 +89,7 @@ async function Categories({ selected }: { selected?: string }) {
 }
 
 async function Posts({ page, category }: { page: number; category?: string }) {
-  let posts = await getPosts(
+  const posts = await getPosts(
     (page - 1) * postsPerPage,
     page * postsPerPage,
     category,
@@ -165,7 +165,7 @@ async function Pagination({
   category?: string
 }) {
   function url(page: number) {
-    let params = new URLSearchParams()
+    const params = new URLSearchParams()
 
     if (category) params.set('category', category)
     if (page > 1) params.set('page', page.toString())
@@ -176,11 +176,11 @@ async function Pagination({
   let totalPosts = await getPostsCount(category)
   if (!totalPosts) totalPosts = 0
 
-  let hasPreviousPage = page - 1
-  let previousPageUrl = hasPreviousPage ? url(page - 1) : undefined
-  let hasNextPage = page * postsPerPage < totalPosts
-  let nextPageUrl = hasNextPage ? url(page + 1) : undefined
-  let pageCount = Math.ceil(totalPosts / postsPerPage)
+  const hasPreviousPage = page - 1
+  const previousPageUrl = hasPreviousPage ? url(page - 1) : undefined
+  const hasNextPage = page * postsPerPage < totalPosts
+  const nextPageUrl = hasNextPage ? url(page + 1) : undefined
+  const pageCount = Math.ceil(totalPosts / postsPerPage)
 
   if (pageCount < 2) {
     return null
@@ -226,14 +226,14 @@ export default async function Blog(props: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const searchParams = await props.searchParams
-  let page =
+  const page =
     'page' in searchParams
       ? typeof searchParams.page === 'string' && parseInt(searchParams.page) > 1
         ? parseInt(searchParams.page)
         : notFound()
       : 1
 
-  let category =
+  const category =
     typeof searchParams.category === 'string'
       ? searchParams.category
       : undefined

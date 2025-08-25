@@ -1,3 +1,7 @@
+import { CaretLeftIcon } from '@phosphor-icons/react/dist/ssr'
+import dayjs from 'dayjs'
+import { notFound } from 'next/navigation'
+import { PortableText } from 'next-sanity'
 import { Button } from '@/components/button'
 import { Container } from '@/components/container'
 import { Footer } from '@/components/footer'
@@ -9,17 +13,13 @@ import { ProseContent } from '@/components/prose-content'
 import { Heading } from '@/components/text'
 import { image } from '@/sanity/image'
 import { getPost } from '@/sanity/queries'
-import { CaretLeftIcon } from '@phosphor-icons/react/dist/ssr'
-import dayjs from 'dayjs'
 import type { Metadata } from 'next'
-import { PortableText } from 'next-sanity'
-import { notFound } from 'next/navigation'
 
 export async function generateMetadata(props: {
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const params = await props.params
-  let post = await getPost(params.slug)
+  const post = await getPost(params.slug)
 
   if (!post) {
     return {}
@@ -67,7 +67,7 @@ export default async function BlogPost(props: {
   params: Promise<{ slug: string }>
 }) {
   const params = await props.params
-  let post = (await getPost(params.slug)) || notFound()
+  const post = (await getPost(params.slug)) || notFound()
 
   return (
     <>

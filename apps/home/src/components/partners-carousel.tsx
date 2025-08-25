@@ -1,9 +1,9 @@
 'use client'
 
-import { image } from '@/sanity/image'
-import { PARTNERS_QUERYResult } from '@/sanity/types'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
+import { image } from '@/sanity/image'
+import { type PARTNERS_QUERYResult } from '@/sanity/types'
 
 interface PartnersCarouselProps {
   partners: PARTNERS_QUERYResult

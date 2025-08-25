@@ -123,18 +123,9 @@ npm run dev
 
 ## 📚 Shared Packages
 
-### `@bitsacco/types`
+### `@bitsacco/core`
 
-Shared TypeScript type definitions used across all applications.
-
-### `@bitsacco/eslint`
-
-Shared ESLint configurations:
-
-- `library.js` - For shared packages
-- `next.js` - For Next.js applications
-- `react-internal.js` - For React components
-- `server.js` - For Node.js backends
+Shared business logic, utils and typescript type definitions across all apps
 
 ### `@bitsacco/tsconf`
 

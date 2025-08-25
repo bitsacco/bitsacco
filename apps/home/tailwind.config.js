@@ -1,5 +1,3 @@
-import { tailwindPreset } from '@bitsacco/types';
-
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -7,12 +5,12 @@ export default {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  presets: [tailwindPreset],
+  presets: [],
   theme: {
     extend: {
       // Keep existing custom extensions
       fontFamily: {
-        sans: ['Switzer', ...tailwindPreset.theme.extend.fontFamily.sans],
+        sans: ['Switzer'],
       },
       borderRadius: {
         '4xl': '2rem',

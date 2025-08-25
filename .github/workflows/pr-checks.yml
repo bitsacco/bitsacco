@@ -44,6 +44,4 @@ jobs:
           
       - name: Run tests
         run: npm run test --if-present
-        
-      - name: Type check
-        run: npx turbo run build --filter=@bitsacco/types
+

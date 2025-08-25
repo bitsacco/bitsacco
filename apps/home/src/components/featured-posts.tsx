@@ -1,12 +1,12 @@
+import { ArrowRightIcon } from '@phosphor-icons/react/dist/ssr'
+import dayjs from 'dayjs'
 import { Container } from '@/components/container'
 import { Link } from '@/components/link'
 import { Heading, Subheading } from '@/components/text'
 import { getFeaturedPosts } from '@/sanity/queries'
-import { ArrowRightIcon } from '@phosphor-icons/react/dist/ssr'
-import dayjs from 'dayjs'
 
 export async function FeaturedBlog() {
-  let featuredPosts = await getFeaturedPosts(3)
+  const featuredPosts = await getFeaturedPosts(3)
 
   if (!featuredPosts || featuredPosts.length === 0) {
     return null

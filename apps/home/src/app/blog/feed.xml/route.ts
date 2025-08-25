@@ -1,12 +1,12 @@
+import assert from 'node:assert'
+import { Feed } from 'feed'
 import { image } from '@/sanity/image'
 import { getPostsForFeed } from '@/sanity/queries'
-import { Feed } from 'feed'
-import assert from 'node:assert'
 
 export async function GET(req: Request) {
-  let siteUrl = new URL(req.url).origin
+  const siteUrl = new URL(req.url).origin
 
-  let feed = new Feed({
+  const feed = new Feed({
     title: 'Bitsacco Blog',
     description: 'Bitsacco Blog',
     author: {
@@ -23,7 +23,7 @@ export async function GET(req: Request) {
     },
   })
 
-  let posts = await getPostsForFeed()
+  const posts = await getPostsForFeed()
 
   if (!posts) {
     return new Response(feed.rss2(), {
@@ -39,7 +39,7 @@ export async function GET(req: Request) {
       assert(typeof post.slug === 'string')
       assert(typeof post.excerpt === 'string')
       assert(typeof post.publishedAt === 'string')
-    } catch (error) {
+    } catch {
       console.log('Post is missing required fields for RSS feed:', post)
       return
     }

@@ -1,9 +1,0 @@
-{
-  "extends": "@bitsacco/tsconf/ts-library.json",
-  "exclude": ["dist", "node_modules"],
-  "include": ["src"],
-  "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./src"
-  }
-}

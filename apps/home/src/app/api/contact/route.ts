@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
 // Simple in-memory rate limiting (consider Redis for production)

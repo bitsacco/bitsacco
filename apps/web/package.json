@@ -1,0 +1,38 @@
+{
+  "name": "@bitsacco/web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --ext .ts,.tsx --ignore-pattern '.next/**' --ignore-pattern 'node_modules/**'",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .next"
+  },
+  "dependencies": {
+    "@bitsacco/core": "*",
+    "@bitsacco/ui": "*",
+    "next": "15.3.3",
+    "next-auth": "5.0.0-beta.28",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@bitsacco/eslint-config": "*",
+    "@bitsacco/tsconf": "*",
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/node": "^20",
+    "@types/react": "19.1.6",
+    "@types/react-dom": "19.1.6",
+    "eslint": "^8",
+    "eslint-config-next": "15.3.3",
+    "postcss": "^8.4.40",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5"
+  },
+  "overrides": {
+    "@types/react": "19.1.6",
+    "@types/react-dom": "19.1.6"
+  }
+}
