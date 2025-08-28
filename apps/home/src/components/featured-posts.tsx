@@ -1,9 +1,9 @@
+import { ArrowRightIcon } from '@phosphor-icons/react/dist/ssr'
+import dayjs from 'dayjs'
 import { Container } from '@/components/container'
 import { Link } from '@/components/link'
 import { Heading, Subheading } from '@/components/text'
 import { getFeaturedPosts } from '@/sanity/queries'
-import { ArrowRightIcon } from '@phosphor-icons/react/dist/ssr'
-import dayjs from 'dayjs'
 
 export async function FeaturedBlog() {
   const featuredPosts = await getFeaturedPosts(3)

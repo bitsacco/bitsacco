@@ -1,8 +1,8 @@
 'use client'
 
-import type { ValidFAQ } from '@/types/faq'
 import { ChevronDownIcon } from '@sanity/icons'
 import { useState } from 'react'
+import type { ValidFAQ } from '@/types/faq'
 
 interface FAQClientProps {
   faqs: ValidFAQ[]

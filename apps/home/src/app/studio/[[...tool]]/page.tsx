@@ -7,8 +7,8 @@
  * https://github.com/sanity-io/next-sanity
  */
 
-import { isSanityConfigured } from '@/sanity/env'
 import { NextStudio } from 'next-sanity/studio'
+import { isSanityConfigured } from '@/sanity/env'
 import config from '../../../../sanity.config'
 
 export const dynamic = 'force-static'

@@ -67,8 +67,17 @@ export type {
   GetTransactionsRequest,
 } from "./wallet";
 
+// Exchange types
+export type { QuoteRequest, QuoteResponse, ExchangeRateData } from "./exchange";
+
 // Re-export enums
 export { Role } from "./auth";
 export { ChamaMemberRole } from "./chama";
 export { ShareStatus, ShareOfferStatus } from "./membership";
 export { TransactionType, TransactionStatus } from "./wallet";
+export {
+  Currency,
+  SATS_PER_BTC,
+  MSATS_PER_BTC,
+  DEFAULT_REFRESH_INTERVAL,
+} from "./exchange";
