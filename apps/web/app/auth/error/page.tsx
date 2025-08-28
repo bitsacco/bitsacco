@@ -45,7 +45,7 @@ function AuthErrorContent() {
         <div className="space-y-8">
           <div>
             <div className="flex justify-center mb-8">
-              <Logo size="lg" />
+              <Logo />
             </div>
           </div>
 
@@ -98,7 +98,7 @@ function AuthErrorContent() {
                 )}
 
                 <Link href="/">
-                  <Button variant="tealGhost" size="lg" fullWidth>
+                  <Button variant="tealOutline" size="lg" fullWidth>
                     Back to Home
                   </Button>
                 </Link>

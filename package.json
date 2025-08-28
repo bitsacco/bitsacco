@@ -28,6 +28,7 @@
     "logs": "docker compose -p bitsacco logs -f"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.7",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/qrcode": "^1.5.5",
     "axios": "^1.9.0",

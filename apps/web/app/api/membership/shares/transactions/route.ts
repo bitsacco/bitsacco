@@ -50,15 +50,28 @@ export async function GET(req: NextRequest) {
         2: "offer",
       };
 
+      // Type for API response that may have numeric status/type
+      type ApiSharesTx = Omit<SharesTx, "status" | "type"> & {
+        status: number | string;
+        type?: number | string;
+      };
+
       // Extract and transform the nested structure
       const transformedData: UserShareTxsResponse & { totalShares?: number } = {
         transactions:
           sharesData.transactions?.map(
-            (tx: SharesTx & { status?: number; type?: number }) => ({
-              ...tx,
-              status: statusMap[tx.status] || tx.status,
-              type: typeMap[tx.type] || "subscription", // Default to subscription if type is missing
-            }),
+            (tx: ApiSharesTx): SharesTx =>
+              ({
+                ...tx,
+                status:
+                  typeof tx.status === "number"
+                    ? statusMap[tx.status]
+                    : tx.status,
+                type:
+                  typeof tx.type === "number"
+                    ? typeMap[tx.type]
+                    : tx.type || "subscription",
+              }) as SharesTx,
           ) || [],
         page: sharesData.page || 0,
         size: sharesData.size || size,
