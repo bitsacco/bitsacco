@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import { Button } from '@/components/button'
 import { Container } from '@/components/container'
 import { FAQSection } from '@/components/faq'
@@ -6,6 +5,7 @@ import { Footer } from '@/components/footer'
 import { Navbar } from '@/components/navbar'
 import { Heading, Lead } from '@/components/text'
 import type { Metadata } from 'next'
+import Image from 'next/image'
 
 const title = 'Bitsacco'
 const description =

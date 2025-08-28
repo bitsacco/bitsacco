@@ -20,8 +20,6 @@ export function useCoreAuth() {
           name: session.user.name || undefined,
         },
         roles: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
       };
 
       // This allows the core package to have user context for API calls

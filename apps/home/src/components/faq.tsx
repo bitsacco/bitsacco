@@ -1,8 +1,8 @@
 import { getFAQs } from '@/sanity/queries'
+import type { ValidFAQ } from '@/types/faq'
 import { Container } from './container'
 import { FAQClient } from './faq-client'
 import { Heading, Subheading } from './text'
-import type { ValidFAQ } from '@/types/faq'
 
 export async function FAQSection() {
   const faqs = await getFAQs()

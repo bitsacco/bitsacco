@@ -1,7 +1,3 @@
-import { CaretLeftIcon } from '@phosphor-icons/react/dist/ssr'
-import dayjs from 'dayjs'
-import { notFound } from 'next/navigation'
-import { PortableText } from 'next-sanity'
 import { Button } from '@/components/button'
 import { Container } from '@/components/container'
 import { Footer } from '@/components/footer'
@@ -13,7 +9,12 @@ import { ProseContent } from '@/components/prose-content'
 import { Heading } from '@/components/text'
 import { image } from '@/sanity/image'
 import { getPost } from '@/sanity/queries'
+import { CaretLeftIcon } from '@phosphor-icons/react/dist/ssr'
+import dayjs from 'dayjs'
 import type { Metadata } from 'next'
+import { PortableText } from 'next-sanity'
+import Image from 'next/image'
+import { notFound } from 'next/navigation'
 
 export async function generateMetadata(props: {
   params: Promise<{ slug: string }>
@@ -91,9 +92,11 @@ export default async function BlogPost(props: {
               {post.author && (
                 <div className="flex items-center gap-3">
                   {post.author.image && (
-                    <img
+                    <Image
                       alt=""
                       src={image(post.author.image).size(40, 40).url()}
+                      width={40}
+                      height={40}
                       className="size-10 rounded-full object-cover ring-1 ring-neutral-200 dark:ring-neutral-700"
                     />
                   )}

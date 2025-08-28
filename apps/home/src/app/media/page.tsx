@@ -1,5 +1,3 @@
-import { notFound } from 'next/navigation'
-import { PortableText } from 'next-sanity'
 import { Container } from '@/components/container'
 import { Footer } from '@/components/footer'
 import { HeroImage } from '@/components/hero-image'
@@ -10,6 +8,8 @@ import { Heading, Lead } from '@/components/text'
 import { image } from '@/sanity/image'
 import { getPage } from '@/sanity/queries'
 import type { Metadata } from 'next'
+import { PortableText } from 'next-sanity'
+import { notFound } from 'next/navigation'
 
 const KNOWN_PAGE_SLUG = 'media-and-press-kit'
 
