@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useState, useEffect } from "react";
+import { Logo } from "@/components/Logo";
 import {
   ArrowsClockwise,
   WhatsappLogo,
@@ -15,6 +15,8 @@ import { apiClient } from "@/lib/auth";
 
 export default function Home() {
   const [isDark, setIsDark] = useState(false);
+  const whatsappNumber =
+    process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "+254708420214";
 
   const { quote, loading, showBtcRate, setShowBtcRate, refresh, kesToSats } =
     useExchangeRate({ apiClient });
@@ -39,16 +41,7 @@ export default function Home() {
       {/* Navigation Header */}
       <header className="container mx-auto px-4 py-4">
         <nav className="flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-3">
-            <Image
-              src="/assets/logo.svg"
-              alt="Bitsacco Logo"
-              width={40}
-              height={40}
-              className="w-10 h-10"
-            />
-            <span className="text-2xl font-bold text-teal-500">BITSACCO</span>
-          </Link>
+          <Logo isDark={isDark} />
 
           {/* Bitcoin Rate Display */}
           <div
@@ -164,7 +157,7 @@ export default function Home() {
 
       {/* WhatsApp Floating Button */}
       <a
-        href="https://wa.me/254700000000"
+        href={`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, "")}`}
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-8 right-8 w-14 h-14 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 transition-all shadow-lg z-50"

@@ -74,3 +74,6 @@ jobs:
             ${{ secrets.DOCKER_BITSACCO_OWNER }}/web:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_PUBLIC_SUPPORT_WHATSAPP=${{ secrets.NEXT_PUBLIC_SUPPORT_WHATSAPP }}
+            NEXT_PUBLIC_SUPPORT_EMAIL=${{ secrets.NEXT_PUBLIC_SUPPORT_EMAIL }}
