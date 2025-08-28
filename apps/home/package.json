@@ -3,18 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "run-p dev:*",
-    "dev:next": "next dev",
-    "dev:typegen": "nodemon --watch 'src/sanity/**/*.ts' --ignore 'src/sanity/extract.json' --ignore 'src/sanity/types.ts' --ext ts --exec 'node scripts/check-sanity-config.js'",
-    "prebuild": "node scripts/check-sanity-config.js",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx --ignore-pattern '.next/**' --ignore-pattern 'node_modules/**'",
     "typecheck": "tsc --noEmit",
-    "extract": "sanity schema extract --path=src/sanity/extract.json",
-    "typegen": "npm run extract && sanity typegen generate"
+    "clean": "rm -rf .next",
+    "sanity:extract": "sanity schema extract --path=src/sanity/extract.json",
+    "sanity:typegen": "npm run sanity:extract && sanity typegen generate"
   },
   "dependencies": {
+    "@bitsacco/ui": "*",
     "@headlessui/react": "^2.1.1",
     "@phosphor-icons/react": "^2.1.10",
     "@sanity/icons": "^3.7.0",
@@ -36,19 +35,17 @@
   "devDependencies": {
     "@bitsacco/eslint-config": "*",
     "@bitsacco/tsconf": "*",
-    "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^20",
     "@types/react": "19.1.6",
     "@types/react-dom": "19.1.6",
     "eslint": "^8",
     "eslint-config-next": "15.3.3",
-    "nodemon": "^3.1.10",
-    "npm-run-all": "^4.1.5",
     "postcss": "^8.4.40",
     "prettier": "^3.3.2",
     "prettier-plugin-organize-imports": "^4.0.0",
     "prettier-plugin-tailwindcss": "^0.6.10",
-    "tailwindcss": "^4.0.0",
+    "tailwindcss": "^3.4.17",
+    "autoprefixer": "^10.4.20",
     "typescript": "^5"
   },
   "overrides": {

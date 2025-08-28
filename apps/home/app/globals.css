@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Additional radius value not in design system */
+    --radius-4xl: 2rem;
+  }
+}
+
+@keyframes move-x {
+  0% {
+    transform: translateX(var(--move-x-from));
+  }
+  100% {
+    transform: translateX(var(--move-x-to));
+  }
+}
+
+
+.text-outline {
+  color: transparent;
+  -webkit-text-stroke: 2px #ff5800; /* Using brand orange 600 */
+}

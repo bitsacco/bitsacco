@@ -4,6 +4,7 @@
  */
 
 export const fontFamily = {
+  // Default sans-serif stack - optimized for web interfaces
   sans: [
     "system-ui",
     "-apple-system",
@@ -16,6 +17,34 @@ export const fontFamily = {
     "Fira Sans",
     "Droid Sans",
     "Helvetica Neue",
+    "sans-serif",
+  ],
+  // Chakra UI derived fonts for consistency with webapp
+  heading: [
+    "Satoshi",
+    "system-ui",
+    "-apple-system",
+    "BlinkMacSystemFont",
+    "Segoe UI",
+    "Roboto",
+    "sans-serif",
+  ],
+  body: [
+    "Nunito",
+    "system-ui",
+    "-apple-system",
+    "BlinkMacSystemFont",
+    "Segoe UI",
+    "Roboto",
+    "sans-serif",
+  ],
+  title: [
+    "Poppins",
+    "system-ui",
+    "-apple-system",
+    "BlinkMacSystemFont",
+    "Segoe UI",
+    "Roboto",
     "sans-serif",
   ],
   mono: [
