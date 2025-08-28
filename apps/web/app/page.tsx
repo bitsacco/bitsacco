@@ -1,14 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Navbar, Hero } from "@bitsacco/ui";
 import {
-  ArrowsClockwise,
-  WhatsappLogo,
-  Spinner,
-  List,
-  X,
+  ArrowsClockwiseIcon,
+  WhatsappLogoIcon,
+  SpinnerIcon,
+  ListIcon,
+  XIcon,
 } from "@phosphor-icons/react";
 import { useExchangeRate, formatNumber, btcToFiat } from "@bitsacco/core";
 import { apiClient } from "@/lib/auth";
@@ -42,8 +41,8 @@ export default function Home() {
         links={[]}
         showAuth={true}
         logoHref="/"
-        MenuIcon={List}
-        CloseIcon={X}
+        MenuIcon={ListIcon}
+        CloseIcon={XIcon}
         bitcoinRateProps={{
           loading,
           quote,
@@ -53,8 +52,8 @@ export default function Home() {
           kesToSats,
           formatNumber,
           btcToFiat,
-          RefreshIcon: ArrowsClockwise,
-          SpinnerIcon: Spinner,
+          RefreshIcon: ArrowsClockwiseIcon,
+          SpinnerIcon: SpinnerIcon,
           isDark,
         }}
       />
@@ -90,7 +89,7 @@ export default function Home() {
         className="fixed bottom-8 right-8 w-14 h-14 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 transition-all shadow-lg z-50"
         aria-label="Contact on WhatsApp"
       >
-        <WhatsappLogo size={32} weight="fill" color="white" />
+        <WhatsappLogoIcon size={32} weight="fill" color="white" />
       </a>
     </div>
   );

@@ -1,63 +1,94 @@
-import type { PaginatedRequest } from "./lib";
+// Based on OS API structure
+export enum SharesTxStatus {
+  PENDING = "pending",
+  COMPLETED = "completed",
+  CANCELLED = "cancelled",
+  FAILED = "failed",
+}
 
-export interface Share {
+export enum SharesTxType {
+  SUBSCRIPTION = "subscription",
+  TRANSFER = "transfer",
+  OFFER = "offer",
+}
+
+export interface SharesOffer {
   id: string;
-  chamaId: string;
-  userId: string;
-  amount: number;
-  purchaseDate: Date;
-  status: ShareStatus;
-}
-
-export enum ShareStatus {
-  Pending = "pending",
-  Active = "active",
-  Transferred = "transferred",
-  Redeemed = "redeemed",
-}
-
-export interface ShareOffer {
-  id: string;
-  chamaId: string;
-  fromUserId: string;
-  shareId: string;
-  price: number;
-  status: ShareOfferStatus;
-  expiresAt?: Date;
-  createdAt: Date;
-}
-
-export enum ShareOfferStatus {
-  Active = "active",
-  Accepted = "accepted",
-  Cancelled = "cancelled",
-  Expired = "expired",
-}
-
-export interface CreateShareOfferRequest {
-  chamaId: string;
-  shareId: string;
-  price: number;
-  expiresAt?: Date;
-}
-
-export interface AcceptShareOfferRequest {
-  offerId: string;
-}
-
-export interface FilterShareOffersRequest {
-  chamaId?: string;
-  status?: ShareOfferStatus;
-  pagination?: PaginatedRequest;
-}
-
-export interface UserSharesRequest {
-  chamaId?: string;
-  pagination?: PaginatedRequest;
-}
-
-export interface PurchaseSharesRequest {
-  chamaId: string;
   quantity: number;
-  totalAmount: number;
+  availableFrom: string;
+  availableTo: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SharesTx {
+  id: string;
+  userId: string;
+  offerId?: string;
+  quantity: number;
+  type: SharesTxType;
+  status: SharesTxStatus;
+  transfer?: SharesTxTransferMeta;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SharesTxTransferMeta {
+  fromUserId: string;
+  toUserId: string;
+  quantity: number;
+}
+
+export interface UserShareTxsResponse {
+  transactions: SharesTx[];
+  totalCount: number;
+  page: number;
+  size: number;
+  pages?: number;
+  totalShares?: number; // Total shares held by the user
+}
+
+export interface AllSharesOffers {
+  offers: SharesOffer[];
+  totalCount: number;
+}
+
+// Request types
+export interface OfferSharesRequest {
+  quantity: number;
+  availableFrom: string;
+  availableTo: string;
+}
+
+export interface SubscribeSharesRequest {
+  userId: string;
+  offerId: string;
+  quantity: number;
+}
+
+export interface TransferSharesRequest {
+  fromUserId: string;
+  toUserId: string;
+  sharesId: string;
+  quantity: number;
+}
+
+export interface UpdateSharesRequest {
+  sharesId: string;
+  updates: {
+    quantity?: number;
+    status?: SharesTxStatus;
+    transfer?: SharesTxTransferMeta;
+    offerId?: string;
+  };
+}
+
+export interface UserSharesTxsRequest {
+  userId: string;
+  page?: number;
+  size?: number;
+}
+
+export interface FindShareTxRequest {
+  sharesId: string;
 }

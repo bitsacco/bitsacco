@@ -1,98 +1,99 @@
 import { BaseApiClient } from "./base-client";
-import type { ApiResponse, PaginatedResponse } from "../types/lib";
+import type { ApiResponse } from "../types/lib";
 import type {
-  Share,
-  ShareOffer,
-  CreateShareOfferRequest,
-  AcceptShareOfferRequest,
-  FilterShareOffersRequest,
-  UserSharesRequest,
-  PurchaseSharesRequest,
+  SharesTx,
+  AllSharesOffers,
+  UserShareTxsResponse,
+  OfferSharesRequest,
+  SubscribeSharesRequest,
+  TransferSharesRequest,
+  UpdateSharesRequest,
+  UserSharesTxsRequest,
+  FindShareTxRequest,
 } from "../types/membership";
 
 export class MembershipApiClient extends BaseApiClient {
   /**
-   * Purchase shares in a chama
-   */
-  async purchaseShares(
-    request: PurchaseSharesRequest,
-  ): Promise<ApiResponse<Share[]>> {
-    return this.post<Share[]>("/shares/purchase", request);
-  }
-
-  /**
-   * Get user's shares
-   */
-  async getUserShares(
-    request: UserSharesRequest,
-  ): Promise<ApiResponse<PaginatedResponse<Share>>> {
-    const params: Record<string, string | number> = {};
-
-    if (request.chamaId) {
-      params.chamaId = request.chamaId;
-    }
-
-    if (request.pagination) {
-      params.page = request.pagination.page;
-      params.size = request.pagination.size;
-    }
-
-    return this.get<PaginatedResponse<Share>>("/shares/user", params);
-  }
-
-  /**
    * Create a share offer
    */
-  async createShareOffer(
-    request: CreateShareOfferRequest,
-  ): Promise<ApiResponse<ShareOffer>> {
-    return this.post<ShareOffer>("/shares/offers", request);
+  async offerShares(
+    request: OfferSharesRequest,
+  ): Promise<ApiResponse<AllSharesOffers>> {
+    return this.post<AllSharesOffers>("/shares/offer", request);
   }
 
   /**
-   * Accept a share offer
+   * Get all share offers
    */
-  async acceptShareOffer(
-    request: AcceptShareOfferRequest,
-  ): Promise<ApiResponse<void>> {
-    return this.post<void>(`/shares/offers/${request.offerId}/accept`);
+  async getShareOffers(): Promise<ApiResponse<AllSharesOffers>> {
+    return this.get<AllSharesOffers>("/shares/offers");
   }
 
   /**
-   * Cancel a share offer
+   * Subscribe to shares (purchase)
    */
-  async cancelShareOffer(offerId: string): Promise<ApiResponse<void>> {
-    return this.delete<void>(`/shares/offers/${offerId}`);
+  async subscribeShares(
+    request: SubscribeSharesRequest,
+  ): Promise<ApiResponse<UserShareTxsResponse>> {
+    return this.post<UserShareTxsResponse>("/shares/subscribe", request);
   }
 
   /**
-   * Filter share offers
+   * Transfer shares between users
    */
-  async filterShareOffers(
-    request: FilterShareOffersRequest,
-  ): Promise<ApiResponse<PaginatedResponse<ShareOffer>>> {
+  async transferShares(
+    request: TransferSharesRequest,
+  ): Promise<ApiResponse<UserShareTxsResponse>> {
+    return this.post<UserShareTxsResponse>("/shares/transfer", request);
+  }
+
+  /**
+   * Update share transaction
+   */
+  async updateSharesTx(
+    request: UpdateSharesRequest,
+  ): Promise<ApiResponse<SharesTx>> {
+    return this.patch<SharesTx>(
+      `/shares/transactions/${request.sharesId}`,
+      request.updates,
+    );
+  }
+
+  /**
+   * Get user's share transactions
+   */
+  async getUserSharesTxs(
+    request: UserSharesTxsRequest,
+  ): Promise<ApiResponse<UserShareTxsResponse>> {
     const params: Record<string, string | number> = {};
 
-    if (request.chamaId) {
-      params.chamaId = request.chamaId;
+    if (request.page !== undefined) {
+      params.page = request.page;
     }
 
-    if (request.status) {
-      params.status = request.status;
+    if (request.size !== undefined) {
+      params.size = request.size;
     }
 
-    if (request.pagination) {
-      params.page = request.pagination.page;
-      params.size = request.pagination.size;
-    }
-
-    return this.get<PaginatedResponse<ShareOffer>>("/shares/offers", params);
+    return this.get<UserShareTxsResponse>(
+      `/shares/transactions/${request.userId}`,
+      params,
+    );
   }
 
   /**
-   * Get active offers for a specific chama
+   * Find specific share transaction
    */
-  async getChamaOffers(chamaId: string): Promise<ApiResponse<ShareOffer[]>> {
-    return this.get<ShareOffer[]>(`/chamas/${chamaId}/offers`);
+  async findShareTx(
+    request: FindShareTxRequest,
+  ): Promise<ApiResponse<SharesTx>> {
+    return this.get<SharesTx>(`/shares/transactions/find/${request.sharesId}`);
+  }
+
+  /**
+   * Delete share transaction
+   */
+  async deleteShareTx(sharesId: string): Promise<ApiResponse<void>> {
+    return this.delete<void>(`/shares/transactions/${sharesId}`);
   }
 }

@@ -10,13 +10,11 @@ import type {
 export interface AuthServiceConfig {
   storage: StorageAdapter;
   jwtPublicKey?: string;
-  apiBaseUrl?: string;
 }
 
 export class AuthService {
   private storage: StorageAdapter;
   private jwtPublicKey?: Uint8Array;
-  private apiBaseUrl?: string;
 
   // Storage keys
   private readonly ACCESS_TOKEN_KEY = "bitsacco_access_token";
@@ -25,7 +23,6 @@ export class AuthService {
 
   constructor(config: AuthServiceConfig) {
     this.storage = config.storage;
-    this.apiBaseUrl = config.apiBaseUrl;
 
     if (config.jwtPublicKey) {
       this.jwtPublicKey = new TextEncoder().encode(config.jwtPublicKey);
