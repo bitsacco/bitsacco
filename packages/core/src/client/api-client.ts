@@ -1,5 +1,6 @@
 import { AuthApiClient } from "./auth-client";
 import { ChamaApiClient } from "./chama-client";
+import { FxApiClient } from "./fx-client";
 import { MembershipApiClient } from "./membership-client";
 import { WalletApiClient } from "./wallet-client";
 import { type AuthService } from "../auth/auth-service";
@@ -18,6 +19,7 @@ export class ApiClient {
   public chamas: ChamaApiClient;
   public membership: MembershipApiClient;
   public wallet: WalletApiClient;
+  public fx: FxApiClient;
 
   constructor(config: ApiClientConfig) {
     // Initialize all service clients with the same configuration
@@ -25,6 +27,7 @@ export class ApiClient {
     this.chamas = new ChamaApiClient(config);
     this.membership = new MembershipApiClient(config);
     this.wallet = new WalletApiClient(config);
+    this.fx = new FxApiClient(config);
   }
 
   /**
@@ -36,5 +39,6 @@ export class ApiClient {
     this.chamas.setAuthService(authService);
     this.membership.setAuthService(authService);
     this.wallet.setAuthService(authService);
+    this.fx.setAuthService(authService);
   }
 }

@@ -1,7 +1,7 @@
+import assert from 'node:assert'
+import { Feed } from 'feed'
 import { image } from '@/sanity/image'
 import { getPostsForFeed } from '@/sanity/queries'
-import { Feed } from 'feed'
-import assert from 'node:assert'
 
 export async function GET(req: Request) {
   const siteUrl = new URL(req.url).origin

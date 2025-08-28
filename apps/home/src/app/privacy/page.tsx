@@ -1,12 +1,12 @@
+import { type Metadata } from 'next'
+import Image from 'next/image'
+import { notFound } from 'next/navigation'
+import { PortableText } from 'next-sanity'
 import { Container } from '@/components/container'
 import { Footer } from '@/components/footer'
 import { Navbar } from '@/components/navbar'
 import { image } from '@/sanity/image'
 import { getPage } from '@/sanity/queries'
-import { type Metadata } from 'next'
-import { PortableText } from 'next-sanity'
-import Image from 'next/image'
-import { notFound } from 'next/navigation'
 
 const KNOWN_PAGE_SLUG = 'privacy-policy'
 
