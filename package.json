@@ -14,6 +14,8 @@
     "dev:home": "turbo dev --filter=@bitsacco/home...",
     "dev:web": "turbo dev --filter=@bitsacco/web...",
     "build": "turbo run build",
+    "build:ui": "turbo run build --filter=@bitsacco/ui...",
+    "build:core": "turbo run build --filter=@bitsacco/core...",
     "build:home": "turbo run build --filter=@bitsacco/home...",
     "build:web": "turbo run build --filter=@bitsacco/web...",
     "clean": "turbo run clean",
@@ -33,8 +35,10 @@
     "qrcode": "^1.5.4"
   },
   "devDependencies": {
+    "@svgr/webpack": "^8.1.0",
     "prettier": "^3.3.2",
-    "turbo": "^2.3.0"
+    "turbo": "^2.3.0",
+    "url-loader": "^4.1.1"
   },
   "packageManager": "npm@10.9.3",
   "engines": {

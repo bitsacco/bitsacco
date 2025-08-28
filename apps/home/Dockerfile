@@ -11,11 +11,13 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 COPY apps/home/package.json ./apps/home/package.json
 COPY packages/ ./packages/
+
+# Install all dependencies including devDependencies at root level first
 RUN npm ci || npm install
 
-# Install dependencies in the app directory
+# Install app-specific dependencies including devDependencies
 WORKDIR /app/apps/home
-RUN npm ci || npm install
+RUN npm install
 
 # Don't run as root in development (but keep current user for volume mounts)
 RUN addgroup --system --gid 1001 nodejs

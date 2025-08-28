@@ -1,16 +1,16 @@
 'use client'
 
+import { SanityLogo } from '@/components/sanity-logo'
+import { structure } from '@/sanity/structure'
 import { visionTool } from '@sanity/vision'
 import { defineConfig } from 'sanity'
 import { structureTool } from 'sanity/structure'
-import { Logo } from '@/components/logo'
-import { structure } from '@/sanity/structure'
-import { apiVersion, dataset, projectId } from './src/sanity/env'
-import { schema } from './src/sanity/schema'
+import { apiVersion, dataset, projectId } from './sanity/env'
+import { schema } from './sanity/schema'
 
 const config = defineConfig({
   basePath: '/studio',
-  icon: Logo,
+  icon: SanityLogo,
   projectId,
   dataset,
   schema,

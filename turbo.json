@@ -14,6 +14,11 @@
     "@bitsacco/ui#build": {
       "inputs": ["$TURBO_DEFAULT$"],
       "outputs": ["dist/**"],
+      "dependsOn": ["@bitsacco/tailwind-config#build"]
+    },
+    "@bitsacco/tailwind-config#build": {
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": ["dist/**"],
       "dependsOn": []
     },
     "@bitsacco/home#build": {
@@ -45,6 +50,11 @@
       "dependsOn": []
     },
     "@bitsacco/ui#dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["@bitsacco/tailwind-config#build"]
+    },
+    "@bitsacco/tailwind-config#dev": {
       "cache": false,
       "persistent": true,
       "dependsOn": []

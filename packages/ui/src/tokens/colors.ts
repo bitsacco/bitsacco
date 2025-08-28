@@ -1,35 +1,50 @@
 /**
  * Bitsacco Design System - Color Tokens
  * Platform-agnostic color definitions
+ * Primary theme: Teal (matching webapp Chakra UI theme)
  */
 
 export const colors = {
-  // Primary colors - Bitcoin/Lightning theme
+  // Primary colors - Teal theme (matching webapp)
   primary: {
-    50: "#fef7e6",
-    100: "#fdecc1",
-    200: "#fbd987",
-    300: "#f9c23e",
-    400: "#f7ac00", // Bitcoin orange
-    500: "#e89611",
-    600: "#d1780c",
-    700: "#b85d0a",
-    800: "#9d4b0e",
-    900: "#843e0f",
+    50: "#f0fdfa",
+    100: "#ccfbf1",
+    200: "#99f6e4",
+    300: "#5eead4",
+    400: "#2dd4bf", // Teal primary
+    500: "#14b8a6",
+    600: "#0d9488",
+    700: "#0f766e",
+    800: "#115e59",
+    900: "#134e4a",
   },
 
-  // Secondary colors - Lightning purple/blue
+  // Secondary colors - Complementary blue
   secondary: {
-    50: "#f3f1ff",
-    100: "#e9e5ff",
-    200: "#d5ccff",
-    300: "#b8a8ff",
-    400: "#9679ff",
-    500: "#7c3aed", // Lightning purple
-    600: "#6d28d9",
-    700: "#5b21b6",
-    800: "#4c1d95",
-    900: "#3c1a78",
+    50: "#eff6ff",
+    100: "#dbeafe",
+    200: "#bfdbfe",
+    300: "#93c5fd",
+    400: "#60a5fa",
+    500: "#3b82f6", // Blue secondary
+    600: "#2563eb",
+    700: "#1d4ed8",
+    800: "#1e40af",
+    900: "#1e3a8a",
+  },
+
+  // Teal scale (explicit for Chakra UI compatibility)
+  teal: {
+    50: "#f0fdfa",
+    100: "#ccfbf1",
+    200: "#99f6e4",
+    300: "#5eead4",
+    400: "#2dd4bf",
+    500: "#14b8a6",
+    600: "#0d9488",
+    700: "#0f766e",
+    800: "#115e59",
+    900: "#134e4a",
   },
 
   // Neutral/Gray scale
