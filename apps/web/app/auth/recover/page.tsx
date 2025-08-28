@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button } from "@bitsacco/ui";
+import { Button, Logo, Container } from "@bitsacco/ui";
 
 export default function RecoverPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -158,93 +158,145 @@ export default function RecoverPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <Link
-            href="/"
-            className="flex items-center justify-center space-x-2 mb-8"
-          >
-            <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-purple-500 rounded-lg"></div>
-            <span className="text-2xl font-bold text-gray-900">Bitsacco</span>
-          </Link>
-          <h2 className="text-center text-3xl font-bold text-gray-900">
-            {getStepTitle()}
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            {getStepDescription()}
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-orange-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <Container className="max-w-md">
+        <div className="space-y-8">
+          <div>
+            <div className="flex justify-center mb-8">
+              <Logo size="lg" />
+            </div>
+            <h2 className="text-center text-3xl font-bold text-gray-900">
+              {getStepTitle()}
+            </h2>
+            <p className="mt-2 text-center text-sm text-gray-600">
+              {getStepDescription()}
+            </p>
+          </div>
 
-        <div className="bg-white shadow-xl rounded-lg p-8">
-          {step === "request" && (
-            <>
-              {/* Tab Navigation */}
-              <div className="flex space-x-1 rounded-lg bg-gray-100 p-1 mb-6">
-                <button
-                  type="button"
-                  className={`w-full py-2.5 text-sm font-medium rounded-md transition-colors ${
-                    activeTab === "phone"
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-500 hover:text-gray-900"
-                  }`}
-                  onClick={() => setActiveTab("phone")}
-                >
-                  Phone
-                </button>
-                <button
-                  type="button"
-                  className={`w-full py-2.5 text-sm font-medium rounded-md transition-colors ${
-                    activeTab === "nostr"
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-500 hover:text-gray-900"
-                  }`}
-                  onClick={() => setActiveTab("nostr")}
-                >
-                  Nostr
-                </button>
-              </div>
+          <div className="bg-white shadow-xl rounded-2xl p-8 border border-gray-100">
+            {step === "request" && (
+              <>
+                {/* Tab Navigation */}
+                <div className="flex space-x-1 rounded-lg bg-gray-100 p-1 mb-6">
+                  <button
+                    type="button"
+                    className={`w-full py-2.5 text-sm font-medium rounded-md transition-all duration-200 ${
+                      activeTab === "phone"
+                        ? "bg-white text-gray-900 shadow-sm"
+                        : "text-gray-500 hover:text-gray-900"
+                    }`}
+                    onClick={() => setActiveTab("phone")}
+                  >
+                    Phone
+                  </button>
+                  <button
+                    type="button"
+                    className={`w-full py-2.5 text-sm font-medium rounded-md transition-all duration-200 ${
+                      activeTab === "nostr"
+                        ? "bg-white text-gray-900 shadow-sm"
+                        : "text-gray-500 hover:text-gray-900"
+                    }`}
+                    onClick={() => setActiveTab("nostr")}
+                  >
+                    Nostr
+                  </button>
+                </div>
 
-              <form onSubmit={handleRequestReset} className="space-y-6">
-                {activeTab === "phone" ? (
-                  <div>
-                    <label
-                      htmlFor="phone"
-                      className="block text-sm font-medium text-gray-700"
+                <form onSubmit={handleRequestReset} className="space-y-6">
+                  {activeTab === "phone" ? (
+                    <div>
+                      <label
+                        htmlFor="phone"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Phone Number
+                      </label>
+                      <input
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        required
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        placeholder="+1234567890"
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+                      />
+                    </div>
+                  ) : (
+                    <div>
+                      <label
+                        htmlFor="npub"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Nostr Public Key
+                      </label>
+                      <input
+                        id="npub"
+                        name="npub"
+                        type="text"
+                        required
+                        value={formData.npub}
+                        onChange={handleInputChange}
+                        placeholder="npub1..."
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+                      />
+                    </div>
+                  )}
+
+                  {error && (
+                    <div className="rounded-lg bg-red-50 border border-red-200 p-4">
+                      <div className="text-sm text-red-700">{error}</div>
+                    </div>
+                  )}
+
+                  <Button
+                    type="submit"
+                    variant="tealPrimary"
+                    size="lg"
+                    fullWidth
+                    loading={isLoading}
+                  >
+                    Send Reset Code
+                  </Button>
+
+                  <div className="text-center">
+                    <Link
+                      href="/auth/login"
+                      className="text-sm text-teal-600 hover:text-teal-500 transition-colors"
                     >
-                      Phone Number
-                    </label>
-                    <input
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      required
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      placeholder="+1234567890"
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-                    />
+                      Back to sign in
+                    </Link>
                   </div>
-                ) : (
-                  <div>
-                    <label
-                      htmlFor="npub"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      Nostr Public Key
-                    </label>
-                    <input
-                      id="npub"
-                      name="npub"
-                      type="text"
-                      required
-                      value={formData.npub}
-                      onChange={handleInputChange}
-                      placeholder="npub1..."
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-                    />
+                </form>
+              </>
+            )}
+
+            {step === "verify" && (
+              <form onSubmit={handleVerifyReset} className="space-y-6">
+                {success && (
+                  <div className="rounded-lg bg-green-50 border border-green-200 p-4">
+                    <div className="text-sm text-green-700">{success}</div>
                   </div>
                 )}
+
+                <div>
+                  <label
+                    htmlFor="otp"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Verification Code
+                  </label>
+                  <input
+                    id="otp"
+                    name="otp"
+                    type="text"
+                    required
+                    value={formData.otp}
+                    onChange={handleInputChange}
+                    placeholder="Enter verification code"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                  />
+                </div>
 
                 {error && (
                   <div className="rounded-md bg-red-50 p-4">
@@ -259,141 +311,87 @@ export default function RecoverPage() {
                   fullWidth
                   loading={isLoading}
                 >
-                  Send Reset Code
+                  Verify Code
                 </Button>
 
                 <div className="text-center">
-                  <Link
-                    href="/auth/login"
+                  <button
+                    type="button"
+                    onClick={() => setStep("request")}
                     className="text-sm text-orange-600 hover:text-orange-500"
                   >
-                    Back to sign in
-                  </Link>
+                    Back to request
+                  </button>
                 </div>
               </form>
-            </>
-          )}
+            )}
 
-          {step === "verify" && (
-            <form onSubmit={handleVerifyReset} className="space-y-6">
-              {success && (
-                <div className="rounded-md bg-green-50 p-4">
-                  <div className="text-sm text-green-700">{success}</div>
+            {step === "reset" && (
+              <form onSubmit={handleResetPin} className="space-y-6">
+                {success && (
+                  <div className="rounded-lg bg-green-50 border border-green-200 p-4">
+                    <div className="text-sm text-green-700">{success}</div>
+                  </div>
+                )}
+
+                <div>
+                  <label
+                    htmlFor="newPin"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    New PIN
+                  </label>
+                  <input
+                    id="newPin"
+                    name="newPin"
+                    type="password"
+                    required
+                    value={formData.newPin}
+                    onChange={handleInputChange}
+                    placeholder="Enter new PIN"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                  />
                 </div>
-              )}
 
-              <div>
-                <label
-                  htmlFor="otp"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Verification Code
-                </label>
-                <input
-                  id="otp"
-                  name="otp"
-                  type="text"
-                  required
-                  value={formData.otp}
-                  onChange={handleInputChange}
-                  placeholder="Enter verification code"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-                />
-              </div>
-
-              {error && (
-                <div className="rounded-md bg-red-50 p-4">
-                  <div className="text-sm text-red-700">{error}</div>
+                <div>
+                  <label
+                    htmlFor="confirmPin"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Confirm New PIN
+                  </label>
+                  <input
+                    id="confirmPin"
+                    name="confirmPin"
+                    type="password"
+                    required
+                    value={formData.confirmPin}
+                    onChange={handleInputChange}
+                    placeholder="Confirm new PIN"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                  />
                 </div>
-              )}
 
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                fullWidth
-                loading={isLoading}
-              >
-                Verify Code
-              </Button>
+                {error && (
+                  <div className="rounded-md bg-red-50 p-4">
+                    <div className="text-sm text-red-700">{error}</div>
+                  </div>
+                )}
 
-              <div className="text-center">
-                <button
-                  type="button"
-                  onClick={() => setStep("request")}
-                  className="text-sm text-orange-600 hover:text-orange-500"
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  fullWidth
+                  loading={isLoading}
                 >
-                  Back to request
-                </button>
-              </div>
-            </form>
-          )}
-
-          {step === "reset" && (
-            <form onSubmit={handleResetPin} className="space-y-6">
-              {success && (
-                <div className="rounded-md bg-green-50 p-4">
-                  <div className="text-sm text-green-700">{success}</div>
-                </div>
-              )}
-
-              <div>
-                <label
-                  htmlFor="newPin"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  New PIN
-                </label>
-                <input
-                  id="newPin"
-                  name="newPin"
-                  type="password"
-                  required
-                  value={formData.newPin}
-                  onChange={handleInputChange}
-                  placeholder="Enter new PIN"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="confirmPin"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Confirm New PIN
-                </label>
-                <input
-                  id="confirmPin"
-                  name="confirmPin"
-                  type="password"
-                  required
-                  value={formData.confirmPin}
-                  onChange={handleInputChange}
-                  placeholder="Confirm new PIN"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-                />
-              </div>
-
-              {error && (
-                <div className="rounded-md bg-red-50 p-4">
-                  <div className="text-sm text-red-700">{error}</div>
-                </div>
-              )}
-
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                fullWidth
-                loading={isLoading}
-              >
-                Reset PIN
-              </Button>
-            </form>
-          )}
+                  Reset PIN
+                </Button>
+              </form>
+            )}
+          </div>
         </div>
-      </div>
+      </Container>
     </div>
   );
 }

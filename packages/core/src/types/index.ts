@@ -50,13 +50,17 @@ export type {
 
 // Membership types
 export type {
-  Share,
-  ShareOffer,
-  CreateShareOfferRequest,
-  AcceptShareOfferRequest,
-  FilterShareOffersRequest,
-  UserSharesRequest,
-  PurchaseSharesRequest,
+  SharesOffer,
+  SharesTx,
+  SharesTxTransferMeta,
+  UserShareTxsResponse,
+  AllSharesOffers,
+  OfferSharesRequest,
+  SubscribeSharesRequest,
+  TransferSharesRequest,
+  UpdateSharesRequest,
+  UserSharesTxsRequest,
+  FindShareTxRequest,
 } from "./membership";
 
 // Wallet types
@@ -73,7 +77,7 @@ export type { QuoteRequest, QuoteResponse, ExchangeRateData } from "./exchange";
 // Re-export enums
 export { Role } from "./auth";
 export { ChamaMemberRole } from "./chama";
-export { ShareStatus, ShareOfferStatus } from "./membership";
+export { SharesTxStatus, SharesTxType } from "./membership";
 export { TransactionType, TransactionStatus } from "./wallet";
 export {
   Currency,

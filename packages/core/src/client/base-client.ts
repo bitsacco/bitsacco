@@ -37,15 +37,28 @@ export class BaseApiClient {
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint}`;
 
-    const headers = {
+    const headers: Record<string, string> = {
       ...this.defaultHeaders,
-      ...options.headers,
+      ...((options.headers as Record<string, string>) || {}),
     };
 
     // Add authentication header if available
     if (this.authService) {
       const authHeader = await this.authService.getAuthHeader();
       Object.assign(headers, authHeader);
+    }
+
+    // Debug: Log the request details
+    if (endpoint.includes("shares")) {
+      console.log("[BASE-CLIENT] Request details:", {
+        url,
+        method: options.method || "GET",
+        hasAuthHeader: !!headers["Authorization"],
+        authHeaderPreview: headers["Authorization"]
+          ? `${headers["Authorization"].substring(0, 30)}...`
+          : "NO_AUTH_HEADER",
+        allHeaders: Object.keys(headers),
+      });
     }
 
     try {

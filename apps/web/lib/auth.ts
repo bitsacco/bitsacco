@@ -46,7 +46,6 @@ export const authService = new AuthService({
     typeof window !== "undefined"
       ? new WebStorageAdapter()
       : new ServerStorageAdapter(),
-  apiBaseUrl: API_URL,
 });
 
 // Connect auth service to API client for authenticated requests
@@ -85,6 +84,11 @@ export const authConfig: NextAuthConfig = {
     jwt({ token, user, account }: any) {
       // Store auth data in token on initial sign in
       if (account && user) {
+        console.log("[AUTH] JWT callback - storing auth data:", {
+          userId: user.id,
+          hasAccessToken: !!user.accessToken,
+          hasRefreshToken: !!user.refreshToken,
+        });
         return {
           ...token,
           sub: user.id,
@@ -97,11 +101,32 @@ export const authConfig: NextAuthConfig = {
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     session({ session, token }: any) {
-      if (token.user && session.user) {
-        session.user.id = token.user.id;
-        session.user.name = token.user.profile?.name || null;
-      }
-      return session;
+      console.log("[AUTH] Session callback - incoming:", {
+        hasToken: !!token,
+        hasAccessToken: !!token.accessToken,
+        tokenKeys: Object.keys(token || {}),
+        sessionStructure: Object.keys(session || {}),
+      });
+
+      // Create a new session object with all necessary data
+      const enhancedSession = {
+        ...session,
+        accessToken: token.accessToken,
+        refreshToken: token.refreshToken,
+        user: {
+          ...session.user,
+          id: token.user?.id || token.sub,
+          name: token.user?.profile?.name || session.user?.name || null,
+        },
+      };
+
+      console.log("[AUTH] Session callback - returning:", {
+        hasAccessToken: !!enhancedSession.accessToken,
+        hasRefreshToken: !!enhancedSession.refreshToken,
+        userId: enhancedSession.user?.id,
+      });
+
+      return enhancedSession;
     },
   },
   providers: [
@@ -127,7 +152,9 @@ export const authConfig: NextAuthConfig = {
             // Return the exact shape NextAuth expects
             return {
               id: response.data.user.id,
-              ...response.data, // includes user, accessToken, refreshToken
+              user: response.data.user,
+              accessToken: response.data.accessToken || "",
+              refreshToken: response.data.refreshToken || "",
             };
           }
         } catch (error) {
@@ -158,7 +185,9 @@ export const authConfig: NextAuthConfig = {
             // Return the exact shape NextAuth expects
             return {
               id: response.data.user.id,
-              ...response.data, // includes user, accessToken, refreshToken
+              user: response.data.user,
+              accessToken: response.data.accessToken || "",
+              refreshToken: response.data.refreshToken || "",
             };
           }
         } catch (error) {

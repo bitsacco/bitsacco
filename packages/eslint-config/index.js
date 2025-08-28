@@ -27,24 +27,7 @@ module.exports = {
       },
     ],
     
-    // Import rules
-    "import/order": [
-      "warn",
-      {
-        groups: [
-          "builtin",
-          "external",
-          "internal",
-          ["parent", "sibling"],
-          "index",
-          "type",
-        ],
-        "newlines-between": "never",
-        alphabetize: {
-          order: "asc",
-          caseInsensitive: true,
-        },
-      },
-    ],
+    // Import rules - disabled to avoid conflicts with formatters
+    "import/order": "off",
   },
 };

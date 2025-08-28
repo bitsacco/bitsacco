@@ -5,91 +5,36 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import type { Session } from "next-auth";
-import { Button } from "@bitsacco/ui";
+import { Button, Logo } from "@bitsacco/ui";
+import {
+  ListIcon,
+  XIcon,
+  UserIcon,
+  SignOutIcon,
+  ShieldCheckIcon,
+} from "@phosphor-icons/react";
 
 const navigation = [
   {
-    name: "Personal Savings",
-    href: "/dashboard/personal",
-    icon: (
-      <svg
-        className="w-5 h-5"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: "Chamas",
-    href: "/dashboard/chamas",
-    icon: (
-      <svg
-        className="w-5 h-5"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-        />
-      </svg>
-    ),
-  },
-  {
     name: "Membership",
     href: "/dashboard/membership",
-    icon: (
-      <svg
-        className="w-5 h-5"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
-        />
-      </svg>
-    ),
+    icon: ShieldCheckIcon,
   },
-  {
-    name: "Account",
-    href: "/dashboard/account",
-    icon: (
-      <svg
-        className="w-5 h-5"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-        />
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-        />
-      </svg>
-    ),
-  },
+  // {
+  //   name: "Personal Savings",
+  //   href: "/dashboard/personal",
+  //   icon: WalletIcon,
+  // },
+  // {
+  //   name: "Chamas",
+  //   href: "/dashboard/chamas",
+  //   icon: UsersThreeIcon,
+  // },
+  // {
+  //   name: "Account",
+  //   href: "/dashboard/account",
+  //   icon: GearIcon,
+  // },
 ];
 
 export default function DashboardLayout({
@@ -106,38 +51,23 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-slate-800 via-slate-900 to-slate-800">
       {/* Mobile sidebar */}
       <div
         className={`fixed inset-0 z-50 ${sidebarOpen ? "block" : "hidden"} lg:hidden`}
       >
         <div
-          className="fixed inset-0 bg-gray-600 bg-opacity-75"
+          className="fixed inset-0 bg-slate-900 bg-opacity-75 backdrop-blur-sm"
           onClick={() => setSidebarOpen(false)}
         />
-        <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-xl">
-          <div className="flex items-center justify-between p-4 border-b">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-purple-500 rounded-lg"></div>
-              <span className="text-xl font-bold text-gray-900">Bitsacco</span>
-            </div>
+        <div className="fixed inset-y-0 left-0 w-72 bg-slate-800/95 backdrop-blur-xl shadow-xl flex flex-col">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-slate-700">
+            <Logo className="h-10" />
             <button
               onClick={() => setSidebarOpen(false)}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 hover:text-gray-200 transition-colors p-1.5 rounded-lg hover:bg-slate-700/50"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <XIcon size={24} weight="bold" />
             </button>
           </div>
           <SidebarContent
@@ -149,13 +79,10 @@ export default function DashboardLayout({
       </div>
 
       {/* Desktop sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:w-64 lg:flex lg:flex-col">
-        <div className="flex-1 bg-white shadow-sm border-r border-gray-200">
-          <div className="flex items-center p-4 border-b">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-purple-500 rounded-lg"></div>
-              <span className="text-xl font-bold text-gray-900">Bitsacco</span>
-            </div>
+      <div className="hidden lg:fixed lg:inset-y-0 lg:w-72 lg:flex lg:flex-col">
+        <div className="flex flex-col h-full bg-slate-800/90 backdrop-blur-xl shadow-sm border-r border-slate-700">
+          <div className="flex items-center px-6 py-5 border-b border-slate-700">
+            <Logo className="h-10" />
           </div>
           <SidebarContent
             pathname={pathname}
@@ -166,33 +93,18 @@ export default function DashboardLayout({
       </div>
 
       {/* Main content */}
-      <div className="lg:ml-64 flex flex-col min-h-screen">
+      <div className="lg:ml-72 flex flex-col min-h-screen">
         {/* Mobile header */}
-        <div className="lg:hidden bg-white shadow-sm border-b border-gray-200 px-4 py-3">
+        <div className="lg:hidden bg-slate-800/90 backdrop-blur-xl shadow-sm border-b border-slate-700 px-4 py-3">
           <div className="flex items-center justify-between">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 hover:text-gray-200 transition-colors p-1"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
+              <ListIcon size={24} weight="bold" />
             </button>
-            <div className="flex items-center space-x-2">
-              <div className="w-6 h-6 bg-gradient-to-br from-orange-500 to-purple-500 rounded-md"></div>
-              <span className="text-lg font-bold text-gray-900">Bitsacco</span>
-            </div>
-            <div className="w-6"></div>
+            <Logo className="h-6" />
+            <div className="w-8"></div>
           </div>
         </div>
 
@@ -213,59 +125,64 @@ function SidebarContent({
   session: Session | null;
 }) {
   return (
-    <div className="flex flex-col h-full">
-      <nav className="flex-1 space-y-1 p-4">
+    <div className="flex flex-col flex-1 overflow-y-auto">
+      <nav className="flex-1 px-4 py-6 space-y-2">
         {navigation.map((item) => {
           const isActive = pathname.startsWith(item.href);
+          const Icon = item.icon;
           return (
             <Link
               key={item.name}
               href={item.href}
-              className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${
+              className={`group flex items-center px-4 py-3 text-base font-medium rounded-xl transition-all duration-200 ${
                 isActive
-                  ? "bg-orange-100 text-orange-900 border-r-2 border-orange-500"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-teal-500/20 text-teal-300 shadow-lg shadow-teal-500/10"
+                  : "text-gray-300 hover:bg-slate-700/60 hover:text-white"
               }`}
             >
-              <span
-                className={`mr-3 ${isActive ? "text-orange-500" : "text-gray-400 group-hover:text-gray-500"}`}
-              >
-                {item.icon}
-              </span>
-              {item.name}
+              <Icon
+                size={22}
+                weight={isActive ? "fill" : "regular"}
+                className={`mr-4 flex-shrink-0 ${
+                  isActive
+                    ? "text-teal-400"
+                    : "text-gray-400 group-hover:text-gray-300"
+                }`}
+              />
+              <span className="truncate">{item.name}</span>
+              {isActive && (
+                <div className="ml-auto w-1 h-5 bg-teal-400 rounded-full" />
+              )}
             </Link>
           );
         })}
       </nav>
 
-      {/* User section */}
-      <div className="border-t border-gray-200 p-4">
-        <div className="flex items-center space-x-3 mb-3">
-          <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-            <svg
-              className="w-4 h-4 text-gray-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
-            </svg>
+      {/* User section - Fixed at bottom */}
+      <div className="flex-shrink-0 border-t border-slate-700 p-4">
+        <div className="flex items-center space-x-3 mb-4 px-2">
+          <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg">
+            <UserIcon size={18} weight="fill" className="text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">
+            <p className="text-base font-medium text-gray-100 truncate">
               {session?.user?.name || "User"}
             </p>
-            <p className="text-xs text-gray-500 truncate">
-              {session?.user?.id || "Member"}
+            <p className="text-sm text-gray-400 truncate">
+              {session?.user?.id
+                ? `ID: ${session.user.id.slice(0, 8)}...`
+                : "Member"}
             </p>
           </div>
         </div>
-        <Button variant="outline" size="sm" fullWidth onClick={onSignOut}>
+        <Button
+          variant="outline"
+          size="md"
+          fullWidth
+          onClick={onSignOut}
+          className="!bg-slate-700/60 !text-gray-200 !border-slate-600 hover:!bg-red-500/20 hover:!text-red-300 hover:!border-red-500/50 transition-all duration-200"
+        >
+          <SignOutIcon size={18} weight="bold" className="mr-2" />
           Sign Out
         </Button>
       </div>

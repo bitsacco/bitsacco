@@ -9,7 +9,7 @@ const config: Config = {
     ],
     includeUI: true,
   }),
-  presets: [bitsaccoPreset as Config],
+  presets: [bitsaccoPreset],
   theme: {
     extend: {
       // Home app specific theme extensions can go here
