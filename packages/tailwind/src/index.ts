@@ -1,12 +1,12 @@
 import type { Config } from "tailwindcss";
-import { colors, semanticColors } from "@bitsacco/ui/tokens";
+import { colors, semanticColors } from "./tokens/colors";
 import {
   fontFamily,
   fontSize,
   fontWeight,
   letterSpacing,
   lineHeight,
-} from "@bitsacco/ui/tokens";
+} from "./tokens/typography";
 
 /**
  * Bitsacco Tailwind CSS Base Preset
