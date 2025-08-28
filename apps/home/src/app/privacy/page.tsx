@@ -1,11 +1,12 @@
-import { type Metadata } from 'next'
-import { notFound } from 'next/navigation'
-import { PortableText } from 'next-sanity'
 import { Container } from '@/components/container'
 import { Footer } from '@/components/footer'
 import { Navbar } from '@/components/navbar'
 import { image } from '@/sanity/image'
 import { getPage } from '@/sanity/queries'
+import { type Metadata } from 'next'
+import { PortableText } from 'next-sanity'
+import Image from 'next/image'
+import { notFound } from 'next/navigation'
 
 const KNOWN_PAGE_SLUG = 'privacy-policy'
 
@@ -57,9 +58,11 @@ export default async function PrivacyPage() {
               )}
 
               {page.mainImage && (
-                <img
+                <Image
                   alt={page.mainImage.alt || page.title || ''}
                   src={image(page.mainImage).width(1200).height(600).url()}
+                  width={1200}
+                  height={600}
                   className="mb-10 w-full rounded-lg object-cover shadow-lg"
                 />
               )}

@@ -1,6 +1,6 @@
+import { Link } from '@/components/link'
 import * as Headless from '@headlessui/react'
 import { clsx } from 'clsx'
-import { Link } from '@/components/link'
 
 const variants = {
   primary: clsx(

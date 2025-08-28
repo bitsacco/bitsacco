@@ -44,18 +44,26 @@ export class WebStorageAdapter implements StorageAdapter {
  */
 export class SecureStorageAdapter implements StorageAdapter {
   async getItem(_key: string): Promise<string | null> {
-    return Promise.reject(new Error("SecureStorageAdapter not implemented yet"));
+    return Promise.reject(
+      new Error("SecureStorageAdapter not implemented yet"),
+    );
   }
 
   async setItem(_key: string, _value: string): Promise<void> {
-    return Promise.reject(new Error("SecureStorageAdapter not implemented yet"));
+    return Promise.reject(
+      new Error("SecureStorageAdapter not implemented yet"),
+    );
   }
 
   async removeItem(_key: string): Promise<void> {
-    return Promise.reject(new Error("SecureStorageAdapter not implemented yet"));
+    return Promise.reject(
+      new Error("SecureStorageAdapter not implemented yet"),
+    );
   }
 
   async clear(): Promise<void> {
-    return Promise.reject(new Error("SecureStorageAdapter not implemented yet"));
+    return Promise.reject(
+      new Error("SecureStorageAdapter not implemented yet"),
+    );
   }
 }

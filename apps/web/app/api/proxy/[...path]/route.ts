@@ -7,7 +7,7 @@ const API_URL = process.env.API_URL || "http://localhost:4000/v1";
  * API Proxy handler to forward requests to the backend API
  * Integrates with NextAuth for authentication
  */
-export async function handler(
+async function proxyHandler(
   req: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
@@ -97,9 +97,9 @@ export async function handler(
   }
 }
 
-export const GET = handler;
-export const POST = handler;
-export const PUT = handler;
-export const DELETE = handler;
-export const PATCH = handler;
-export const OPTIONS = handler;
+export const GET = proxyHandler;
+export const POST = proxyHandler;
+export const PUT = proxyHandler;
+export const DELETE = proxyHandler;
+export const PATCH = proxyHandler;
+export const OPTIONS = proxyHandler;

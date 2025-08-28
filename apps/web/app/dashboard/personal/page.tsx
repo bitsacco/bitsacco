@@ -20,7 +20,7 @@ export default function PersonalSavingsPage() {
   // Exchange rates and conversions (mock data)
   const btcToKes = 5850000; // 1 BTC = 5,850,000 KES (approximate)
   const btcToSats = 100000000; // 1 BTC = 100,000,000 satoshis
-  
+
   // Helper function to convert BTC to sats
   const toSats = (btc: number) => Math.round(btc * btcToSats);
 
@@ -30,7 +30,7 @@ export default function PersonalSavingsPage() {
       id: "locked",
       name: "Locked Savings",
       type: "challenge",
-      balance: 0.00125000,
+      balance: 0.00125,
       currency: "BTC",
       icon: "🔒",
       color: "from-gray-500 to-gray-700",
@@ -40,7 +40,7 @@ export default function PersonalSavingsPage() {
       id: "emergency",
       name: "Emergency Fund",
       type: "emergency",
-      balance: 0.00250000,
+      balance: 0.0025,
       currency: "BTC",
       icon: "🛡️",
       color: "from-green-500 to-emerald-600",
@@ -50,7 +50,7 @@ export default function PersonalSavingsPage() {
       id: "vacation",
       name: "Mauritius ABC25",
       type: "goal",
-      balance: 0.0040000,
+      balance: 0.004,
       currency: "BTC",
       icon: "✈️",
       color: "from-blue-500 to-cyan-600",
@@ -59,9 +59,13 @@ export default function PersonalSavingsPage() {
   ];
 
   // Calculate total balance
-  const totalBalance = savingsWallets.reduce((sum, wallet) => sum + wallet.balance, 0);
-  
-  const currentWallet = savingsWallets.find(w => w.id === selectedWallet) || savingsWallets[0];
+  const totalBalance = savingsWallets.reduce(
+    (sum, wallet) => sum + wallet.balance,
+    0,
+  );
+
+  const currentWallet =
+    savingsWallets.find((w) => w.id === selectedWallet) || savingsWallets[0];
 
   return (
     <div className="p-4 lg:p-6 max-w-7xl mx-auto">
@@ -129,19 +133,35 @@ export default function PersonalSavingsPage() {
       <div className="mb-6 lg:mb-8 -mx-4 lg:-mx-6">
         <div className="flex gap-3 overflow-x-auto scrollbar-hide px-4 lg:px-6 pb-2">
           {/* Navigation Arrow Left - Desktop Only */}
-          <button 
+          <button
             className="hidden lg:flex items-center justify-center flex-shrink-0 w-10 h-[140px] bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
             onClick={() => {
-              const container = document.getElementById('wallet-scroll-container');
-              if (container) container.scrollBy({ left: -200, behavior: 'smooth' });
+              const container = document.getElementById(
+                "wallet-scroll-container",
+              );
+              if (container)
+                container.scrollBy({ left: -200, behavior: "smooth" });
             }}
           >
-            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <svg
+              className="w-5 h-5 text-gray-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
           </button>
 
-          <div id="wallet-scroll-container" className="flex gap-3 overflow-x-auto scrollbar-hide">
+          <div
+            id="wallet-scroll-container"
+            className="flex gap-3 overflow-x-auto scrollbar-hide"
+          >
             {/* Total Balance Card - More Prominent */}
             <button
               onClick={() => setSelectedWallet("total")}
@@ -154,15 +174,19 @@ export default function PersonalSavingsPage() {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <span className="text-3xl">₿</span>
-                  <span className="text-sm font-semibold text-gray-600">BTC</span>
+                  <span className="text-sm font-semibold text-gray-600">
+                    BTC
+                  </span>
                 </div>
               </div>
-              <p className="text-sm font-medium text-gray-600 mb-2">Total Balance</p>
+              <p className="text-sm font-medium text-gray-600 mb-2">
+                Total Balance
+              </p>
               <p className="text-xl font-bold text-gray-900 mb-1">
                 ₿ {toSats(totalBalance).toLocaleString()} sats
               </p>
               <p className="text-base font-medium text-gray-700">
-                KES {(totalBalance * btcToKes).toLocaleString('en-KE')}
+                KES {(totalBalance * btcToKes).toLocaleString("en-KE")}
               </p>
             </button>
 
@@ -186,29 +210,35 @@ export default function PersonalSavingsPage() {
                     </span>
                   )}
                 </div>
-                
+
                 {/* Wallet Name */}
                 <p className="text-sm font-medium text-gray-700 mb-3">
                   {wallet.name}
                 </p>
-                
+
                 {/* Balance Display */}
                 <div className="space-y-1">
                   <p className="text-base font-bold text-gray-900">
                     ₿ {toSats(wallet.balance).toLocaleString()} sats
                   </p>
                   <p className="text-sm text-gray-600">
-                    KES {(wallet.balance * btcToKes).toLocaleString('en-KE', { maximumFractionDigits: 0 })}
+                    KES{" "}
+                    {(wallet.balance * btcToKes).toLocaleString("en-KE", {
+                      maximumFractionDigits: 0,
+                    })}
                   </p>
                 </div>
-                
+
                 {/* Target Progress - Simplified */}
                 {wallet.targetAmount && (
                   <div className="mt-3 pt-3 border-t border-gray-100">
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-xs text-gray-500">Progress</span>
                       <span className="text-xs font-medium text-gray-700">
-                        {Math.round((wallet.balance / wallet.targetAmount) * 100)}%
+                        {Math.round(
+                          (wallet.balance / wallet.targetAmount) * 100,
+                        )}
+                        %
                       </span>
                     </div>
                     <div className="w-full bg-gray-100 rounded-full h-1.5">
@@ -220,7 +250,11 @@ export default function PersonalSavingsPage() {
                       />
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
-                      of KES {(wallet.targetAmount * btcToKes).toLocaleString('en-KE', { maximumFractionDigits: 0 })}
+                      of KES{" "}
+                      {(wallet.targetAmount * btcToKes).toLocaleString(
+                        "en-KE",
+                        { maximumFractionDigits: 0 },
+                      )}
                     </p>
                   </div>
                 )}
@@ -247,15 +281,28 @@ export default function PersonalSavingsPage() {
           </div>
 
           {/* Navigation Arrow Right - Desktop Only */}
-          <button 
+          <button
             className="hidden lg:flex items-center justify-center flex-shrink-0 w-10 h-[140px] bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
             onClick={() => {
-              const container = document.getElementById('wallet-scroll-container');
-              if (container) container.scrollBy({ left: 200, behavior: 'smooth' });
+              const container = document.getElementById(
+                "wallet-scroll-container",
+              );
+              if (container)
+                container.scrollBy({ left: 200, behavior: "smooth" });
             }}
           >
-            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            <svg
+              className="w-5 h-5 text-gray-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
             </svg>
           </button>
         </div>
@@ -330,19 +377,34 @@ export default function PersonalSavingsPage() {
             See all
           </button>
         </div>
-        
+
         <div className="divide-y divide-gray-100">
           {/* Mock Transaction Items */}
           <div className="px-4 lg:px-6 py-4 hover:bg-gray-50 cursor-pointer">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
+                  <svg
+                    className="w-5 h-5 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M7 11l5-5m0 0l5 5m-5-5v12"
+                    />
                   </svg>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">To your {selectedWallet === "total" ? "Personal Savings" : currentWallet?.name || "Personal Savings"}</p>
+                  <p className="font-medium text-gray-900">
+                    To your{" "}
+                    {selectedWallet === "total"
+                      ? "Personal Savings"
+                      : currentWallet?.name || "Personal Savings"}
+                  </p>
                   <p className="text-sm text-gray-500">Moved • 12 Aug</p>
                 </div>
               </div>
@@ -357,8 +419,18 @@ export default function PersonalSavingsPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+                  <svg
+                    className="w-5 h-5 text-orange-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 13l-5 5m0 0l-5-5m5 5V6"
+                    />
                   </svg>
                 </div>
                 <div>
@@ -392,7 +464,10 @@ export default function PersonalSavingsPage() {
               No transactions yet
             </h4>
             <p className="text-sm lg:text-base text-gray-600 mb-4">
-              Start saving to your {selectedWallet === "total" ? "wallets" : currentWallet?.name || "wallet"}
+              Start saving to your{" "}
+              {selectedWallet === "total"
+                ? "wallets"
+                : currentWallet?.name || "wallet"}
             </p>
             <Button variant="primary" size="md">
               Make Your First Deposit
@@ -411,26 +486,66 @@ export default function PersonalSavingsPage() {
             <span className="text-xs">Home</span>
           </button>
           <button className="flex flex-col items-center gap-1 py-2 text-gray-600">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+              />
             </svg>
             <span className="text-xs">Cards</span>
           </button>
           <button className="flex flex-col items-center gap-1 py-2 text-gray-600">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+              />
             </svg>
             <span className="text-xs">Recipients</span>
           </button>
           <button className="flex flex-col items-center gap-1 py-2 text-gray-600">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <span className="text-xs">Payments</span>
           </button>
           <button className="flex flex-col items-center gap-1 py-2 text-gray-600">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+              />
             </svg>
             <span className="text-xs">Insights</span>
           </button>

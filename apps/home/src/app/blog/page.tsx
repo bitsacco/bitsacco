@@ -1,3 +1,11 @@
+import { Button } from '@/components/button'
+import { Container } from '@/components/container'
+import { Footer } from '@/components/footer'
+import { Link } from '@/components/link'
+import { Navbar } from '@/components/navbar'
+import { Heading, Lead } from '@/components/text'
+import { image } from '@/sanity/image'
+import { getCategories, getPosts, getPostsCount } from '@/sanity/queries'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import {
   CaretLeftIcon,
@@ -8,16 +16,9 @@ import {
 } from '@phosphor-icons/react/dist/ssr'
 import { clsx } from 'clsx'
 import dayjs from 'dayjs'
-import { notFound } from 'next/navigation'
-import { Button } from '@/components/button'
-import { Container } from '@/components/container'
-import { Footer } from '@/components/footer'
-import { Link } from '@/components/link'
-import { Navbar } from '@/components/navbar'
-import { Heading, Lead } from '@/components/text'
-import { image } from '@/sanity/image'
-import { getCategories, getPosts, getPostsCount } from '@/sanity/queries'
 import type { Metadata } from 'next'
+import Image from 'next/image'
+import { notFound } from 'next/navigation'
 
 const title = 'The Teal Horse | Bitsacco Blog'
 const description = 'The latest stories, updates, and news from Bitsacco.'
@@ -122,9 +123,11 @@ async function Posts({ page, category }: { page: number; category?: string }) {
               {post.author && (
                 <div className="flex items-center gap-3">
                   {post.author.image && (
-                    <img
+                    <Image
                       alt=""
                       src={image(post.author.image).width(32).height(32).url()}
+                      width={32}
+                      height={32}
                       className="size-8 rounded-full object-cover ring-1 ring-neutral-200 dark:ring-neutral-700"
                     />
                   )}

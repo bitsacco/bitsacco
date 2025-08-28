@@ -65,7 +65,10 @@ export class BaseApiClient {
 
         if (isJson) {
           try {
-            const errorData = await response.json() as { message?: string; errors?: ValidationError[] };
+            const errorData = (await response.json()) as {
+              message?: string;
+              errors?: ValidationError[];
+            };
             apiError = {
               statusCode: response.status,
               message: errorData.message || errorMessage,
@@ -86,7 +89,7 @@ export class BaseApiClient {
       // Parse response data
       let data: T | undefined;
       if (isJson) {
-        data = await response.json() as T;
+        data = (await response.json()) as T;
       } else {
         // For non-JSON responses, return the response text as data
         data = (await response.text()) as unknown as T;

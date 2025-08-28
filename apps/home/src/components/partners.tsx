@@ -1,6 +1,7 @@
-import Link from 'next/link'
 import { image } from '@/sanity/image'
 import { getPartners } from '@/sanity/queries'
+import Image from 'next/image'
+import Link from 'next/link'
 import { PartnersCarousel } from './partners-carousel'
 
 export async function Partners() {
@@ -23,9 +24,11 @@ export async function Partners() {
                 <div className="group flex flex-col items-center text-center">
                   {partner.logo && partner.logo.asset && (
                     <div className="mb-4 flex h-12 w-24 items-center justify-center sm:h-16 sm:w-32 md:h-20 md:w-36">
-                      <img
+                      <Image
                         src={image(partner.logo).url()}
                         alt={`${partner.name} logo`}
+                        width={144}
+                        height={80}
                         className="max-h-full max-w-full object-contain"
                       />
                     </div>
