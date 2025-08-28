@@ -25,7 +25,6 @@
   },
   "devDependencies": {
     "@bitsacco/tsconf": "*",
-    "@bitsacco/ui": "*",
     "@types/node": "^22.8.7",
     "typescript": "5.5.4"
   }
