@@ -1,148 +1,158 @@
+"use client";
+
 import Link from "next/link";
-import { Button } from "@bitsacco/ui";
+import Image from "next/image";
+import { useState, useEffect } from "react";
+import { 
+  ArrowsClockwise, 
+  WhatsappLogo, 
+  Sun, 
+  Moon 
+} from "@phosphor-icons/react";
 
 export default function Home() {
+  const [isDark, setIsDark] = useState(false);
+  const [btcRate, setBtcRate] = useState("6.9");
+
+  useEffect(() => {
+    // Check system theme preference
+    const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    setIsDark(darkModeQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) => setIsDark(e.matches);
+    darkModeQuery.addEventListener("change", handleChange);
+    
+    return () => darkModeQuery.removeEventListener("change", handleChange);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-purple-50">
-      {/* Header */}
-      <header className="container mx-auto px-4 py-6">
+    <div className={`min-h-screen transition-colors duration-300 ${
+      isDark 
+        ? "bg-[#2D3748] text-white" 
+        : "bg-gray-50 text-gray-900"
+    }`}>
+      {/* Navigation Header */}
+      <header className="container mx-auto px-4 py-4">
         <nav className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-purple-500 rounded-lg"></div>
-            <span className="text-xl font-bold text-gray-900">Bitsacco</span>
+          <Link href="/" className="flex items-center space-x-3">
+            <Image 
+              src="/assets/logo.svg" 
+              alt="Bitsacco Logo" 
+              width={40} 
+              height={40}
+              className="w-10 h-10"
+            />
+            <span className="text-2xl font-bold text-teal-500">BITSACCO</span>
+          </Link>
+          
+          {/* Bitcoin Rate Display */}
+          <div className={`hidden md:flex items-center space-x-2 px-4 py-2 rounded-lg ${
+            isDark ? "bg-gray-700" : "bg-gray-200"
+          }`}>
+            <span className="text-sm">1 KES = {btcRate} sats</span>
+            <button 
+              className="ml-2 p-1 rounded hover:bg-gray-600 transition-colors"
+              onClick={() => {/* Refresh rate */}}
+              aria-label="Refresh Bitcoin rate"
+            >
+              <ArrowsClockwise size={16} weight="bold" />
+            </button>
           </div>
-          <div className="flex items-center space-x-4">
-            <Link href="/auth/login">
-              <Button variant="ghost" size="sm">
-                Sign In
-              </Button>
+
+          {/* Auth Buttons */}
+          <div className="flex items-center space-x-3">
+            <Link 
+              href="/auth/login"
+              className={`px-6 py-2 rounded-lg border-2 transition-all font-medium ${
+                isDark 
+                  ? "border-teal-500 text-teal-400 hover:bg-teal-500 hover:text-white" 
+                  : "border-teal-600 text-teal-600 hover:bg-teal-600 hover:text-white"
+              }`}
+            >
+              LOGIN
             </Link>
-            <Link href="/auth/signup">
-              <Button variant="primary" size="sm">
-                Get Started
-              </Button>
+            <Link 
+              href="/auth/signup"
+              className="px-6 py-2 rounded-lg bg-teal-500 text-white hover:bg-teal-600 transition-all font-medium"
+            >
+              SIGNUP
             </Link>
           </div>
         </nav>
       </header>
 
       {/* Hero Section */}
-      <main className="container mx-auto px-4 py-20">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
-            Community Savings & Investment
-            <span className="block text-orange-500">Made Simple</span>
-          </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Join or create investment groups (Chamas), pool resources together,
-            and grow your wealth through collective savings powered by Bitcoin
-            and Lightning Network.
-          </p>
-          <div className="flex items-center justify-center space-x-4">
-            <Link href="/auth/signup">
-              <Button variant="primary" size="lg">
-                Start Saving Together
-              </Button>
-            </Link>
-            <Link href="/auth/login">
-              <Button variant="outline" size="lg">
-                Join Your Chama
-              </Button>
-            </Link>
-          </div>
+      <main className="flex flex-col items-center justify-center min-h-[80vh] px-4">
+        {/* Main Heading */}
+        <h1 className="text-5xl md:text-7xl font-bold text-center mb-8 tracking-wide">
+          <span className={isDark ? "text-white" : "text-gray-800"}>PLAN </span>
+          <span className="text-teal-500">• SAVE • </span>
+          <span className={isDark ? "text-white" : "text-gray-800"}>GROW</span>
+        </h1>
+
+        {/* Bitcoin Badge */}
+        <div className={`inline-flex items-center px-4 py-2 rounded-full mb-8 ${
+          isDark ? "bg-gray-700" : "bg-gray-200"
+        }`}>
+          <span className="text-sm font-medium uppercase tracking-wider">
+            Using Bitcoin
+          </span>
         </div>
 
-        {/* Features Grid */}
-        <div className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          <div className="text-center p-6">
-            <div className="w-16 h-16 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <svg
-                className="w-8 h-8 text-orange-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              Community Savings
-            </h3>
-            <p className="text-gray-600">
-              Join trusted groups and save money together with shared goals and
-              accountability.
-            </p>
-          </div>
+        {/* Description */}
+        <p className={`text-center text-lg md:text-xl max-w-3xl mb-12 leading-relaxed ${
+          isDark ? "text-gray-300" : "text-gray-600"
+        }`}>
+          Plan your finances. Save towards targets. Grow your finances<br />
+          together with community, friends and family.
+        </p>
 
-          <div className="text-center p-6">
-            <div className="w-16 h-16 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <svg
-                className="w-8 h-8 text-purple-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              Lightning Fast
-            </h3>
-            <p className="text-gray-600">
-              Instant transactions and settlements using Bitcoin&apos;s
-              Lightning Network technology.
-            </p>
-          </div>
-
-          <div className="text-center p-6">
-            <div className="w-16 h-16 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <svg
-                className="w-8 h-8 text-green-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              Secure & Transparent
-            </h3>
-            <p className="text-gray-600">
-              Every transaction is secured by cryptography with full
-              transparency for all members.
-            </p>
-          </div>
+        {/* CTA Buttons */}
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <Link 
+            href="/auth/login"
+            className={`px-8 py-3 rounded-lg border-2 transition-all font-medium text-lg ${
+              isDark 
+                ? "border-teal-500 text-teal-400 hover:bg-teal-500 hover:text-white" 
+                : "border-teal-600 text-teal-600 hover:bg-teal-600 hover:text-white"
+            }`}
+          >
+            LOGIN
+          </Link>
+          <Link 
+            href="/auth/signup"
+            className="px-8 py-3 rounded-lg bg-teal-500 text-white hover:bg-teal-600 transition-all font-medium text-lg"
+          >
+            SIGNUP
+          </Link>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="mt-24 bg-gray-900 text-white py-12">
-        <div className="container mx-auto px-4 text-center">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <div className="w-6 h-6 bg-gradient-to-br from-orange-500 to-purple-500 rounded-md"></div>
-            <span className="text-lg font-bold">Bitsacco</span>
-          </div>
-          <p className="text-gray-400">
-            Community savings and investment platform powered by Bitcoin.
-          </p>
-        </div>
-      </footer>
+      {/* WhatsApp Floating Button */}
+      <a
+        href="https://wa.me/254700000000"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-8 right-8 w-14 h-14 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 transition-all shadow-lg z-50"
+        aria-label="Contact on WhatsApp"
+      >
+        <WhatsappLogo size={32} weight="fill" color="white" />
+      </a>
+
+      {/* Theme Toggle Button */}
+      <button
+        onClick={() => setIsDark(!isDark)}
+        className={`fixed bottom-8 left-8 w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg ${
+          isDark ? "bg-gray-700 hover:bg-gray-600" : "bg-white hover:bg-gray-100"
+        }`}
+        aria-label="Toggle theme"
+      >
+        {isDark ? (
+          <Sun size={24} weight="fill" className="text-yellow-400" />
+        ) : (
+          <Moon size={24} weight="fill" className="text-gray-800" />
+        )}
+      </button>
     </div>
   );
 }
