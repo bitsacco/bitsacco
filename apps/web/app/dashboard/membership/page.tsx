@@ -23,7 +23,10 @@ import {
   StorefrontIcon,
   ClockCounterClockwiseIcon,
   ShoppingCartIcon,
+  ShieldCheckIcon,
 } from "@phosphor-icons/react";
+import { TransferSharesModal } from "@/components/transfer-shares-modal";
+import { BuySharesModal } from "@/components/buy-shares-modal";
 
 const SHARE_VALUE_KES = 1000;
 
@@ -32,7 +35,7 @@ const tabs = [
   {
     id: "shares",
     label: "My Shares",
-    icon: ChartLineIcon,
+    icon: ShieldCheckIcon,
     description: "View and manage your share holdings",
   },
   {
@@ -54,8 +57,10 @@ export default function MembershipPage() {
     "shares",
   );
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
-  const [purchaseQuantity, setPurchaseQuantity] = useState(1);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [selectedShareForTransfer, setSelectedShareForTransfer] =
+    useState<SharesTx | null>(null);
 
   // State for data
   const [offers, setOffers] = useState<AllSharesOffers | null>(null);
@@ -63,14 +68,12 @@ export default function MembershipPage() {
     null,
   );
   const [loading, setLoading] = useState(true);
-  const [subscribing, setSubscribing] = useState(false);
 
   // Fetch offers
   const fetchOffers = async () => {
     try {
       const response = await fetch("/api/membership/shares/offers");
       const data = await response.json();
-      console.log("[MEMBERSHIP PAGE] Offers response:", data);
       setOffers(data.data);
     } catch (error) {
       console.error("Failed to fetch offers:", error);
@@ -84,7 +87,6 @@ export default function MembershipPage() {
         "/api/membership/shares/transactions?size=20",
       );
       const data = await response.json();
-      console.log("[MEMBERSHIP PAGE] Transactions response:", data);
       setTransactions(data.data);
     } catch (error) {
       console.error("Failed to fetch transactions:", error);
@@ -125,34 +127,6 @@ export default function MembershipPage() {
     transactions?.transactions?.filter(
       (tx: SharesTx) => tx.status === SharesTxStatus.COMPLETED,
     ) || [];
-
-  const handlePurchaseShares = async () => {
-    if (!selectedOfferId) return;
-
-    setSubscribing(true);
-    try {
-      const response = await fetch("/api/membership/shares/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          offerId: selectedOfferId,
-          quantity: purchaseQuantity,
-        }),
-      });
-
-      if (response.ok) {
-        setShowPurchaseModal(false);
-        setSelectedOfferId(null);
-        setPurchaseQuantity(1);
-        // Refresh data
-        await fetchTransactions();
-      }
-    } catch (error) {
-      console.error("Failed to purchase shares:", error);
-    } finally {
-      setSubscribing(false);
-    }
-  };
 
   // Handle quick buy with first available offer
   const handleQuickBuy = () => {
@@ -307,6 +281,13 @@ export default function MembershipPage() {
                 size="md"
                 fullWidth
                 className="!border-slate-600 !text-gray-300 flex items-center justify-center gap-2"
+                onClick={() => {
+                  if (activeShares.length > 0) {
+                    setSelectedShareForTransfer(activeShares[0]);
+                    setShowTransferModal(true);
+                  }
+                }}
+                disabled={activeShares.length === 0}
               >
                 <ArrowsLeftRightIcon size={18} weight="bold" />
                 Transfer
@@ -328,6 +309,13 @@ export default function MembershipPage() {
               variant="tealOutline"
               size="lg"
               className="!border-slate-600 !text-gray-300 hover:!bg-slate-700/50 flex items-center justify-center gap-2"
+              onClick={() => {
+                if (activeShares.length > 0) {
+                  setSelectedShareForTransfer(activeShares[0]);
+                  setShowTransferModal(true);
+                }
+              }}
+              disabled={activeShares.length === 0}
             >
               <ArrowsLeftRightIcon size={20} weight="bold" />
               Transfer Shares
@@ -418,7 +406,7 @@ export default function MembershipPage() {
                         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
                           <div>
                             <div className="flex items-center gap-3 mb-2">
-                              <ChartLineIcon
+                              <ShieldCheckIcon
                                 size={20}
                                 weight="fill"
                                 className="text-teal-400"
@@ -453,6 +441,10 @@ export default function MembershipPage() {
                               variant="tealOutline"
                               size="sm"
                               className="!border-slate-600 !text-gray-300 hover:!bg-slate-700/50 w-full lg:w-auto"
+                              onClick={() => {
+                                setSelectedShareForTransfer(share);
+                                setShowTransferModal(true);
+                              }}
                             >
                               Transfer Shares
                             </Button>
@@ -474,7 +466,7 @@ export default function MembershipPage() {
                     <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
                       <div>
                         <div className="flex items-center gap-3 mb-2">
-                          <ChartLineIcon
+                          <ShieldCheckIcon
                             size={20}
                             weight="fill"
                             className="text-teal-400"
@@ -548,7 +540,7 @@ export default function MembershipPage() {
           <div className="p-8">
             <div className="flex justify-between items-center mb-8">
               <h3 className="text-xl font-semibold text-gray-100">
-                Available Share Offers
+                Share Marketplace
               </h3>
               <div className="flex items-center gap-2 text-sm text-gray-400">
                 <SparkleIcon
@@ -556,7 +548,7 @@ export default function MembershipPage() {
                   weight="fill"
                   className="text-yellow-400"
                 />
-                Limited time offers
+                Official & Member listings
               </div>
             </div>
             {loading ? (
@@ -736,77 +728,34 @@ export default function MembershipPage() {
       </div>
 
       {/* Purchase Modal */}
-      {showPurchaseModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-800 border border-slate-700 rounded-xl max-w-md w-full p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-teal-500/20 rounded-xl flex items-center justify-center">
-                <ShoppingBagIcon
-                  size={24}
-                  weight="fill"
-                  className="text-teal-400"
-                />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-100">
-                Purchase Shares
-              </h3>
-            </div>
+      <BuySharesModal
+        isOpen={showPurchaseModal}
+        onClose={() => {
+          setShowPurchaseModal(false);
+          setSelectedOfferId(null);
+        }}
+        offer={
+          selectedOfferId
+            ? offers?.offers?.find((o) => o.id === selectedOfferId) || null
+            : null
+        }
+        onSuccess={fetchTransactions}
+      />
 
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-400 mb-3">
-                Number of Shares
-              </label>
-              <input
-                type="number"
-                min="1"
-                value={purchaseQuantity}
-                onChange={(e) =>
-                  setPurchaseQuantity(parseInt(e.target.value) || 1)
-                }
-                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
-              />
-            </div>
-
-            <div className="bg-slate-900/50 rounded-lg p-4 mb-6">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-400">Price per share:</span>
-                <span className="text-gray-300">
-                  {formatCurrency(SHARE_VALUE_KES)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center mt-3 pt-3 border-t border-slate-700">
-                <span className="text-gray-400">Total Cost:</span>
-                <span className="text-xl font-bold text-teal-300">
-                  {formatCurrency(purchaseQuantity * SHARE_VALUE_KES)}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                fullWidth
-                onClick={() => {
-                  setShowPurchaseModal(false);
-                  setSelectedOfferId(null);
-                  setPurchaseQuantity(1);
-                }}
-                className="!bg-slate-700/50 !text-gray-300 !border-slate-600 hover:!bg-slate-700 transition-all"
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="tealPrimary"
-                fullWidth
-                onClick={handlePurchaseShares}
-                disabled={subscribing}
-                className="shadow-lg shadow-teal-500/20"
-              >
-                {subscribing ? "Processing..." : "Confirm Purchase"}
-              </Button>
-            </div>
-          </div>
-        </div>
+      {/* Transfer Modal */}
+      {selectedShareForTransfer && (
+        <TransferSharesModal
+          isOpen={showTransferModal}
+          onClose={() => {
+            setShowTransferModal(false);
+            setSelectedShareForTransfer(null);
+          }}
+          share={selectedShareForTransfer}
+          onSuccess={() => {
+            fetchTransactions();
+            fetchOffers();
+          }}
+        />
       )}
     </div>
   );

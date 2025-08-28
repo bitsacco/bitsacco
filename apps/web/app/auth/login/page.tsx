@@ -59,7 +59,7 @@ export default function LoginPage() {
         <div className="space-y-8">
           <div>
             <div className="flex justify-center mb-8">
-              <Logo size="lg" />
+              <Logo />
             </div>
             <h2 className="text-center text-3xl font-bold text-gray-900">
               Sign in to your account

@@ -52,31 +52,32 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-800 via-slate-900 to-slate-800">
-      {/* Mobile sidebar */}
-      <div
-        className={`fixed inset-0 z-50 ${sidebarOpen ? "block" : "hidden"} lg:hidden`}
-      >
-        <div
-          className="fixed inset-0 bg-slate-900 bg-opacity-75 backdrop-blur-sm"
-          onClick={() => setSidebarOpen(false)}
-        />
-        <div className="fixed inset-y-0 left-0 w-72 bg-slate-800/95 backdrop-blur-xl shadow-xl flex flex-col">
-          <div className="flex items-center justify-between px-6 py-5 border-b border-slate-700">
-            <Logo className="h-10" />
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="text-gray-400 hover:text-gray-200 transition-colors p-1.5 rounded-lg hover:bg-slate-700/50"
-            >
-              <XIcon size={24} weight="bold" />
-            </button>
+      {/* Mobile sidebar - Full screen overlay like navbar */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-[100] bg-slate-800/95 backdrop-blur-xl lg:hidden">
+          <div className="flex h-screen flex-col bg-slate-800/95 backdrop-blur-xl">
+            <div className="flex items-center justify-between border-b border-slate-700 px-6 py-4">
+              <Logo className="h-10" />
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="flex size-10 items-center justify-center rounded-lg transition-colors hover:bg-slate-700/50"
+                aria-label="Close menu"
+              >
+                <XIcon size={24} weight="bold" className="text-gray-300" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <SidebarContent
+                pathname={pathname}
+                onSignOut={handleSignOut}
+                session={session}
+                isMobile={true}
+                onNavigate={() => setSidebarOpen(false)}
+              />
+            </div>
           </div>
-          <SidebarContent
-            pathname={pathname}
-            onSignOut={handleSignOut}
-            session={session}
-          />
         </div>
-      </div>
+      )}
 
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:w-72 lg:flex lg:flex-col">
@@ -94,17 +95,17 @@ export default function DashboardLayout({
 
       {/* Main content */}
       <div className="lg:ml-72 flex flex-col min-h-screen">
-        {/* Mobile header */}
-        <div className="lg:hidden bg-slate-800/90 backdrop-blur-xl shadow-sm border-b border-slate-700 px-4 py-3">
+        {/* Mobile header - Hamburger on the right like navbar */}
+        <div className="lg:hidden bg-slate-800/90 backdrop-blur-xl shadow-sm border-b border-slate-700 px-6 py-4">
           <div className="flex items-center justify-between">
+            <Logo className="h-8" />
             <button
               onClick={() => setSidebarOpen(true)}
-              className="text-gray-400 hover:text-gray-200 transition-colors p-1"
+              className="flex size-10 items-center justify-center rounded-lg transition-colors hover:bg-slate-700/50"
+              aria-label="Open main menu"
             >
-              <ListIcon size={24} weight="bold" />
+              <ListIcon size={24} weight="bold" className="text-gray-300" />
             </button>
-            <Logo className="h-6" />
-            <div className="w-8"></div>
           </div>
         </div>
 
@@ -119,14 +120,22 @@ function SidebarContent({
   pathname,
   onSignOut,
   session,
+  isMobile = false,
+  onNavigate,
 }: {
   pathname: string;
   onSignOut: () => void;
   session: Session | null;
+  isMobile?: boolean;
+  onNavigate?: () => void;
 }) {
   return (
-    <div className="flex flex-col flex-1 overflow-y-auto">
-      <nav className="flex-1 px-4 py-6 space-y-2">
+    <div
+      className={`flex flex-col flex-1 overflow-y-auto ${isMobile ? "px-6 py-8" : ""}`}
+    >
+      <nav
+        className={`flex-1 ${isMobile ? "space-y-1" : "px-4 py-6 space-y-2"}`}
+      >
         {navigation.map((item) => {
           const isActive = pathname.startsWith(item.href);
           const Icon = item.icon;
@@ -134,23 +143,32 @@ function SidebarContent({
             <Link
               key={item.name}
               href={item.href}
-              className={`group flex items-center px-4 py-3 text-base font-medium rounded-xl transition-all duration-200 ${
-                isActive
-                  ? "bg-teal-500/20 text-teal-300 shadow-lg shadow-teal-500/10"
-                  : "text-gray-300 hover:bg-slate-700/60 hover:text-white"
+              onClick={onNavigate}
+              className={`group flex items-center transition-all duration-200 ${
+                isMobile
+                  ? `px-4 py-3 text-xl font-semibold rounded-lg ${
+                      isActive
+                        ? "bg-teal-500/20 text-teal-300"
+                        : "text-white hover:bg-slate-700/50"
+                    }`
+                  : `px-4 py-3 text-base font-medium rounded-xl ${
+                      isActive
+                        ? "bg-teal-500/20 text-teal-300 shadow-lg shadow-teal-500/10"
+                        : "text-gray-300 hover:bg-slate-700/60 hover:text-white"
+                    }`
               }`}
             >
               <Icon
-                size={22}
+                size={isMobile ? 24 : 22}
                 weight={isActive ? "fill" : "regular"}
-                className={`mr-4 flex-shrink-0 ${
+                className={`${isMobile ? "mr-3" : "mr-4"} flex-shrink-0 ${
                   isActive
                     ? "text-teal-400"
                     : "text-gray-400 group-hover:text-gray-300"
                 }`}
               />
               <span className="truncate">{item.name}</span>
-              {isActive && (
+              {!isMobile && isActive && (
                 <div className="ml-auto w-1 h-5 bg-teal-400 rounded-full" />
               )}
             </Link>
@@ -159,8 +177,12 @@ function SidebarContent({
       </nav>
 
       {/* User section - Fixed at bottom */}
-      <div className="flex-shrink-0 border-t border-slate-700 p-4">
-        <div className="flex items-center space-x-3 mb-4 px-2">
+      <div
+        className={`flex-shrink-0 border-t border-slate-700 ${isMobile ? "px-6 py-4" : "p-4"}`}
+      >
+        <div
+          className={`flex items-center space-x-3 mb-4 ${isMobile ? "" : "px-2"}`}
+        >
           <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg">
             <UserIcon size={18} weight="fill" className="text-white" />
           </div>
