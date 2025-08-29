@@ -5,14 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, Logo, Container } from "@bitsacco/ui";
 import { Role } from "@bitsacco/core/types";
+import { PinInput } from "@/components/pin-input";
 
 export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState<"register" | "verify">("register");
-  const [activeTab, setActiveTab] = useState<"phone" | "nostr">("phone");
   const [formData, setFormData] = useState({
     phone: "",
-    npub: "",
     pin: "",
     confirmPin: "",
     otp: "",
@@ -27,7 +26,13 @@ export default function SignupPage() {
     setIsLoading(true);
     setError("");
 
-    // Validate PIN confirmation
+    // Validate PIN length and confirmation
+    if (formData.pin.length !== 6) {
+      setError("Please enter a complete 6-digit PIN");
+      setIsLoading(false);
+      return;
+    }
+
     if (formData.pin !== formData.confirmPin) {
       setError("PINs do not match");
       setIsLoading(false);
@@ -42,8 +47,7 @@ export default function SignupPage() {
         },
         body: JSON.stringify({
           pin: formData.pin,
-          phone: activeTab === "phone" ? formData.phone : undefined,
-          npub: activeTab === "nostr" ? formData.npub : undefined,
+          phone: formData.phone,
           name: formData.name,
           roles: [Role.Member],
         }),
@@ -51,9 +55,7 @@ export default function SignupPage() {
 
       if (response.ok) {
         setStep("verify");
-        setSuccess(
-          `Verification code sent to your ${activeTab === "phone" ? "phone" : "Nostr account"}`,
-        );
+        setSuccess("Verification code sent to your phone");
       } else {
         const data = await response.json();
         setError(data.message || "Registration failed");
@@ -77,14 +79,22 @@ export default function SignupPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          phone: activeTab === "phone" ? formData.phone : undefined,
-          npub: activeTab === "nostr" ? formData.npub : undefined,
+          phone: formData.phone,
           otp: formData.otp,
         }),
       });
 
       if (response.ok) {
-        router.push("/auth/login?message=Account verified successfully");
+        const data = await response.json();
+
+        // If we got auth tokens, the user is now authenticated
+        if (data.accessToken && data.refreshToken) {
+          // User is automatically logged in after verification
+          router.push("/dashboard");
+        } else {
+          // Otherwise redirect to login
+          router.push("/auth/login");
+        }
       } else {
         const data = await response.json();
         setError(data.message || "Verification failed");
@@ -104,208 +114,113 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-orange-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <Container className="max-w-md">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-teal-900/20 via-slate-900 to-slate-900" />
+      <Container className="max-w-lg relative z-10">
         <div className="space-y-8">
           <div>
             <div className="flex justify-center mb-8">
-              <Logo />
+              <Logo className="h-12 w-auto text-white" />
             </div>
-            <h2 className="text-center text-3xl font-bold text-gray-900">
+            <h2 className="text-center text-3xl font-bold text-gray-100">
               {step === "register"
                 ? "Create your account"
                 : "Verify your account"}
             </h2>
-            <p className="mt-2 text-center text-sm text-gray-600">
+            <p className="mt-2 text-center text-sm text-gray-400">
               {step === "register" ? (
                 <>
                   Already have an account?{" "}
                   <Link
                     href="/auth/login"
-                    className="font-medium text-teal-600 hover:text-teal-500 transition-colors"
+                    className="font-medium text-teal-400 hover:text-teal-300 transition-colors"
                   >
                     Sign in
                   </Link>
                 </>
               ) : (
-                "Enter the verification code sent to your account"
+                "Enter the verification code sent to you"
               )}
             </p>
           </div>
 
-          <div className="bg-white shadow-xl rounded-2xl p-8 border border-gray-100">
+          <div className="bg-slate-800/50 backdrop-blur-xl shadow-2xl rounded-2xl p-8 border border-slate-700">
             {step === "register" ? (
-              <>
-                {/* Tab Navigation */}
-                <div className="flex space-x-1 rounded-lg bg-gray-100 p-1 mb-6">
-                  <button
-                    type="button"
-                    className={`w-full py-2.5 text-sm font-medium rounded-md transition-all duration-200 ${
-                      activeTab === "phone"
-                        ? "bg-white text-gray-900 shadow-sm"
-                        : "text-gray-500 hover:text-gray-900"
-                    }`}
-                    onClick={() => setActiveTab("phone")}
+              <form onSubmit={handleRegister} className="space-y-6">
+                <div>
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-300"
                   >
-                    Phone & PIN
-                  </button>
-                  <button
-                    type="button"
-                    className={`w-full py-2.5 text-sm font-medium rounded-md transition-all duration-200 ${
-                      activeTab === "nostr"
-                        ? "bg-white text-gray-900 shadow-sm"
-                        : "text-gray-500 hover:text-gray-900"
-                    }`}
-                    onClick={() => setActiveTab("nostr")}
-                  >
-                    Nostr & PIN
-                  </button>
+                    Full Name
+                  </label>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="John Doe"
+                    className="mt-1 block w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg placeholder-gray-500 text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:bg-slate-900/70 transition-all"
+                  />
                 </div>
-
-                <form onSubmit={handleRegister} className="space-y-6">
-                  <div>
-                    <label
-                      htmlFor="name"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      Name (Optional)
-                    </label>
-                    <input
-                      id="name"
-                      name="name"
-                      type="text"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      placeholder="Your display name"
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
-                    />
-                  </div>
-
-                  {activeTab === "phone" ? (
-                    <div>
-                      <label
-                        htmlFor="phone"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Phone Number
-                      </label>
-                      <input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        required
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        placeholder="+1234567890"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
-                      />
-                    </div>
-                  ) : (
-                    <div>
-                      <label
-                        htmlFor="npub"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Nostr Public Key
-                      </label>
-                      <input
-                        id="npub"
-                        name="npub"
-                        type="text"
-                        required
-                        value={formData.npub}
-                        onChange={handleInputChange}
-                        placeholder="npub1..."
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
-                      />
-                    </div>
-                  )}
-
-                  <div>
-                    <label
-                      htmlFor="pin"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      PIN
-                    </label>
-                    <input
-                      id="pin"
-                      name="pin"
-                      type="password"
-                      required
-                      value={formData.pin}
-                      onChange={handleInputChange}
-                      placeholder="Create a secure PIN"
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="confirmPin"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      Confirm PIN
-                    </label>
-                    <input
-                      id="confirmPin"
-                      name="confirmPin"
-                      type="password"
-                      required
-                      value={formData.confirmPin}
-                      onChange={handleInputChange}
-                      placeholder="Confirm your PIN"
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
-                    />
-                  </div>
-
-                  {error && (
-                    <div className="rounded-lg bg-red-50 border border-red-200 p-4">
-                      <div className="text-sm text-red-700">{error}</div>
-                    </div>
-                  )}
-
-                  <Button
-                    type="submit"
-                    variant="tealPrimary"
-                    size="lg"
-                    fullWidth
-                    loading={isLoading}
-                  >
-                    Create Account
-                  </Button>
-                </form>
-              </>
-            ) : (
-              <form onSubmit={handleVerify} className="space-y-6">
-                {success && (
-                  <div className="rounded-lg bg-green-50 border border-green-200 p-4">
-                    <div className="text-sm text-green-700">{success}</div>
-                  </div>
-                )}
 
                 <div>
                   <label
-                    htmlFor="otp"
-                    className="block text-sm font-medium text-gray-700"
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-gray-300"
                   >
-                    Verification Code
+                    Phone Number
                   </label>
                   <input
-                    id="otp"
-                    name="otp"
-                    type="text"
+                    id="phone"
+                    name="phone"
+                    type="tel"
                     required
-                    value={formData.otp}
+                    value={formData.phone}
                     onChange={handleInputChange}
-                    placeholder="Enter verification code"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+                    placeholder="+254712345678"
+                    className="mt-1 block w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg placeholder-gray-500 text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:bg-slate-900/70 transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-4">
+                    Create a 6-digit PIN
+                  </label>
+                  <PinInput
+                    value={formData.pin}
+                    onChange={(value) =>
+                      setFormData((prev) => ({ ...prev, pin: value }))
+                    }
+                    autoFocus={false}
+                    error={!!error && error.includes("PIN")}
+                    disabled={isLoading}
+                  />
+                  <p className="mt-2 text-xs text-gray-500 text-center">
+                    You&apos;ll use this PIN to access your account
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-4">
+                    Confirm your PIN
+                  </label>
+                  <PinInput
+                    value={formData.confirmPin}
+                    onChange={(value) =>
+                      setFormData((prev) => ({ ...prev, confirmPin: value }))
+                    }
+                    autoFocus={false}
+                    error={!!error && error.includes("match")}
+                    disabled={isLoading}
                   />
                 </div>
 
                 {error && (
-                  <div className="rounded-lg bg-red-50 border border-red-200 p-4">
-                    <div className="text-sm text-red-700">{error}</div>
+                  <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-4">
+                    <div className="text-sm text-red-400">{error}</div>
                   </div>
                 )}
 
@@ -315,6 +230,60 @@ export default function SignupPage() {
                   size="lg"
                   fullWidth
                   loading={isLoading}
+                  disabled={
+                    !formData.name ||
+                    !formData.phone ||
+                    formData.pin.length !== 6 ||
+                    formData.confirmPin.length !== 6
+                  }
+                  className="shadow-lg shadow-teal-500/20"
+                >
+                  Create Account
+                </Button>
+              </form>
+            ) : (
+              <form
+                id="verify-form"
+                onSubmit={handleVerify}
+                className="space-y-6"
+              >
+                {success && (
+                  <div className="rounded-lg bg-teal-500/10 border border-teal-500/30 p-4">
+                    <div className="text-sm text-teal-400">{success}</div>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-4">
+                    Enter verification code
+                  </label>
+                  <PinInput
+                    value={formData.otp}
+                    onChange={(value) =>
+                      setFormData((prev) => ({ ...prev, otp: value }))
+                    }
+                    autoFocus={true}
+                    error={!!error}
+                    disabled={isLoading}
+                    placeholder="0"
+                    secure={false}
+                  />
+                </div>
+
+                {error && (
+                  <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-4">
+                    <div className="text-sm text-red-400">{error}</div>
+                  </div>
+                )}
+
+                <Button
+                  type="submit"
+                  variant="tealPrimary"
+                  size="lg"
+                  fullWidth
+                  loading={isLoading}
+                  disabled={formData.otp.length !== 6}
+                  className="shadow-lg shadow-teal-500/20"
                 >
                   Verify Account
                 </Button>
@@ -323,7 +292,7 @@ export default function SignupPage() {
                   <button
                     type="button"
                     onClick={() => setStep("register")}
-                    className="text-sm text-teal-600 hover:text-teal-500 transition-colors"
+                    className="text-sm text-teal-400 hover:text-teal-300 transition-colors"
                   >
                     Back to registration
                   </button>

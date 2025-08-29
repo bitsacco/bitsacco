@@ -7,7 +7,6 @@ import {
   type BitcoinRateDisplayProps,
 } from "./BitcoinRateDisplay";
 import { Container } from "./Container";
-import { Logo } from "./Logo";
 import { NavButton } from "./NavButton";
 import { PlusGrid, PlusGridItem, PlusGridRow } from "./PlusGrid";
 
@@ -17,12 +16,17 @@ export interface NavLink {
   external?: boolean;
 }
 
+export interface NavbarButton {
+  text: string;
+  href: string;
+  variant?: "tealPrimary" | "tealOutline";
+}
+
 export interface NavbarProps {
   links?: NavLink[];
-  appUrl?: string;
+  buttons?: NavbarButton[];
   banner?: React.ReactNode;
-  showAuth?: boolean;
-  logoHref?: string;
+  Logo?: React.ComponentType<{ className?: string }>;
   MenuIcon?: React.ComponentType<{ className?: string }>;
   CloseIcon?: React.ComponentType<{ className?: string }>;
   bitcoinRateProps?: BitcoinRateDisplayProps;
@@ -30,12 +34,10 @@ export interface NavbarProps {
 
 function DesktopNav({
   links = [],
-  appUrl = "",
-  showAuth = true,
+  buttons = [],
 }: {
   links?: NavLink[];
-  appUrl?: string;
-  showAuth?: boolean;
+  buttons?: NavbarButton[];
 }) {
   return (
     <nav className="relative hidden items-center gap-6 lg:flex">
@@ -51,14 +53,17 @@ function DesktopNav({
           {label}
         </Link>
       ))}
-      {showAuth && (
+      {buttons.length > 0 && (
         <div className="flex items-center gap-4 ml-4">
-          <NavButton href={`${appUrl}/auth?q=login`} variant="tealOutline">
-            LOGIN
-          </NavButton>
-          <NavButton href={`${appUrl}/auth?q=signup`} variant="tealPrimary">
-            SIGNUP
-          </NavButton>
+          {buttons.map((button, index) => (
+            <NavButton
+              key={index}
+              href={button.href}
+              variant={button.variant || "tealPrimary"}
+            >
+              {button.text}
+            </NavButton>
+          ))}
         </div>
       )}
     </nav>
@@ -91,17 +96,15 @@ function MobileNav({
   isOpen,
   onClose,
   links = [],
-  appUrl = "",
-  showAuth = true,
-  logoHref = "/",
+  buttons = [],
+  Logo,
   CloseIcon,
 }: {
   isOpen: boolean;
   onClose: () => void;
   links?: NavLink[];
-  appUrl?: string;
-  showAuth?: boolean;
-  logoHref?: string;
+  buttons?: NavbarButton[];
+  Logo?: React.ComponentType<{ className?: string }>;
   CloseIcon?: React.ComponentType<{ className?: string }>;
 }) {
   if (!isOpen) return null;
@@ -110,7 +113,7 @@ function MobileNav({
     <div className="fixed inset-0 z-[100] bg-slate-800/95 backdrop-blur-xl lg:hidden">
       <div className="flex h-screen flex-col bg-slate-800/95 backdrop-blur-xl">
         <div className="flex items-center justify-between border-b border-gray-800 px-6 py-4">
-          <Logo className="h-18 w-auto" href={logoHref} />
+          {Logo && <Logo className="h-18 w-auto" />}
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
@@ -144,21 +147,22 @@ function MobileNav({
             ))}
           </div>
 
-          {showAuth && (
+          {buttons.length > 0 && (
             <div className="mt-8">
               <div className="flex flex-col gap-3">
-                <NavButton
-                  href={`${appUrl}/auth?q=login`}
-                  className="inline-flex w-full items-center justify-center rounded-lg border-2 border-teal-500 bg-transparent px-8 py-3 text-base font-semibold tracking-wide text-teal-500 uppercase transition-all hover:bg-teal-500 hover:text-white"
-                >
-                  LOGIN
-                </NavButton>
-                <NavButton
-                  href={`${appUrl}/auth?q=signup`}
-                  className="inline-flex w-full items-center justify-center rounded-lg bg-teal-500 px-8 py-3 text-base font-semibold tracking-wide text-white uppercase transition-all hover:bg-teal-600"
-                >
-                  SIGNUP
-                </NavButton>
+                {buttons.map((button, index) => (
+                  <NavButton
+                    key={index}
+                    href={button.href}
+                    className={
+                      button.variant === "tealOutline"
+                        ? "inline-flex w-full items-center justify-center rounded-lg border-2 border-teal-500 bg-transparent px-8 py-3 text-base font-semibold tracking-wide text-teal-500 uppercase transition-all hover:bg-teal-500 hover:text-white"
+                        : "inline-flex w-full items-center justify-center rounded-lg bg-teal-500 px-8 py-3 text-base font-semibold tracking-wide text-white uppercase transition-all hover:bg-teal-600"
+                    }
+                  >
+                    {button.text}
+                  </NavButton>
+                ))}
               </div>
             </div>
           )}
@@ -176,10 +180,9 @@ function MobileNav({
 
 export function Navbar({
   links = [],
-  appUrl = "",
+  buttons = [],
   banner,
-  showAuth = true,
-  logoHref = "/",
+  Logo,
   MenuIcon,
   CloseIcon,
   bitcoinRateProps,
@@ -193,9 +196,11 @@ export function Navbar({
           <PlusGrid>
             <PlusGridRow className="relative flex items-center">
               <div className="relative flex items-center gap-6 flex-1">
-                <PlusGridItem>
-                  <Logo href={logoHref} />
-                </PlusGridItem>
+                {Logo && (
+                  <PlusGridItem>
+                    <Logo />
+                  </PlusGridItem>
+                )}
                 {banner && (
                   <div className="relative hidden items-center py-3 lg:flex">
                     {banner}
@@ -208,7 +213,7 @@ export function Navbar({
                 </div>
               )}
               <div className="flex items-center gap-2 justify-end flex-1">
-                <DesktopNav links={links} appUrl={appUrl} showAuth={showAuth} />
+                <DesktopNav links={links} buttons={buttons} />
                 <MobileNavButton
                   onClick={() => setIsMobileMenuOpen(true)}
                   MenuIcon={MenuIcon}
@@ -222,9 +227,8 @@ export function Navbar({
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
         links={links}
-        appUrl={appUrl}
-        showAuth={showAuth}
-        logoHref={logoHref}
+        buttons={buttons}
+        Logo={Logo}
         CloseIcon={CloseIcon}
       />
     </>
