@@ -7,7 +7,32 @@ export async function POST(request: NextRequest) {
 
     const response = await apiClient.auth.register(body);
 
-    return NextResponse.json(response.data);
+    // Ensure the response data is properly serializable
+    if (!response.data) {
+      return NextResponse.json(
+        { message: "Invalid response from server" },
+        { status: 500 },
+      );
+    }
+
+    // Extract only the serializable parts
+    const { user, accessToken, refreshToken } = response.data;
+
+    // Create a clean, serializable response
+    const serializedResponse = {
+      user: user
+        ? {
+            id: user.id,
+            phone: user.phone,
+            profile: user.profile,
+            roles: user.roles,
+          }
+        : null,
+      accessToken,
+      refreshToken,
+    };
+
+    return NextResponse.json(serializedResponse);
   } catch (error) {
     console.error("Registration error:", error);
 

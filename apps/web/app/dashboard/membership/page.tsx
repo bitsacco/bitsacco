@@ -217,32 +217,33 @@ export default function MembershipPage() {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-100 mb-2">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-100 mb-2">
           Membership Dashboard
         </h1>
-        <p className="text-gray-400">
+        <p className="text-sm sm:text-base text-gray-400">
           Manage your shares, track your investment journey and participate in
           your SACCO
         </p>
       </div>
 
       {/* Stats Card */}
-      <div className="bg-gradient-to-r from-teal-900/30 to-blue-900/30 border border-teal-700/50 rounded-xl p-8 mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-14 h-14 bg-teal-500/20 rounded-xl flex items-center justify-center">
+      <div className="bg-gradient-to-r from-teal-900/30 to-blue-900/30 border border-teal-700/50 rounded-xl p-6 sm:p-8 mb-6">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="w-full lg:flex-1">
+            {/* Header with icon - centered on mobile */}
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
+              <div className="w-14 h-14 bg-teal-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
                 <ChartLineIcon
                   size={28}
                   weight="fill"
                   className="text-teal-400"
                 />
               </div>
-              <div>
-                <h3 className="text-2xl font-bold text-gray-100">
+              <div className="text-center sm:text-left">
+                <h3 className="text-2xl sm:text-3xl font-bold text-gray-100">
                   Your Share Portfolio
                 </h3>
                 <p className="text-gray-400">
@@ -250,37 +251,40 @@ export default function MembershipPage() {
                 </p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-8 mt-6">
-              <div>
+
+            {/* Stats Grid - centered on mobile */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+              <div className="text-center sm:text-left">
                 <p className="text-sm text-gray-400 mb-1">Total Shares</p>
                 <p className="text-3xl font-bold text-teal-300">
                   {summary.totalShares.toLocaleString()}
                 </p>
               </div>
-              <div>
+              <div className="text-center sm:text-left">
                 <p className="text-sm text-gray-400 mb-1">Portfolio Value</p>
                 <p className="text-3xl font-bold text-gray-100">
                   {formatCurrency(summary.totalValue)}
                 </p>
               </div>
             </div>
-            {/* Mobile buttons */}
-            <div className="flex gap-3 mt-6 lg:hidden">
+
+            {/* Mobile and Tablet buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 lg:hidden">
               <Button
                 variant="tealPrimary"
-                size="md"
+                size="lg"
                 onClick={handleQuickBuy}
                 fullWidth
                 className="shadow-lg shadow-teal-500/20 flex items-center justify-center gap-2"
               >
-                <ShoppingCartIcon size={18} weight="bold" />
+                <ShoppingCartIcon size={20} weight="bold" />
                 Buy Shares
               </Button>
               <Button
                 variant="tealOutline"
-                size="md"
+                size="lg"
                 fullWidth
-                className="!border-slate-600 !text-gray-300 flex items-center justify-center gap-2"
+                className="!border-slate-600 !text-gray-300 hover:!bg-slate-700/50 flex items-center justify-center gap-2"
                 onClick={() => {
                   if (activeShares.length > 0) {
                     setSelectedShareForTransfer(activeShares[0]);
@@ -289,13 +293,14 @@ export default function MembershipPage() {
                 }}
                 disabled={activeShares.length === 0}
               >
-                <ArrowsLeftRightIcon size={18} weight="bold" />
-                Transfer
+                <ArrowsLeftRightIcon size={20} weight="bold" />
+                Transfer Shares
               </Button>
             </div>
           </div>
+
           {/* Desktop buttons */}
-          <div className="hidden lg:flex lg:flex-col lg:gap-3">
+          <div className="hidden lg:flex lg:flex-col gap-3 flex-shrink-0">
             <Button
               variant="tealPrimary"
               size="lg"
@@ -325,8 +330,8 @@ export default function MembershipPage() {
       </div>
 
       {/* Enhanced Tab Navigation */}
-      <div className="mb-8">
-        <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-2 border border-slate-700">
+      <div className="mb-6 sm:mb-8">
+        <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl sm:rounded-2xl p-1.5 sm:p-2 border border-slate-700">
           <div className="relative">
             {/* Sliding indicator */}
             <div
@@ -349,7 +354,7 @@ export default function MembershipPage() {
                   <button
                     key={tab.id}
                     type="button"
-                    className={`flex-1 flex items-center justify-center gap-3 py-4 px-6 rounded-xl transition-all duration-200 group ${
+                    className={`flex-1 flex items-center justify-center gap-2 sm:gap-3 py-3 sm:py-4 px-2 sm:px-4 lg:px-6 rounded-xl transition-all duration-200 group ${
                       isActive
                         ? "text-teal-300"
                         : "text-gray-400 hover:text-gray-300"
@@ -365,7 +370,7 @@ export default function MembershipPage() {
                           : "text-gray-500 group-hover:text-gray-400"
                       }`}
                     />
-                    <span className="font-semibold text-sm hidden sm:inline">
+                    <span className="font-semibold text-xs sm:text-sm hidden sm:inline">
                       {tab.label}
                     </span>
                   </button>
@@ -384,7 +389,7 @@ export default function MembershipPage() {
       {/* Content */}
       <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700">
         {activeTab === "shares" && (
-          <div className="p-8">
+          <div className="p-4 sm:p-6 lg:p-8">
             {loading ? (
               <div className="text-center py-16">
                 <div className="animate-spin rounded-full h-14 w-14 border-4 border-slate-700 border-t-teal-400 mx-auto"></div>
@@ -537,7 +542,7 @@ export default function MembershipPage() {
         )}
 
         {activeTab === "offers" && (
-          <div className="p-8">
+          <div className="p-4 sm:p-6 lg:p-8">
             <div className="flex justify-between items-center mb-8">
               <h3 className="text-xl font-semibold text-gray-100">
                 Share Marketplace
@@ -648,7 +653,7 @@ export default function MembershipPage() {
         )}
 
         {activeTab === "history" && (
-          <div className="p-8">
+          <div className="p-4 sm:p-6 lg:p-8">
             {loading ? (
               <div className="text-center py-16">
                 <div className="animate-spin rounded-full h-14 w-14 border-4 border-slate-700 border-t-teal-400 mx-auto"></div>

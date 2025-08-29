@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Navbar, Hero } from "@bitsacco/ui";
+import { Navbar, Hero, Logo, type NavbarButton } from "@bitsacco/ui";
 import {
   ArrowsClockwiseIcon,
   WhatsappLogoIcon,
@@ -31,6 +31,19 @@ export default function Home() {
     return () => darkModeQuery.removeEventListener("change", handleChange);
   }, []);
 
+  const buttons: NavbarButton[] = [
+    {
+      text: "LOGIN",
+      href: "/auth/login",
+      variant: "tealOutline",
+    },
+    {
+      text: "SIGNUP",
+      href: "/auth/signup",
+      variant: "tealPrimary",
+    },
+  ];
+
   return (
     <div
       className={`min-h-screen transition-colors duration-300 ${
@@ -39,8 +52,8 @@ export default function Home() {
     >
       <Navbar
         links={[]}
-        showAuth={true}
-        logoHref="/"
+        buttons={buttons}
+        Logo={() => <Logo href="/" />}
         MenuIcon={ListIcon}
         CloseIcon={XIcon}
         bitcoinRateProps={{

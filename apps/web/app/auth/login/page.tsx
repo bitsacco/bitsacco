@@ -5,13 +5,12 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button, Logo, Container } from "@bitsacco/ui";
+import { PinInput } from "@/components/pin-input";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"phone" | "nostr">("phone");
   const [formData, setFormData] = useState({
     phone: "",
-    npub: "",
     pin: "",
   });
   const [error, setError] = useState("");
@@ -19,18 +18,21 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+
+    // Clear any previous errors first
     setError("");
 
-    try {
-      const providerId = activeTab === "phone" ? "phone-pin" : "nostr-pin";
-      const credentials =
-        activeTab === "phone"
-          ? { phone: formData.phone, pin: formData.pin }
-          : { npub: formData.npub, pin: formData.pin };
+    if (formData.pin.length !== 6) {
+      setError("Please enter a complete 6-digit PIN");
+      return;
+    }
 
-      const result = await signIn(providerId, {
-        ...credentials,
+    setIsLoading(true);
+
+    try {
+      const result = await signIn("phone-pin", {
+        phone: formData.phone,
+        pin: formData.pin,
         redirect: false,
       });
 
@@ -54,117 +56,67 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-orange-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <Container className="max-w-md">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-teal-900/20 via-slate-900 to-slate-900" />
+      <Container className="max-w-lg relative z-10">
         <div className="space-y-8">
           <div>
             <div className="flex justify-center mb-8">
-              <Logo />
+              <Logo className="h-12 w-auto text-white" />
             </div>
-            <h2 className="text-center text-3xl font-bold text-gray-900">
-              Sign in to your account
+            <h2 className="text-center text-3xl font-bold text-gray-100">
+              Welcome back
             </h2>
-            <p className="mt-2 text-center text-sm text-gray-600">
-              Or{" "}
+            <p className="mt-2 text-center text-sm text-gray-400">
+              Don&apos;t have an account?{" "}
               <Link
                 href="/auth/signup"
-                className="font-medium text-teal-600 hover:text-teal-500 transition-colors"
+                className="font-medium text-teal-400 hover:text-teal-300 transition-colors"
               >
-                create a new account
+                Sign up
               </Link>
             </p>
           </div>
 
-          <div className="bg-white shadow-xl rounded-2xl p-8 border border-gray-100">
-            {/* Tab Navigation */}
-            <div className="flex space-x-1 rounded-lg bg-gray-100 p-1 mb-6">
-              <button
-                type="button"
-                className={`w-full py-2.5 text-sm font-medium rounded-md transition-all duration-200 ${
-                  activeTab === "phone"
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-500 hover:text-gray-900"
-                }`}
-                onClick={() => setActiveTab("phone")}
-              >
-                Phone & PIN
-              </button>
-              <button
-                type="button"
-                className={`w-full py-2.5 text-sm font-medium rounded-md transition-all duration-200 ${
-                  activeTab === "nostr"
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-500 hover:text-gray-900"
-                }`}
-                onClick={() => setActiveTab("nostr")}
-              >
-                Nostr & PIN
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {activeTab === "phone" ? (
-                <div>
-                  <label
-                    htmlFor="phone"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Phone Number
-                  </label>
-                  <input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    required
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    placeholder="+1234567890"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
-                  />
-                </div>
-              ) : (
-                <div>
-                  <label
-                    htmlFor="npub"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Nostr Public Key
-                  </label>
-                  <input
-                    id="npub"
-                    name="npub"
-                    type="text"
-                    required
-                    value={formData.npub}
-                    onChange={handleInputChange}
-                    placeholder="npub1..."
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
-                  />
-                </div>
-              )}
-
+          <div className="bg-slate-800/50 backdrop-blur-xl shadow-2xl rounded-2xl p-8 border border-slate-700">
+            <form id="login-form" onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label
-                  htmlFor="pin"
-                  className="block text-sm font-medium text-gray-700"
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-gray-300 mb-2"
                 >
-                  PIN
+                  Phone Number
                 </label>
                 <input
-                  id="pin"
-                  name="pin"
-                  type="password"
+                  id="phone"
+                  name="phone"
+                  type="tel"
                   required
-                  value={formData.pin}
+                  value={formData.phone}
                   onChange={handleInputChange}
-                  placeholder="Enter your PIN"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+                  placeholder="+254712345678"
+                  className="block w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg placeholder-gray-500 text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:bg-slate-900/70 transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-4">
+                  Enter your 6-digit PIN
+                </label>
+                <PinInput
+                  value={formData.pin}
+                  onChange={(value) =>
+                    setFormData((prev) => ({ ...prev, pin: value }))
+                  }
+                  autoFocus={false}
+                  error={!!error && error.includes("Invalid")}
+                  disabled={isLoading}
                 />
               </div>
 
               {error && (
-                <div className="rounded-lg bg-red-50 border border-red-200 p-4">
-                  <div className="text-sm text-red-700">{error}</div>
+                <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-4">
+                  <div className="text-sm text-red-400">{error}</div>
                 </div>
               )}
 
@@ -174,6 +126,8 @@ export default function LoginPage() {
                 size="lg"
                 fullWidth
                 loading={isLoading}
+                disabled={!formData.phone || formData.pin.length !== 6}
+                className="shadow-lg shadow-teal-500/20"
               >
                 Sign In
               </Button>
@@ -181,7 +135,7 @@ export default function LoginPage() {
               <div className="text-center">
                 <Link
                   href="/auth/recover"
-                  className="text-sm text-teal-600 hover:text-teal-500 transition-colors"
+                  className="text-sm text-teal-400 hover:text-teal-300 transition-colors"
                 >
                   Forgot your PIN?
                 </Link>

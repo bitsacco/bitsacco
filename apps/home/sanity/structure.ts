@@ -1,4 +1,4 @@
-import type { StructureResolver } from 'sanity/structure'
+import type { StructureResolver } from 'sanity/desk'
 
 // https://www.sanity.io/docs/structure-builder-cheat-sheet
 export const structure: StructureResolver = (S) =>
@@ -43,11 +43,11 @@ export const structure: StructureResolver = (S) =>
             .items([S.documentTypeListItem('partner').title('Partners')]),
         ),
       S.divider(),
-      ...S.documentTypeListItems().filter(
-        (item) =>
-          item.getId() &&
-          !['page', 'post', 'category', 'author', 'tag', 'partner'].includes(
-            item.getId(),
-          ),
-      ),
+      ...S.documentTypeListItems().filter((item) => {
+        const id = item.getId()
+        return (
+          id &&
+          !['page', 'post', 'category', 'author', 'tag', 'partner'].includes(id)
+        )
+      }),
     ])

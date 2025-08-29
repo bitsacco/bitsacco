@@ -134,7 +134,7 @@ function SidebarContent({
       className={`flex flex-col flex-1 overflow-y-auto ${isMobile ? "px-6 py-8" : ""}`}
     >
       <nav
-        className={`flex-1 ${isMobile ? "space-y-1" : "px-4 py-6 space-y-2"}`}
+        className={`${isMobile ? "space-y-1" : "flex-1 px-4 py-6 space-y-2"}`}
       >
         {navigation.map((item) => {
           const isActive = pathname.startsWith(item.href);
@@ -178,7 +178,7 @@ function SidebarContent({
 
       {/* User section - Fixed at bottom */}
       <div
-        className={`flex-shrink-0 border-t border-slate-700 ${isMobile ? "px-6 py-4" : "p-4"}`}
+        className={`flex-shrink-0 border-t border-slate-700 ${isMobile ? "px-6 py-4 mt-8" : "p-4"}`}
       >
         <div
           className={`flex items-center space-x-3 mb-4 ${isMobile ? "" : "px-2"}`}
