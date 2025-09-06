@@ -28,12 +28,12 @@ export const loginUser = createAsyncThunk(
       // This will be implemented with the API client
       // For now, return mock data
       return {
-        user: {
-          id: "1",
+        user: { 
+          id: "1", 
           email: credentials.email,
           firstName: "John",
           lastName: "Doe",
-          roles: ["member"],
+          roles: ["member"]
         } as MobileUser,
         token: "mock-token",
       };

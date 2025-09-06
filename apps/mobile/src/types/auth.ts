@@ -1,7 +1,4 @@
 // Mobile app specific auth types - adapts the core types for UI convenience
-// Utility functions to convert between mobile types and core types
-import type { User } from "@bitsacco/core/types";
-
 export interface MobileUser {
   id: string;
   firstName?: string;
@@ -27,6 +24,9 @@ export interface MobileRegisterRequest {
   };
 }
 
+// Utility functions to convert between mobile types and core types
+import type { User } from "@bitsacco/core/types";
+
 export const adaptCoreUserToMobile = (coreUser: User): MobileUser => {
   return {
     id: coreUser.id,
@@ -42,17 +42,14 @@ export const adaptMobileUserToCore = (mobileUser: MobileUser): User => {
   return {
     id: mobileUser.id,
     profile: {
-      name:
-        mobileUser.firstName && mobileUser.lastName
-          ? `${mobileUser.firstName} ${mobileUser.lastName}`
-          : undefined,
+      name: mobileUser.firstName && mobileUser.lastName 
+        ? `${mobileUser.firstName} ${mobileUser.lastName}` 
+        : undefined,
     },
-    phone: mobileUser.phone
-      ? {
-          number: mobileUser.phone,
-          verified: false,
-        }
-      : undefined,
+    phone: mobileUser.phone ? {
+      number: mobileUser.phone,
+      verified: false,
+    } : undefined,
     roles: mobileUser.roles.map(Number),
   };
 };
