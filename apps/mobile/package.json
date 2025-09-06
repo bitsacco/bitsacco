@@ -1,0 +1,60 @@
+{
+  "name": "@bitsacco/mobile",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "private": true,
+  "scripts": {
+    "start": "expo start",
+    "dev": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "build": "expo export",
+    "lint": "eslint . --ext .ts,.tsx --ignore-pattern 'node_modules/**'",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .expo && rm -rf dist"
+  },
+  "dependencies": {
+    "@bitsacco/core": "*",
+    "@bitsacco/ui": "*",
+    "@expo/metro-runtime": "~5.0.4",
+    "@react-navigation/bottom-tabs": "^7.1.0",
+    "@react-navigation/native": "^7.0.20",
+    "@react-navigation/native-stack": "^7.1.12",
+    "@reduxjs/toolkit": "^2.5.0",
+    "axios": "^1.9.0",
+    "buffer": "^5.7.1",
+    "crypto-browserify": "^3.12.1",
+    "expo": "~53.0.22",
+    "expo-status-bar": "~2.2.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-native": "0.79.6",
+    "react-native-get-random-values": "~1.11.0",
+    "react-native-safe-area-context": "5.4.0",
+    "react-native-screens": "~4.11.1",
+    "react-native-web": "^0.20.0",
+    "react-redux": "^9.2.0",
+    "readable-stream": "^4.7.0",
+    "url": "^0.11.4"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@types/react": "~19.0.0",
+    "@types/react-dom": "~19.0.0",
+    "eslint": "^8",
+    "eslint-config-expo": "^7.1.2",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-react": "^7.33.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^3.3.2",
+    "typescript": "^5"
+  },
+  "overrides": {
+    "@types/react": "~19.0.0",
+    "@types/react-dom": "~19.0.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  }
+}
