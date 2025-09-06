@@ -2,9 +2,6 @@
 import "react-native-get-random-values";
 import { Buffer } from "buffer";
 
-import React from "react";
-import RenderApp from "./src/renderApp";
-
 // Make polyfills globally available
 if (typeof global !== "undefined") {
   global.Buffer = Buffer;
@@ -13,6 +10,9 @@ if (typeof global !== "undefined") {
     global.process = { env: {} } as any;
   }
 }
+
+import React from "react";
+import RenderApp from "./src/renderApp";
 
 export default function App() {
   return <RenderApp />;
