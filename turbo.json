@@ -69,6 +69,15 @@
       "persistent": true,
       "dependsOn": ["^build"]
     },
+    "@bitsacco/mobile#dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^build"]
+    },
+    "@bitsacco/mobile#build": {
+      "outputs": ["dist/**"],
+      "dependsOn": ["^build"]
+    },
     "clean": {
       "cache": false
     }
