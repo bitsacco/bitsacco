@@ -52,6 +52,8 @@ services:
       - /app/apps/web/node_modules
       # Exclude .next directory to prevent permission issues
       - /app/apps/web/.next
+      # Mount external feature configuration files
+      - ./features.json:/app/apps/web/public/features.json:ro
     working_dir: /app/apps/web
     environment:
       - CHOKIDAR_USEPOLLING=true

@@ -1,0 +1,44 @@
+{
+  "features": [
+    {
+      "id": "membership",
+      "variationType": "boolean",
+      "variation": true
+    },
+    {
+      "id": "membership-share-subscription",
+      "variationType": "boolean", 
+      "variation": true
+    },
+    {
+      "id": "membership-share-transfer",
+      "variationType": "boolean",
+      "variation": true
+    },
+    {
+      "id": "share-marketplace",
+      "variationType": "boolean",
+      "variation": true
+    },
+    {
+      "id": "share-purchase-modal",
+      "variationType": "boolean",
+      "variation": true
+    },
+    {
+      "id": "transaction-history",
+      "variationType": "boolean", 
+      "variation": true
+    },
+    {
+      "id": "personal-savings",
+      "variationType": "boolean",
+      "variation": true
+    },
+    {
+      "id": "chama-savings", 
+      "variationType": "boolean",
+      "variation": true
+    }
+  ]
+}
