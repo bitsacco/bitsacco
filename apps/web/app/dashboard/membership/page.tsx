@@ -27,8 +27,9 @@ import {
 } from "@phosphor-icons/react";
 import { TransferSharesModal } from "@/components/transfer-shares-modal";
 import { BuySharesModal } from "@/components/buy-shares-modal";
-
-const SHARE_VALUE_KES = 1000;
+import { SHARE_VALUE_KES } from "@/lib/config";
+import { useFeatureFlag } from "@/lib/feature-flags-provider";
+import { FEATURE_FLAGS } from "@/lib/features";
 
 // Tab configuration
 const tabs = [
@@ -53,6 +54,13 @@ const tabs = [
 ];
 
 export default function MembershipPage() {
+  // Feature flags
+  const isTransferEnabled = useFeatureFlag(
+    FEATURE_FLAGS.MEMBERSHIP_SHARE_TRANSFER,
+  );
+  const isMarketplaceEnabled = useFeatureFlag(FEATURE_FLAGS.SHARE_MARKETPLACE);
+  const isHistoryEnabled = useFeatureFlag(FEATURE_FLAGS.TRANSACTION_HISTORY);
+
   const [activeTab, setActiveTab] = useState<"shares" | "offers" | "history">(
     "shares",
   );
@@ -108,6 +116,13 @@ export default function MembershipPage() {
     activeOffers: offers?.offers?.length || 0,
     totalTransfers: 0,
   };
+
+  // Filter tabs based on feature flags
+  const availableTabs = tabs.filter((tab) => {
+    if (tab.id === "offers" && !isMarketplaceEnabled) return false;
+    if (tab.id === "history" && !isHistoryEnabled) return false;
+    return true;
+  });
 
   // Count total transfers from transactions
   if (transactions?.transactions) {
@@ -280,22 +295,24 @@ export default function MembershipPage() {
                 <ShoppingCartIcon size={20} weight="bold" />
                 Buy Shares
               </Button>
-              <Button
-                variant="tealOutline"
-                size="lg"
-                fullWidth
-                className="!border-slate-600 !text-gray-300 hover:!bg-slate-700/50 flex items-center justify-center gap-2"
-                onClick={() => {
-                  if (activeShares.length > 0) {
-                    setSelectedShareForTransfer(activeShares[0]);
-                    setShowTransferModal(true);
-                  }
-                }}
-                disabled={activeShares.length === 0}
-              >
-                <ArrowsLeftRightIcon size={20} weight="bold" />
-                Transfer Shares
-              </Button>
+              {isTransferEnabled && (
+                <Button
+                  variant="tealOutline"
+                  size="lg"
+                  fullWidth
+                  className="!border-slate-600 !text-gray-300 hover:!bg-slate-700/50 flex items-center justify-center gap-2"
+                  onClick={() => {
+                    if (activeShares.length > 0) {
+                      setSelectedShareForTransfer(activeShares[0]);
+                      setShowTransferModal(true);
+                    }
+                  }}
+                  disabled={activeShares.length === 0}
+                >
+                  <ArrowsLeftRightIcon size={20} weight="bold" />
+                  Transfer Shares
+                </Button>
+              )}
             </div>
           </div>
 
@@ -310,21 +327,23 @@ export default function MembershipPage() {
               <ShoppingCartIcon size={20} weight="bold" />
               Buy Shares
             </Button>
-            <Button
-              variant="tealOutline"
-              size="lg"
-              className="!border-slate-600 !text-gray-300 hover:!bg-slate-700/50 flex items-center justify-center gap-2"
-              onClick={() => {
-                if (activeShares.length > 0) {
-                  setSelectedShareForTransfer(activeShares[0]);
-                  setShowTransferModal(true);
-                }
-              }}
-              disabled={activeShares.length === 0}
-            >
-              <ArrowsLeftRightIcon size={20} weight="bold" />
-              Transfer Shares
-            </Button>
+            {isTransferEnabled && (
+              <Button
+                variant="tealOutline"
+                size="lg"
+                className="!border-slate-600 !text-gray-300 hover:!bg-slate-700/50 flex items-center justify-center gap-2"
+                onClick={() => {
+                  if (activeShares.length > 0) {
+                    setSelectedShareForTransfer(activeShares[0]);
+                    setShowTransferModal(true);
+                  }
+                }}
+                disabled={activeShares.length === 0}
+              >
+                <ArrowsLeftRightIcon size={20} weight="bold" />
+                Transfer Shares
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -337,8 +356,8 @@ export default function MembershipPage() {
             <div
               className="absolute top-0 left-0 h-full bg-teal-500/20 rounded-xl transition-all duration-300 ease-out"
               style={{
-                width: `${100 / tabs.length}%`,
-                transform: `translateX(${tabs.findIndex((tab) => tab.id === activeTab) * 100}%)`,
+                width: `${100 / availableTabs.length}%`,
+                transform: `translateX(${availableTabs.findIndex((tab) => tab.id === activeTab) * 100}%)`,
               }}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-teal-500/10 to-teal-400/10 rounded-xl" />
@@ -346,7 +365,7 @@ export default function MembershipPage() {
 
             {/* Tab buttons */}
             <div className="relative flex">
-              {tabs.map((tab) => {
+              {availableTabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
 
@@ -382,7 +401,7 @@ export default function MembershipPage() {
 
         {/* Tab description */}
         <p className="mt-3 text-sm text-gray-500 text-center">
-          {tabs.find((tab) => tab.id === activeTab)?.description}
+          {availableTabs.find((tab) => tab.id === activeTab)?.description}
         </p>
       </div>
 
@@ -442,17 +461,19 @@ export default function MembershipPage() {
                               {getTypeBadge(share.type)}
                               {getStatusBadge(share.status)}
                             </div>
-                            <Button
-                              variant="tealOutline"
-                              size="sm"
-                              className="!border-slate-600 !text-gray-300 hover:!bg-slate-700/50 w-full lg:w-auto"
-                              onClick={() => {
-                                setSelectedShareForTransfer(share);
-                                setShowTransferModal(true);
-                              }}
-                            >
-                              Transfer Shares
-                            </Button>
+                            {isTransferEnabled && (
+                              <Button
+                                variant="tealOutline"
+                                size="sm"
+                                className="!border-slate-600 !text-gray-300 hover:!bg-slate-700/50 w-full lg:w-auto"
+                                onClick={() => {
+                                  setSelectedShareForTransfer(share);
+                                  setShowTransferModal(true);
+                                }}
+                              >
+                                Transfer Shares
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -500,13 +521,15 @@ export default function MembershipPage() {
                           {getTypeBadge(share.type)}
                           {getStatusBadge(share.status)}
                         </div>
-                        <Button
-                          variant="tealOutline"
-                          size="sm"
-                          className="!border-slate-600 !text-gray-300 hover:!bg-slate-700/50 w-full lg:w-auto"
-                        >
-                          Transfer Shares
-                        </Button>
+                        {isTransferEnabled && (
+                          <Button
+                            variant="tealOutline"
+                            size="sm"
+                            className="!border-slate-600 !text-gray-300 hover:!bg-slate-700/50 w-full lg:w-auto"
+                          >
+                            Transfer Shares
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -748,7 +771,7 @@ export default function MembershipPage() {
       />
 
       {/* Transfer Modal */}
-      {selectedShareForTransfer && (
+      {isTransferEnabled && selectedShareForTransfer && (
         <TransferSharesModal
           isOpen={showTransferModal}
           onClose={() => {
