@@ -7,6 +7,7 @@ import {
   MagnifyingGlassIcon,
 } from "@phosphor-icons/react";
 import type { SharesTx } from "@bitsacco/core";
+import { SHARE_VALUE_KES } from "@/lib/config";
 
 interface Member {
   id: string;
@@ -36,7 +37,7 @@ export function TransferSharesModal({
   const [searchQuery, setSearchQuery] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [listingDays, setListingDays] = useState(30);
-  const [pricePerShare, setPricePerShare] = useState(1000);
+  const [pricePerShare, setPricePerShare] = useState(SHARE_VALUE_KES);
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [error, setError] = useState("");

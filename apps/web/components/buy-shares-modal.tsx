@@ -4,6 +4,9 @@ import { useState } from "react";
 import { Button } from "@bitsacco/ui";
 import { ShoppingBagIcon } from "@phosphor-icons/react";
 import type { SharesOffer } from "@bitsacco/core";
+import { SHARE_VALUE_KES } from "@/lib/config";
+import { useFeatureFlag } from "@/lib/feature-flags-provider";
+import { FEATURE_FLAGS } from "@/lib/features";
 
 interface BuySharesModalProps {
   isOpen: boolean;
@@ -12,14 +15,13 @@ interface BuySharesModalProps {
   onSuccess: () => void;
 }
 
-const SHARE_VALUE_KES = 1000;
-
 export function BuySharesModal({
   isOpen,
   onClose,
   offer,
   onSuccess,
 }: BuySharesModalProps) {
+  const isPurchaseEnabled = useFeatureFlag(FEATURE_FLAGS.SHARE_PURCHASE_MODAL);
   const [purchaseQuantity, setPurchaseQuantity] = useState(1);
   const [subscribing, setSubscribing] = useState(false);
 
@@ -56,7 +58,7 @@ export function BuySharesModal({
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !isPurchaseEnabled) return null;
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
