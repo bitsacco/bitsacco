@@ -11,9 +11,14 @@
     "stop": "docker compose -p bitsacco down",
     "dc": "docker compose -p bitsacco",
     "dev": "turbo run dev",
+    "dev:all": "turbo run dev",
     "dev:home": "turbo dev --filter=@bitsacco/home...",
     "dev:web": "turbo dev --filter=@bitsacco/web...",
     "dev:mobile": "turbo dev --filter=@bitsacco/mobile...",
+    "dev:mobile:ios": "turbo dev --filter=@bitsacco/mobile -- --ios",
+    "dev:mobile:android": "turbo dev --filter=@bitsacco/mobile -- --android",
+    "dev:mobile:web": "turbo dev --filter=@bitsacco/mobile -- --web",
+    "dev:fullstack": "concurrently \"npm run dev:web\" \"npm run dev:mobile\" --names \"web,mobile\" --prefix-colors \"blue,green\"",
     "build": "turbo run build",
     "build:ui": "turbo run build --filter=@bitsacco/ui...",
     "build:core": "turbo run build --filter=@bitsacco/core...",
@@ -39,6 +44,7 @@
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
+    "concurrently": "^8.2.2",
     "prettier": "^3.3.2",
     "turbo": "^2.3.0",
     "url-loader": "^4.1.1"
