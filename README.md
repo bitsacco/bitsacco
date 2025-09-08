@@ -7,11 +7,15 @@ Financial tools for communities - A modern monorepo containing the Bitsacco web 
 ```
 bitsacco/web/
 ├── apps/
-│   └── home/              # Main website with Sanity CMS integration
+│   ├── home/              # Main website with Sanity CMS integration
+│   ├── web/               # Web application
+│   └── mobile/            # React Native mobile app with Expo
 ├── packages/
-│   ├── eslint/           # Shared ESLint configurations
+│   ├── core/              # Shared business logic and utilities
+│   ├── ui/                # Shared UI components
+│   ├── eslint-config/     # Shared ESLint configurations
 │   ├── tsconf/           # Shared TypeScript configurations
-│   └── types/            # Shared TypeScript type definitions
+│   └── tailwind-config/  # Shared Tailwind CSS configuration
 ├── compose.yml           # Docker compose configuration
 ├── turbo.json           # Turborepo configuration
 └── package.json         # Root package configuration
@@ -26,6 +30,7 @@ This project uses:
 - [Docker and Docker Compose](https://docs.docker.com/get-started/get-docker/) for containerized services
 - [Turbo](https://turborepo.org/) for monorepo management
 - [Next.js](https://nextjs.org/) for web application development
+- [React Native](https://reactnative.dev/) + [Expo](https://expo.dev/) for mobile development
 - [Sanity](https://www.sanity.io/) for content management
 
 ### Prerequisites
@@ -51,12 +56,23 @@ cd ../..
 
 ```bash
 # Run all applications in development mode
-npm run dev
+npm run dev      # Runs all apps (web, mobile, home)
+npm run dev:all  # Alias for npm run dev
 
-# Run specific application
-npm run dev:web  # Runs the home website
+# Run specific applications
+npm run dev:home   # Home website (localhost:3000)
+npm run dev:web    # Web application (localhost:3001)
+npm run dev:mobile # Mobile app (Expo dev server)
 
-# Using Docker Compose
+# Platform-specific mobile development
+npm run dev:mobile:ios     # Launch on iOS simulator
+npm run dev:mobile:android # Launch on Android emulator
+npm run dev:mobile:web     # Launch mobile app in browser
+
+# Full-stack development (web + mobile together)
+npm run dev:fullstack # Runs web and mobile apps simultaneously
+
+# Using Docker Compose for backend services
 npm start        # Start all services
 npm stop         # Stop all services
 npm run logs     # View logs
@@ -64,15 +80,37 @@ npm run logs     # View logs
 
 ## 📦 Available Scripts
 
-### Root Level Commands
+### Development Commands
 
 - `npm run dev` - Run all apps in development mode
-- `npm run dev:web` - Run only the home website
+- `npm run dev:all` - Alias for npm run dev
+- `npm run dev:home` - Run home website only (port 3000)
+- `npm run dev:web` - Run web application only (port 3001)
+- `npm run dev:mobile` - Run mobile app with Expo dev server
+- `npm run dev:mobile:ios` - Launch mobile app on iOS simulator
+- `npm run dev:mobile:android` - Launch mobile app on Android emulator
+- `npm run dev:mobile:web` - Launch mobile app in browser
+- `npm run dev:fullstack` - Run web + mobile apps simultaneously
+
+### Build Commands
+
 - `npm run build` - Build all apps
-- `npm run build:web` - Build only the home website
+- `npm run build:home` - Build home website only
+- `npm run build:web` - Build web application only
+- `npm run build:mobile` - Build mobile app only
+- `npm run build:ui` - Build UI package only
+- `npm run build:core` - Build core package only
+
+### Quality Commands
+
 - `npm run lint` - Lint all apps
+- `npm run lint:fix` - Lint and fix all apps
+- `npm run typecheck` - Type check all apps
 - `npm run test` - Run tests across all apps
 - `npm run format` - Format code with Prettier
+
+### Utility Commands
+
 - `npm run clean` - Clean build outputs
 - `npm run clean:docker` - Clean Docker volumes and containers
 
@@ -84,6 +122,76 @@ npm run logs     # View logs
 - `npm run dc <command>` - Run any docker-compose command
 
 ## 🏢 Applications
+
+### Mobile App (`apps/mobile`)
+
+React Native mobile application built with Expo for iOS and Android.
+
+**Features:**
+
+- Cross-platform mobile development with React Native
+- Expo development server for fast iteration
+- Redux Toolkit for state management
+- React Navigation for routing
+- TypeScript support
+- Shared components with web applications
+
+**Tech Stack:**
+
+- React Native 0.79.6
+- Expo SDK 53
+- React 19
+- Redux Toolkit
+- React Navigation
+- TypeScript
+
+**Development:**
+
+```bash
+# Start mobile development server
+npm run dev:mobile
+
+# Launch on specific platforms
+npm run dev:mobile:ios     # iOS Simulator
+npm run dev:mobile:android # Android Emulator
+npm run dev:mobile:web     # Web browser
+```
+
+**Access:**
+- Expo DevTools: http://localhost:19002
+- Metro Bundler: http://localhost:8081
+
+### Web Application (`apps/web`)
+
+The main Bitsacco web application built with Next.js 15.
+
+**Features:**
+
+- Server-side rendering with Next.js App Router
+- Authentication with NextAuth.js
+- TypeScript support
+- Shared components and utilities
+- Modern React 19 features
+
+**Tech Stack:**
+
+- Next.js 15.3.3
+- React 19
+- NextAuth.js 5 (beta)
+- Tailwind CSS
+- TypeScript
+
+**Development:**
+
+```bash
+cd apps/web
+npm run dev
+# or from root
+npm run dev:web
+```
+
+**Access:**
+- Web Application: http://localhost:3001
 
 ### Home Website (`apps/home`)
 
