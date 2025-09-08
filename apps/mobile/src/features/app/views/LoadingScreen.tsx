@@ -1,12 +1,10 @@
 import React, { useEffect } from "react";
 import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
-import { useAppDispatch, useAppSelector } from "../../../store";
-import { initializeApp } from "../store/appSlice";
+import { useAppDispatch } from "../../../store";
 import { AppController } from "../controllers/AppController";
 
 const LoadingScreen: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { isLoading } = useAppSelector((state) => state.app);
 
   useEffect(() => {
     const controller = new AppController(dispatch);
