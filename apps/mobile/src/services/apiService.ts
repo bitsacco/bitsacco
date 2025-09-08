@@ -40,7 +40,7 @@ export const authApi = {
     try {
       const isAuth = await mobileAuthService.isAuthenticated();
       if (!isAuth) return null;
-      
+
       // For now, return mock user data
       // In a real implementation, you'd call your API
       return {
@@ -58,7 +58,9 @@ export const authApi = {
 export const membershipApi = {
   getShares: async (userId: string) => {
     try {
-      const response = await apiClient.get(`/membership/shares/transactions/${userId}`);
+      const response = await apiClient.get(
+        `/membership/shares/transactions/${userId}`
+      );
       return response.data;
     } catch (error) {
       console.error("Error fetching shares:", error);
@@ -87,7 +89,11 @@ export const membershipApi = {
     }
   },
 
-  subscribeToShares: async (userId: string, offerId: string, quantity: number) => {
+  subscribeToShares: async (
+    userId: string,
+    offerId: string,
+    quantity: number
+  ) => {
     try {
       const response = await apiClient.post("/membership/shares/subscribe", {
         userId,
@@ -116,7 +122,9 @@ export const walletApi = {
 
   getTransactions: async (limit = 20) => {
     try {
-      const response = await apiClient.get(`/wallet/transactions?limit=${limit}`);
+      const response = await apiClient.get(
+        `/wallet/transactions?limit=${limit}`
+      );
       return response.data;
     } catch (error) {
       console.error("Error fetching transactions:", error);

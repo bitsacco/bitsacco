@@ -1,6 +1,5 @@
 import { AppDispatch } from "../../../store";
 import { loginUser, logoutUser, clearError } from "../store/authSlice";
-import { authApi } from "../../../services/apiService";
 import type { MobileRegisterRequest } from "../../../types/auth";
 
 export class AuthController {
@@ -27,7 +26,7 @@ export class AuthController {
     try {
       // For now, we'll use the same login flow after registration
       // In a real app, you'd call the register API first
-      
+
       // Mock registration for now - normally would call authApi.register
       // await authApi.register(userData);
 
