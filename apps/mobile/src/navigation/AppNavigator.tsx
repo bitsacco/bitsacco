@@ -7,11 +7,13 @@ import { useAppSelector } from "../store";
 import LoadingScreen from "../features/app/views/LoadingScreen";
 import AuthNavigator from "./AuthNavigator";
 import MainNavigator from "./MainNavigator";
+import WebViewScreen from "../features/webview/views/WebviewScreen";
 
 export type RootStackParamList = {
   Loading: undefined;
   Auth: undefined;
   Main: undefined;
+  Web: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -30,13 +32,13 @@ const AppNavigator: React.FC = () => {
         {isLoading || !isInitialized ? (
           <Stack.Screen name="Loading" component={LoadingScreen} />
         ) : isAuthenticated ? (
-          <Stack.Screen name="Main" component={MainNavigator} />
+          <Stack.Screen name="Main" component={LoadingScreen} />
         ) : (
-          <Stack.Screen name="Auth" component={AuthNavigator} />
+          <Stack.Screen name = "Web" component={WebViewScreen}/>
+          // <Stack.Screen name="Auth" component={AuthNavigator} />
         )}
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
-
 export default AppNavigator;
