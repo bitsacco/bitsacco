@@ -40,7 +40,6 @@ config.resolver.assetExts = config.resolver.assetExts.filter(ext => ext !== "svg
 // 7. Use react-native-svg-transformer for svg files
 config.transformer.babelTransformerPath = require.resolve("react-native-svg-transformer");
 
-
 // 6. Add global polyfills
 config.transformer.getTransformOptions = async () => ({
   transform: {
