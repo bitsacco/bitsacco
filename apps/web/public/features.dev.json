@@ -7,7 +7,7 @@
     },
     {
       "id": "membership-share-subscription",
-      "variationType": "boolean", 
+      "variationType": "boolean",
       "variation": true
     },
     {
@@ -27,7 +27,7 @@
     },
     {
       "id": "transaction-history",
-      "variationType": "boolean", 
+      "variationType": "boolean",
       "variation": true
     },
     {
@@ -36,7 +36,7 @@
       "variation": true
     },
     {
-      "id": "chama-savings", 
+      "id": "chama-savings",
       "variationType": "boolean",
       "variation": true
     }

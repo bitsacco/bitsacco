@@ -4,10 +4,5 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "src",
-    "declarations.d.ts"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", "src", "declarations.d.ts"]
 }

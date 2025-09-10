@@ -1,23 +1,26 @@
-
 import React, { useEffect, useRef } from "react";
-import { View, Text, ActivityIndicator, StyleSheet, Animated } from "react-native";
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  StyleSheet,
+  Animated,
+} from "react-native";
 import { useAppDispatch, useAppSelector } from "../../../store";
 import { initializeApp } from "../store/appSlice";
 import { AppController } from "../controllers/AppController";
 import Logo from "../../../../assets/logo.svg";
 
-
 const LoadingScreen: React.FC = () => {
   const dispatch = useAppDispatch();
   const { isLoading } = useAppSelector((state) => state.app);
-
 
   useEffect(() => {
     const controller = new AppController(dispatch);
     controller.initializeApp();
   }, [dispatch]);
 
-  const anim = useRef(new Animated.Value(1))
+  const anim = useRef(new Animated.Value(1));
   useEffect(() => {
     // makes the sequence loop
     Animated.loop(
@@ -25,13 +28,13 @@ const LoadingScreen: React.FC = () => {
       Animated.sequence([
         // increase size
         Animated.timing(anim.current, {
-          toValue: 2, 
+          toValue: 2,
           duration: 1500,
           useNativeDriver: true,
         }),
         // decrease size
         Animated.timing(anim.current, {
-          toValue: 1, 
+          toValue: 1,
           duration: 1500,
           useNativeDriver: true,
         }),
@@ -39,16 +42,20 @@ const LoadingScreen: React.FC = () => {
     ).start();
   }, []);
 
-
-
   return (
     <View style={styles.container}>
-      <Animated.View style={{transform:[{
-        scale:anim.current
-      }]}}>
-      <Logo style={styles.logo} height={100} width={100}/>
+      <Animated.View
+        style={{
+          transform: [
+            {
+              scale: anim.current,
+            },
+          ],
+        }}
+      >
+        <Logo style={styles.logo} height={100} width={100} />
       </Animated.View>
-    
+
       {/* <ActivityIndicator size="large" color="#0891b2" style={styles.loader} /> */}
       {/* <Text style={styles.text}>Loading...</Text> */}
     </View>
@@ -65,7 +72,6 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 32,
     marginBottom: 25,
-
   },
   loader: {
     marginBottom: 16,

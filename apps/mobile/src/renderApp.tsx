@@ -3,8 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import { Provider } from "react-redux";
 import { store } from "./store";
 import AppNavigator from "./navigation/AppNavigator";
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 // Test store initialization
 
@@ -13,10 +12,8 @@ const RenderApp: React.FC = () => {
     <Provider store={store}>
       <StatusBar style="light" backgroundColor="#0f172a" />
       <SafeAreaProvider>
-      <AppNavigator />
+        <AppNavigator />
       </SafeAreaProvider>
-     
-
     </Provider>
   );
 };

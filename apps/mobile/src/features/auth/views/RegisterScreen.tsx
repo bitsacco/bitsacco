@@ -54,7 +54,6 @@ const RegisterScreen: React.FC = () => {
         phone: { number: "", countryCode: "" }, // Will be added later
       });
     } catch (error) {
-
       Alert.alert("Registration Failed", "Please try again");
     }
   };
