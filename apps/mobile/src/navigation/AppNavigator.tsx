@@ -5,8 +5,6 @@ import { useAppSelector } from "../store";
 
 // Import screen components
 import LoadingScreen from "../features/app/views/LoadingScreen";
-import AuthNavigator from "./AuthNavigator";
-import MainNavigator from "./MainNavigator";
 import WebViewScreen from "../features/webview/views/WebviewScreen";
 
 export type RootStackParamList = {
@@ -34,7 +32,7 @@ const AppNavigator: React.FC = () => {
         ) : isAuthenticated ? (
           <Stack.Screen name="Main" component={LoadingScreen} />
         ) : (
-          <Stack.Screen name = "Web" component={WebViewScreen}/>
+          <Stack.Screen name="Web" component={WebViewScreen} />
           // <Stack.Screen name="Auth" component={AuthNavigator} />
         )}
       </Stack.Navigator>

@@ -38,7 +38,7 @@ const LoginScreen: React.FC = () => {
 
     try {
       await authController.login(email, password);
-    } catch (error) {
+    } catch {
       Alert.alert("Login Failed", "Invalid credentials");
     }
   };

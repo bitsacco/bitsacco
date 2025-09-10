@@ -1,9 +1,9 @@
 // Mobile-specific auth service that avoids Node.js dependencies
-import type { 
-  LoginUserRequest, 
-  RegisterUserRequest, 
+import type {
+  LoginUserRequest,
+  RegisterUserRequest,
   User,
-  AuthResponse 
+  AuthResponse,
 } from "@bitsacco/core/types";
 
 export interface MobileAuthService {
@@ -27,10 +27,12 @@ class MobileAuthServiceImpl implements MobileAuthService {
     const mockUser: User = {
       id: "mock-user-id",
       roles: [0], // Member role
-      phone: credentials.phone ? {
-        number: credentials.phone,
-        verified: false,
-      } : undefined,
+      phone: credentials.phone
+        ? {
+            number: credentials.phone,
+            verified: false,
+          }
+        : undefined,
     };
 
     const mockTokens = {
@@ -53,10 +55,12 @@ class MobileAuthServiceImpl implements MobileAuthService {
     const mockUser: User = {
       id: "new-user-id",
       roles: userData.roles,
-      phone: userData.phone ? {
-        number: userData.phone,
-        verified: false,
-      } : undefined,
+      phone: userData.phone
+        ? {
+            number: userData.phone,
+            verified: false,
+          }
+        : undefined,
     };
 
     const mockTokens = {

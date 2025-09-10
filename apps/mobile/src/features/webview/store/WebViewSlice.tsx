@@ -1,5 +1,5 @@
 // store/slices/webviewSlice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface WebViewState {
   isLoading: boolean;
@@ -22,11 +22,11 @@ const initialState: WebViewState = {
   isConnected: true,
   refreshing: false,
   hasError: false,
-  errorDetails: '',
+  errorDetails: "",
   errorCode: undefined,
   retryCount: 0,
   isWebViewScrolled: false,
-  currentUrl: 'https://app.bitsacco.com/auth?q=login',
+  currentUrl: "https://app.bitsacco.com/auth?q=login",
   canGoBack: false,
   canGoForward: false,
   lastUpdated: Date.now(),
@@ -34,7 +34,7 @@ const initialState: WebViewState = {
 };
 
 const webviewSlice = createSlice({
-  name: 'webview',
+  name: "webview",
   initialState,
   reducers: {
     // Loading states
@@ -52,23 +52,26 @@ const webviewSlice = createSlice({
     setConnected: (state, action: PayloadAction<boolean>) => {
       state.isConnected = action.payload;
       state.lastUpdated = Date.now();
-      
+
       // Clear error if connection is restored
       if (action.payload && state.hasError) {
         state.hasError = false;
-        state.errorDetails = '';
+        state.errorDetails = "";
         state.errorCode = undefined;
       }
     },
 
     // Error handling
-    setError: (state, action: PayloadAction<{
-      hasError: boolean;
-      errorDetails?: string;
-      errorCode?: number;
-    }>) => {
+    setError: (
+      state,
+      action: PayloadAction<{
+        hasError: boolean;
+        errorDetails?: string;
+        errorCode?: number;
+      }>
+    ) => {
       state.hasError = action.payload.hasError;
-      state.errorDetails = action.payload.errorDetails || '';
+      state.errorDetails = action.payload.errorDetails || "";
       state.errorCode = action.payload.errorCode;
       state.isLoading = false;
       state.refreshing = false;
@@ -77,7 +80,7 @@ const webviewSlice = createSlice({
 
     clearError: (state) => {
       state.hasError = false;
-      state.errorDetails = '';
+      state.errorDetails = "";
       state.errorCode = undefined;
       state.lastUpdated = Date.now();
     },
@@ -98,11 +101,14 @@ const webviewSlice = createSlice({
     },
 
     // Navigation state
-    setNavigationState: (state, action: PayloadAction<{
-      url: string;
-      canGoBack: boolean;
-      canGoForward: boolean;
-    }>) => {
+    setNavigationState: (
+      state,
+      action: PayloadAction<{
+        url: string;
+        canGoBack: boolean;
+        canGoForward: boolean;
+      }>
+    ) => {
       state.currentUrl = action.payload.url;
       state.canGoBack = action.payload.canGoBack;
       state.canGoForward = action.payload.canGoForward;
@@ -121,7 +127,7 @@ const webviewSlice = createSlice({
     startLoading: (state) => {
       state.isLoading = true;
       state.hasError = false;
-      state.errorDetails = '';
+      state.errorDetails = "";
       state.errorCode = undefined;
       state.lastUpdated = Date.now();
     },
@@ -130,7 +136,7 @@ const webviewSlice = createSlice({
       state.isLoading = false;
       state.refreshing = false;
       state.hasError = false;
-      state.errorDetails = '';
+      state.errorDetails = "";
       state.lastUpdated = Date.now();
     },
 
@@ -138,7 +144,7 @@ const webviewSlice = createSlice({
     startRefresh: (state) => {
       state.refreshing = true;
       state.hasError = false;
-      state.errorDetails = '';
+      state.errorDetails = "";
       state.errorCode = undefined;
       state.lastUpdated = Date.now();
     },

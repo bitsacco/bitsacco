@@ -7,6 +7,7 @@ module.exports = {
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off",
     "@typescript-eslint/ban-types": "off",
+    "import/no-unresolved": "off",
   },
   ignorePatterns: [".expo/**", "dist/**", "node_modules/**"],
   root: true,
