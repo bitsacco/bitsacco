@@ -27,7 +27,7 @@ export class AuthController {
     try {
       // For now, we'll use the same login flow after registration
       // In a real app, you'd call the register API first
-      
+
       // Mock registration for now - normally would call authApi.register
       // await authApi.register(userData);
 

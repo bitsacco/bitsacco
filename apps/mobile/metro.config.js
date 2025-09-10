@@ -1,3 +1,5 @@
+// apps/mobile/metro.config.js
+
 const { getDefaultConfig } = require("expo/metro-config");
 const path = require("path");
 
@@ -22,7 +24,7 @@ config.resolver.disableHierarchicalLookup = false;
 // 4. Add polyfills for Node.js modules
 config.resolver.alias = {
   buffer: "buffer",
-  stream: "readable-stream", 
+  stream: "readable-stream",
   crypto: "crypto-browserify",
   url: "url",
   "node:buffer": "buffer",
@@ -40,7 +42,7 @@ config.resolver.assetExts = config.resolver.assetExts.filter(ext => ext !== "svg
 // 7. Use react-native-svg-transformer for svg files
 config.transformer.babelTransformerPath = require.resolve("react-native-svg-transformer");
 
-// 6. Add global polyfills
+// 8. Add global polyfills
 config.transformer.getTransformOptions = async () => ({
   transform: {
     experimentalImportSupport: false,

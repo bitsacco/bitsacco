@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from "react";
 import { View, Text, ActivityIndicator, StyleSheet, Animated } from "react-native";
 import { useAppDispatch, useAppSelector } from "../../../store";
@@ -6,10 +7,10 @@ import { AppController } from "../controllers/AppController";
 import Logo from "../../../../assets/logo.svg";
 
 
-
 const LoadingScreen: React.FC = () => {
   const dispatch = useAppDispatch();
   const { isLoading } = useAppSelector((state) => state.app);
+
 
   useEffect(() => {
     const controller = new AppController(dispatch);
@@ -64,6 +65,7 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 32,
     marginBottom: 25,
+
   },
   loader: {
     marginBottom: 16,

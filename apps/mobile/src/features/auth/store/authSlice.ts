@@ -34,6 +34,7 @@ export const loginUser = createAsyncThunk(
           firstName: "John",
           lastName: "Doe",
           roles: ["member"]
+
         } as MobileUser,
         token: "mock-token",
       };

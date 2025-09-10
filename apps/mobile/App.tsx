@@ -1,3 +1,5 @@
+// apps/mobile/App.tsx
+
 // Import polyfills first
 import "react-native-get-random-values";
 import { Buffer } from "buffer";

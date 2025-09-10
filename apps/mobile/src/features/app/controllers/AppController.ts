@@ -16,6 +16,7 @@ export class AppController {
       // Check for existing auth tokens
       const hasValidToken = await this.checkAuthenticationStatus();
 
+
       // Simulate some initialization time
       await new Promise((resolve) => setTimeout(resolve, 2000));
 

@@ -4,6 +4,7 @@ import type {
   RegisterUserRequest, 
   User,
   AuthResponse 
+
 } from "@bitsacco/core/types";
 
 export interface MobileAuthService {
@@ -31,6 +32,7 @@ class MobileAuthServiceImpl implements MobileAuthService {
         number: credentials.phone,
         verified: false,
       } : undefined,
+
     };
 
     const mockTokens = {
@@ -57,6 +59,7 @@ class MobileAuthServiceImpl implements MobileAuthService {
         number: userData.phone,
         verified: false,
       } : undefined,
+
     };
 
     const mockTokens = {

@@ -9,11 +9,13 @@ import AuthNavigator from "./AuthNavigator";
 import MainNavigator from "./MainNavigator";
 import WebViewScreen from "../features/webview/views/WebviewScreen";
 
+
 export type RootStackParamList = {
   Loading: undefined;
   Auth: undefined;
   Main: undefined;
   Web: undefined;
+
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector, TypedUseSelectorHook } from "react-redux";
 import webviewReducer from '../features/webview/store/WebViewSlice';
+
 // Import feature slices
 import authReducer from "../features/auth/store/authSlice";
 import appReducer from "../features/app/store/appSlice";
@@ -10,6 +11,7 @@ export const store = configureStore({
     auth: authReducer,
     app: appReducer,
     webview: webviewReducer
+
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

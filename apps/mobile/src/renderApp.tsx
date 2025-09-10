@@ -5,6 +5,7 @@ import { store } from "./store";
 import AppNavigator from "./navigation/AppNavigator";
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+
 // Test store initialization
 
 const RenderApp: React.FC = () => {
@@ -15,6 +16,7 @@ const RenderApp: React.FC = () => {
       <AppNavigator />
       </SafeAreaProvider>
      
+
     </Provider>
   );
 };
