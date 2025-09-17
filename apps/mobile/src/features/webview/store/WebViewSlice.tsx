@@ -8,6 +8,7 @@ export interface WebViewState {
   hasError: boolean;
   errorDetails: string;
   errorCode?: number;
+  isNetworkError: boolean;
   retryCount: number;
   isWebViewScrolled: boolean;
   currentUrl: string;
@@ -15,6 +16,8 @@ export interface WebViewState {
   canGoForward: boolean;
   lastUpdated: number;
   navigationHistory: string[];
+  webViewLoaded: boolean;
+  themeDetected: boolean;
 }
 
 const initialState: WebViewState = {
@@ -24,6 +27,7 @@ const initialState: WebViewState = {
   hasError: false,
   errorDetails: "",
   errorCode: undefined,
+  isNetworkError: false,
   retryCount: 0,
   isWebViewScrolled: false,
   currentUrl: "https://app.bitsacco.com/auth?q=login",
@@ -31,6 +35,8 @@ const initialState: WebViewState = {
   canGoForward: false,
   lastUpdated: Date.now(),
   navigationHistory: [],
+  webViewLoaded: false,
+  themeDetected: false,
 };
 
 const webviewSlice = createSlice({
@@ -68,11 +74,13 @@ const webviewSlice = createSlice({
         hasError: boolean;
         errorDetails?: string;
         errorCode?: number;
+        isNetworkError?: boolean;
       }>
     ) => {
       state.hasError = action.payload.hasError;
       state.errorDetails = action.payload.errorDetails || "";
       state.errorCode = action.payload.errorCode;
+      state.isNetworkError = action.payload.isNetworkError || false;
       state.isLoading = false;
       state.refreshing = false;
       state.lastUpdated = Date.now();
@@ -82,6 +90,7 @@ const webviewSlice = createSlice({
       state.hasError = false;
       state.errorDetails = "";
       state.errorCode = undefined;
+      state.isNetworkError = false;
       state.lastUpdated = Date.now();
     },
 
@@ -137,6 +146,7 @@ const webviewSlice = createSlice({
       state.refreshing = false;
       state.hasError = false;
       state.errorDetails = "";
+      state.webViewLoaded = true;
       state.lastUpdated = Date.now();
     },
 
@@ -160,6 +170,12 @@ const webviewSlice = createSlice({
       state.currentUrl = action.payload;
       state.lastUpdated = Date.now();
     },
+
+    // Theme detection
+    setThemeDetected: (state, action: PayloadAction<boolean>) => {
+      state.themeDetected = action.payload;
+      state.lastUpdated = Date.now();
+    },
   },
 });
 
@@ -178,6 +194,7 @@ export const {
   startRefresh,
   resetWebViewState,
   setCurrentUrl,
+  setThemeDetected,
 } = webviewSlice.actions;
 
 export default webviewSlice.reducer;

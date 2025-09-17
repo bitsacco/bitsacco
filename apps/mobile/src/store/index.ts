@@ -4,6 +4,7 @@ import webviewReducer from "../features/webview/store/WebViewSlice";
 // Import feature slices
 import authReducer from "../features/auth/store/authSlice";
 import appReducer from "../features/app/store/appSlice";
+import themeMiddleware from "./middleware/themeMiddleware";
 
 export const store = configureStore({
   reducer: {
@@ -16,7 +17,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: ["persist/PERSIST"],
       },
-    }),
+    }).concat(themeMiddleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
