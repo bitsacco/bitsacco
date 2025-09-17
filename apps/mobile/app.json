@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Bitsacco",
-    "slug": "bitsacco",
+    "slug": "bitsacco-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -17,17 +17,26 @@
       "icon": "./assets/icon.png"
     },
     "android": {
+      "package": "com.bitsacco.app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": ["INTERNET", "ACCESS_NETWORK_STATE"]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "experiments": {
       "reactCanary": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "bb82ad71-e482-4e68-bd70-7287e110aace"
+      }
+    },
+    "owner": "minmo"
   }
 }
