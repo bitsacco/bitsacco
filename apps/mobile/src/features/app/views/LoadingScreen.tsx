@@ -3,9 +3,11 @@ import { View, StyleSheet, Animated } from "react-native";
 import { useAppDispatch } from "../../../store";
 import { AppController } from "../controllers/AppController";
 import Logo from "../../../../assets/logo.svg";
+import useTheme from "../../../hooks/useTheme";
 
 const LoadingScreen: React.FC = () => {
   const dispatch = useAppDispatch();
+  const { colors } = useTheme();
 
   useEffect(() => {
     const controller = new AppController(dispatch);
@@ -35,7 +37,7 @@ const LoadingScreen: React.FC = () => {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Animated.View
         style={{
           transform: [
@@ -45,11 +47,16 @@ const LoadingScreen: React.FC = () => {
           ],
         }}
       >
-        <Logo style={styles.logo} height={100} width={100} />
+        <Logo
+          style={styles.logo}
+          height={100}
+          width={100}
+          fill={colors.primary}
+        />
       </Animated.View>
 
-      {/* <ActivityIndicator size="large" color="#0891b2" style={styles.loader} /> */}
-      {/* <Text style={styles.text}>Loading...</Text> */}
+      {/* <ActivityIndicator size="large" color={colors.primary} style={styles.loader} /> */}
+      {/* <Text style={[styles.text, { color: colors.textSecondary }]}>Loading...</Text> */}
     </View>
   );
 };
@@ -59,7 +66,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#1A202C",
   },
   logo: {
     fontSize: 32,
@@ -70,7 +76,6 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
-    color: "#64748b",
   },
 });
 
