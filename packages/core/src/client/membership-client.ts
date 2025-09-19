@@ -10,7 +10,21 @@ import type {
   UpdateSharesRequest,
   UserSharesTxsRequest,
   FindShareTxRequest,
+  // SharePurchaseValidation, // Currently unused
+  SharesAnalytics,
+  MembershipTier,
 } from "../types/membership";
+import type {
+  PaymentProvider,
+  CreatePaymentIntentRequest,
+  PaymentIntentResponse,
+  ProcessPaymentRequest,
+  RetryPaymentRequest,
+  PaymentConfirmation,
+  GetPaymentHistoryRequest,
+  PaymentHistoryResponse,
+  PaymentIntent,
+} from "../types/payments";
 
 export class MembershipApiClient extends BaseApiClient {
   /**
@@ -67,12 +81,12 @@ export class MembershipApiClient extends BaseApiClient {
   ): Promise<ApiResponse<UserShareTxsResponse>> {
     const params: Record<string, string | number> = {};
 
-    if (request.page !== undefined) {
-      params.page = request.page;
+    if (request.pagination?.page !== undefined) {
+      params.page = request.pagination.page;
     }
 
-    if (request.size !== undefined) {
-      params.size = request.size;
+    if (request.pagination?.size !== undefined) {
+      params.size = request.pagination.size;
     }
 
     return this.get<UserShareTxsResponse>(
@@ -95,5 +109,100 @@ export class MembershipApiClient extends BaseApiClient {
    */
   async deleteShareTx(sharesId: string): Promise<ApiResponse<void>> {
     return this.delete<void>(`/shares/transactions/${sharesId}`);
+  }
+
+  // Payment Methods
+  /**
+   * Get available payment providers
+   */
+  async getPaymentProviders(): Promise<ApiResponse<PaymentProvider[]>> {
+    return this.get<PaymentProvider[]>("/payments/providers");
+  }
+
+  /**
+   * Create payment intent for share purchase
+   */
+  async createPaymentIntent(
+    request: CreatePaymentIntentRequest,
+  ): Promise<ApiResponse<PaymentIntentResponse>> {
+    return this.post<PaymentIntentResponse>("/payments/intents", request);
+  }
+
+  /**
+   * Process payment
+   */
+  async processPayment(
+    request: ProcessPaymentRequest,
+  ): Promise<ApiResponse<PaymentConfirmation>> {
+    return this.post<PaymentConfirmation>("/payments/process", request);
+  }
+
+  /**
+   * Retry failed payment
+   */
+  async retryPayment(
+    request: RetryPaymentRequest,
+  ): Promise<ApiResponse<PaymentIntentResponse>> {
+    return this.post<PaymentIntentResponse>("/payments/retry", request);
+  }
+
+  /**
+   * Get payment history
+   */
+  async getPaymentHistory(
+    request: GetPaymentHistoryRequest,
+  ): Promise<ApiResponse<PaymentHistoryResponse>> {
+    const params: Record<string, string | number> = {};
+
+    if (request.status) params.status = request.status;
+    if (request.method) params.method = request.method;
+    if (request.page !== undefined) params.page = request.page;
+    if (request.size !== undefined) params.size = request.size;
+    if (request.startDate) params.startDate = request.startDate;
+    if (request.endDate) params.endDate = request.endDate;
+
+    const path = request.userId
+      ? `/payments/history/${request.userId}`
+      : "/payments/history";
+
+    return this.get<PaymentHistoryResponse>(path, params);
+  }
+
+  /**
+   * Get payment status by payment intent ID
+   */
+  async getPaymentStatus(
+    paymentIntentId: string,
+  ): Promise<ApiResponse<PaymentIntent>> {
+    return this.get<PaymentIntent>(`/payments/status/${paymentIntentId}`);
+  }
+
+  // Enhanced Features
+  // validateSharePurchase method removed - backend endpoint doesn't exist
+  // Validation is now handled client-side in the Next.js API route
+
+  /**
+   * Get user's shares analytics
+   */
+  async getSharesAnalytics(
+    userId: string,
+  ): Promise<ApiResponse<SharesAnalytics>> {
+    return this.get<SharesAnalytics>(`/shares/analytics/${userId}`);
+  }
+
+  /**
+   * Get membership tiers
+   */
+  async getMembershipTiers(): Promise<ApiResponse<MembershipTier[]>> {
+    return this.get<MembershipTier[]>("/membership/tiers");
+  }
+
+  /**
+   * Get user's current membership tier
+   */
+  async getUserMembershipTier(
+    userId: string,
+  ): Promise<ApiResponse<MembershipTier | null>> {
+    return this.get<MembershipTier | null>(`/membership/tiers/${userId}`);
   }
 }

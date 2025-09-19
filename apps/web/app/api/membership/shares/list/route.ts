@@ -72,7 +72,7 @@ export async function DELETE(req: NextRequest) {
     const response = await client.membership.updateSharesTx({
       sharesId: offerId,
       updates: {
-        status: SharesTxStatus.CANCELLED,
+        status: SharesTxStatus.FAILED,
       },
     });
 

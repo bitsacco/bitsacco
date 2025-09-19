@@ -63,8 +63,10 @@ export function useUserSharesTxs({ apiClient, userId }: UseUserSharesOptions) {
         setError(null);
         const response = await apiClient.membership.getUserSharesTxs({
           userId,
-          page,
-          size,
+          pagination: {
+            page,
+            size,
+          },
         });
         if (response.error) {
           throw new Error(response.error);

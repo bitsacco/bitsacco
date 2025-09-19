@@ -11,8 +11,35 @@ import {
   WebStorageAdapter,
   type StorageAdapter,
 } from "@bitsacco/core/adapters";
-import type { LoginUserRequest } from "@bitsacco/core/types";
-import type { Session } from "next-auth";
+import type { LoginUserRequest, User as CoreUser } from "@bitsacco/core/types";
+
+// Type augmentations for NextAuth
+declare module "next-auth" {
+  interface Session {
+    accessToken?: string;
+    refreshToken?: string;
+    user: CoreUser;
+    expires: string;
+  }
+
+  interface User extends CoreUser {
+    accessToken: string;
+    refreshToken: string;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    sub?: string;
+    user?: CoreUser;
+    accessToken?: string;
+    refreshToken?: string;
+  }
+}
+
+// Import types after augmentation
+import type { Session, User } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 
 // API configuration
 const API_URL =
@@ -80,27 +107,30 @@ export const authConfig: NextAuthConfig = {
       }
       return true;
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    jwt({ token, user, account }: any) {
+    jwt({ token, user, account }) {
       // Store auth data in token on initial sign in
       if (account && user) {
         console.log("[AUTH] JWT callback - storing auth data:", {
           userId: user.id,
-          hasAccessToken: !!user.accessToken,
-          hasRefreshToken: !!user.refreshToken,
+          hasAccessToken: !!(user as User).accessToken,
+          hasRefreshToken: !!(user as User).refreshToken,
         });
+
+        // Cast user to our extended User type which includes tokens
+        const authUser = user as User;
+        const { accessToken, refreshToken, ...coreUser } = authUser;
+
         return {
           ...token,
-          sub: user.id,
-          user: user.user,
-          accessToken: user.accessToken,
-          refreshToken: user.refreshToken,
+          sub: authUser.id,
+          user: coreUser as CoreUser,
+          accessToken: accessToken,
+          refreshToken: refreshToken,
         };
       }
       return token;
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    session({ session, token }: any) {
+    session({ session, token }: { session: Session; token: JWT }) {
       console.log("[AUTH] Session callback - incoming:", {
         hasToken: !!token,
         hasAccessToken: !!token.accessToken,
@@ -108,25 +138,26 @@ export const authConfig: NextAuthConfig = {
         sessionStructure: Object.keys(session || {}),
       });
 
-      // Create a new session object with all necessary data
-      const enhancedSession = {
-        ...session,
-        accessToken: token.accessToken,
-        refreshToken: token.refreshToken,
-        user: {
-          ...session.user,
-          id: token.user?.id || token.sub,
-          name: token.user?.profile?.name || session.user?.name || null,
-        },
-      };
+      // Ensure we have a complete user object from the token
+      if (token.user) {
+        const enhancedSession: Session = {
+          ...session,
+          accessToken: token.accessToken,
+          refreshToken: token.refreshToken,
+          user: token.user,
+        };
 
-      console.log("[AUTH] Session callback - returning:", {
-        hasAccessToken: !!enhancedSession.accessToken,
-        hasRefreshToken: !!enhancedSession.refreshToken,
-        userId: enhancedSession.user?.id,
-      });
+        console.log("[AUTH] Session callback - returning:", {
+          hasAccessToken: !!enhancedSession.accessToken,
+          hasRefreshToken: !!enhancedSession.refreshToken,
+          userId: enhancedSession.user?.id,
+        });
 
-      return enhancedSession;
+        return enhancedSession;
+      }
+
+      // Fallback if no user in token (shouldn't happen in normal flow)
+      return session;
     },
   },
   providers: [
@@ -137,25 +168,26 @@ export const authConfig: NextAuthConfig = {
         phone: { label: "Phone", type: "tel" },
         pin: { label: "PIN", type: "password" },
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      async authorize(credentials: any) {
+      async authorize(
+        credentials: Partial<Record<"phone" | "pin", unknown>>,
+      ): Promise<User | null> {
         if (!credentials?.phone || !credentials?.pin) return null;
 
         try {
           const loginRequest: LoginUserRequest = {
-            phone: credentials.phone,
-            pin: credentials.pin,
+            phone: String(credentials.phone),
+            pin: String(credentials.pin),
           };
           const response = await apiClient.auth.login(loginRequest);
 
           if (response.data) {
-            // Return the exact shape NextAuth expects
-            return {
-              id: response.data.user.id,
-              user: response.data.user,
+            // Return user with tokens attached for JWT callback to process
+            const authUser: User = {
+              ...response.data.user,
               accessToken: response.data.accessToken || "",
               refreshToken: response.data.refreshToken || "",
             };
+            return authUser;
           }
         } catch (error) {
           console.error("Auth error:", error);
@@ -170,25 +202,26 @@ export const authConfig: NextAuthConfig = {
         npub: { label: "Nostr Public Key", type: "text" },
         pin: { label: "PIN", type: "password" },
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      async authorize(credentials: any) {
+      async authorize(
+        credentials: Partial<Record<"npub" | "pin", unknown>>,
+      ): Promise<User | null> {
         if (!credentials?.npub || !credentials?.pin) return null;
 
         try {
           const loginRequest: LoginUserRequest = {
-            npub: credentials.npub,
-            pin: credentials.pin,
+            npub: String(credentials.npub),
+            pin: String(credentials.pin),
           };
           const response = await apiClient.auth.login(loginRequest);
 
           if (response.data) {
-            // Return the exact shape NextAuth expects
-            return {
-              id: response.data.user.id,
-              user: response.data.user,
+            // Return user with tokens attached for JWT callback to process
+            const authUser: User = {
+              ...response.data.user,
               accessToken: response.data.accessToken || "",
               refreshToken: response.data.refreshToken || "",
             };
+            return authUser;
           }
         } catch (error) {
           console.error("Auth error:", error);

@@ -15,11 +15,25 @@ export const APP_DESCRIPTION = "Save and grow with Bitcoin";
 export const APP_URL =
   process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
 
-// Share configuration
-export const SHARE_VALUE_KES = parseInt(
-  process.env.NEXT_PUBLIC_SHARE_VALUE_KES || "10",
-  10,
+// Share configuration - matching webapp exactly
+export const SHARE_VALUE_KES = Number(
+  process.env.NEXT_PUBLIC_SHARE_VALUE_KES || "1000",
 );
+
+// Chama configuration for share purchases - critical IDs from webapp
+export const INTERNAL_CHAMA_ID =
+  process.env.NEXT_PUBLIC_INTERNAL_CHAMA_ID ||
+  "cc212028-00be-4ea1-b32f-d3993bbf98e7";
+
+export const INTERNAL_USER_ID =
+  process.env.NEXT_PUBLIC_INTERNAL_USER_ID ||
+  "b6287a8d-ff0b-4b98-8a7e-3aab8aef3995";
+
+// API configuration
+export const BS_API_URL = process.env.NEXT_PUBLIC_BS_API_URL || "";
+
+// Environment variables matching webapp
+export const BS_ENV = process.env.NEXT_PUBLIC_BS_ENV || "development";
 
 // Feature flags configuration
 export const FEATURES_JSON_URL = "/features.json";
