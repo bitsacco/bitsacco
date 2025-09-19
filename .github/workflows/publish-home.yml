@@ -28,28 +28,28 @@ permissions:
 jobs:
   lint-test-publish:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          
+          node-version: "20"
+          cache: "npm"
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Lint code
         run: npm run lint --workspace=@bitsacco/home
-        
+
       - name: Run tests
         run: npm run test --workspace=@bitsacco/home --if-present
-        
+
       - name: Build application
-        run: npm run build:web
+        run: npm run build:home
         env:
           NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
           NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
@@ -57,18 +57,18 @@ jobs:
           NEXT_PUBLIC_SUPPORT_EMAIL: ${{ secrets.NEXT_PUBLIC_SUPPORT_EMAIL }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
           NEXT_PUBLIC_PARTNERS_FORM_URL: ${{ secrets.NEXT_PUBLIC_PARTNERS_FORM_URL }}
-          
+
       - name: Set up Docker Buildx
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/setup-buildx-action@v3
-        
+
       - name: Log in to Docker Hub
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_BITSACCO_OWNER }}
           password: ${{ secrets.DOCKER_HUB_BITSACCO_PUBLISH_TOKEN }}
-          
+
       - name: Build and push Docker image
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v5

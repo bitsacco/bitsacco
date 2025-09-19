@@ -1,15 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@bitsacco/ui";
-import {
-  SharesTxStatus,
-  SharesTxType,
-  type SharesTx,
-  type AllSharesOffers,
-  type UserShareTxsResponse,
-  type SharesOffer,
-} from "@bitsacco/core";
 import { formatDistance } from "date-fns";
 import {
   ChartLineIcon,
@@ -25,11 +16,24 @@ import {
   ShoppingCartIcon,
   ShieldCheckIcon,
 } from "@phosphor-icons/react";
+import {
+  SharesTxStatus,
+  SharesTxType,
+  type SharesTx,
+  type AllSharesOffers,
+  type UserShareTxsResponse,
+  type SharesOffer,
+  MembershipTier,
+} from "@bitsacco/core";
+import { Button } from "@bitsacco/ui";
 import { TransferSharesModal } from "@/components/transfer-shares-modal";
 import { BuySharesModal } from "@/components/buy-shares-modal";
+import { TransactionHistory } from "@/components/transaction-history";
 import { SHARE_VALUE_KES } from "@/lib/config";
 import { useFeatureFlag } from "@/lib/feature-flags-provider";
 import { FEATURE_FLAGS } from "@/lib/features";
+import { MembershipBusinessLogic } from "@/lib/membership-business-logic";
+import { fetchMembershipTiers } from "@/lib/membership-tiers-service";
 
 // Tab configuration
 const tabs = [
@@ -76,6 +80,19 @@ export default function MembershipPage() {
     null,
   );
   const [loading, setLoading] = useState(true);
+  const [membershipTiers, setMembershipTiers] = useState<MembershipTier[]>([]);
+
+  // Fetch membership tiers (mock service - TODO: replace with real API)
+  const loadTiers = async () => {
+    try {
+      const response = await fetchMembershipTiers();
+      if (response.success && response.data?.tiers) {
+        setMembershipTiers(response.data.tiers);
+      }
+    } catch (error) {
+      console.error("Failed to fetch membership tiers:", error);
+    }
+  };
 
   // Fetch offers
   const fetchOffers = async () => {
@@ -95,6 +112,13 @@ export default function MembershipPage() {
         "/api/membership/shares/transactions?size=20",
       );
       const data = await response.json();
+      console.log("[MembershipPage] Raw API response:", data);
+      console.log("[MembershipPage] Response structure:", {
+        success: data.success,
+        hasData: !!data.data,
+        dataKeys: data.data ? Object.keys(data.data) : [],
+        dataStructure: data.data,
+      });
       setTransactions(data.data);
     } catch (error) {
       console.error("Failed to fetch transactions:", error);
@@ -105,17 +129,65 @@ export default function MembershipPage() {
 
   // Initial data fetch
   useEffect(() => {
-    Promise.all([fetchOffers(), fetchTransactions()]);
+    Promise.all([loadTiers(), fetchOffers(), fetchTransactions()]);
   }, []);
 
-  // Calculate summary from transactions
-  // Use totalShares from API response (includes all shares, not just visible transactions)
-  const summary = {
-    totalShares: transactions?.totalShares || 0,
-    totalValue: (transactions?.totalShares || 0) * SHARE_VALUE_KES,
-    activeOffers: offers?.offers?.length || 0,
-    totalTransfers: 0,
+  // Current tier calculation moved to summary calculation
+
+  // Calculate enhanced summary using business logic
+  const calculateSummary = () => {
+    const baseShares = transactions?.shareHoldings || 0;
+    const calculatedShares = transactions?.shares?.transactions
+      ? MembershipBusinessLogic.calculateShareHoldings(
+          transactions.shares.transactions,
+        )
+      : 0;
+
+    console.log("[MembershipPage] Share calculation:", {
+      baseShares,
+      calculatedShares,
+      hasTransactions: !!transactions?.shares?.transactions,
+      transactionCount: transactions?.shares?.transactions?.length || 0,
+    });
+
+    // Use API totalShares if available, otherwise calculate from transactions
+    const totalShares = baseShares || calculatedShares;
+    const totalValue = MembershipBusinessLogic.calculatePortfolioValue(
+      totalShares,
+      SHARE_VALUE_KES,
+    );
+    const membershipStatus = transactions?.shares?.transactions
+      ? MembershipBusinessLogic.getUserMembershipStatus(
+          totalShares,
+          transactions.shares.transactions,
+        )
+      : { hasShares: false, isNewMember: true, totalTransactions: 0 };
+
+    const currentTier = MembershipBusinessLogic.calculateMembershipTier(
+      totalShares,
+      membershipTiers,
+    );
+    const nextTierInfo = MembershipBusinessLogic.getNextTierInfo(
+      totalShares,
+      membershipTiers,
+    );
+    const activeOffer = offers?.offers
+      ? MembershipBusinessLogic.findActiveOffer(offers.offers)
+      : null;
+
+    return {
+      totalShares,
+      totalValue,
+      activeOffers: offers?.offers?.length || 0,
+      totalTransfers: membershipStatus.totalTransactions,
+      membershipStatus,
+      currentTier,
+      nextTierInfo,
+      activeOffer,
+    };
   };
+
+  const summary = calculateSummary();
 
   // Filter tabs based on feature flags
   const availableTabs = tabs.filter((tab) => {
@@ -125,11 +197,11 @@ export default function MembershipPage() {
   });
 
   // Count total transfers from transactions
-  if (transactions?.transactions) {
-    transactions.transactions.forEach((tx: SharesTx) => {
+  if (transactions?.shares?.transactions) {
+    transactions.shares.transactions.forEach((tx: SharesTx) => {
       if (
-        tx.status === SharesTxStatus.COMPLETED &&
-        tx.type === SharesTxType.TRANSFER
+        tx.status === SharesTxStatus.COMPLETE &&
+        tx.transfer // Check if it's a transfer transaction
       ) {
         summary.totalTransfers++;
       }
@@ -139,14 +211,28 @@ export default function MembershipPage() {
   // Calculate active shares - show all completed transactions (not just subscriptions)
   // This will show the user's share history
   const activeShares: SharesTx[] =
-    transactions?.transactions?.filter(
-      (tx: SharesTx) => tx.status === SharesTxStatus.COMPLETED,
+    transactions?.shares?.transactions?.filter(
+      (tx: SharesTx) => tx.status === SharesTxStatus.COMPLETE,
     ) || [];
 
-  // Handle quick buy with first available offer
+  console.log("[MembershipPage] Active shares filter:", {
+    hasTransactions: !!transactions?.shares,
+    totalTransactions: transactions?.shares?.transactions?.length || 0,
+    completedTransactions: activeShares.length,
+    allStatuses:
+      transactions?.shares?.transactions?.map((tx: SharesTx) => tx.status) ||
+      [],
+    SharesTxStatus_COMPLETE: SharesTxStatus.COMPLETE,
+  });
+
+  // Handle quick buy with business logic
   const handleQuickBuy = () => {
-    if (offers?.offers && offers.offers.length > 0) {
-      // Select the first available offer
+    if (summary.activeOffer) {
+      // Use the active offer determined by business logic
+      setSelectedOfferId(summary.activeOffer.id);
+      setShowPurchaseModal(true);
+    } else if (offers?.offers && offers.offers.length > 0) {
+      // Fallback to first available offer
       setSelectedOfferId(offers.offers[0].id);
       setShowPurchaseModal(true);
     } else {
@@ -164,29 +250,43 @@ export default function MembershipPage() {
 
   const getStatusBadge = (status: SharesTxStatus) => {
     const statusConfig = {
-      [SharesTxStatus.PENDING]: {
+      [SharesTxStatus.PROPOSED]: {
         bg: "bg-yellow-500/20",
         text: "text-yellow-300",
         icon: <ClockIcon size={14} weight="fill" />,
       },
-      [SharesTxStatus.COMPLETED]: {
+      [SharesTxStatus.PROCESSING]: {
+        bg: "bg-blue-500/20",
+        text: "text-blue-300",
+        icon: <ClockIcon size={14} weight="fill" />,
+      },
+      [SharesTxStatus.APPROVED]: {
         bg: "bg-green-500/20",
         text: "text-green-300",
         icon: <CheckCircleIcon size={14} weight="fill" />,
       },
-      [SharesTxStatus.CANCELLED]: {
-        bg: "bg-gray-500/20",
-        text: "text-gray-400",
-        icon: <XCircleIcon size={14} weight="fill" />,
+      [SharesTxStatus.COMPLETE]: {
+        bg: "bg-green-500/20",
+        text: "text-green-300",
+        icon: <CheckCircleIcon size={14} weight="fill" />,
       },
       [SharesTxStatus.FAILED]: {
         bg: "bg-red-500/20",
         text: "text-red-300",
         icon: <XCircleIcon size={14} weight="fill" />,
       },
+      [SharesTxStatus.UNRECOGNIZED]: {
+        bg: "bg-gray-500/20",
+        text: "text-gray-400",
+        icon: <XCircleIcon size={14} weight="fill" />,
+      },
     };
 
-    const config = statusConfig[status];
+    const config = statusConfig[status] || {
+      bg: "bg-gray-500/20",
+      text: "text-gray-400",
+      icon: <XCircleIcon size={14} weight="fill" />,
+    };
     return (
       <span
         className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${config.bg} ${config.text}`}
@@ -246,83 +346,84 @@ export default function MembershipPage() {
 
       {/* Stats Card */}
       <div className="bg-gradient-to-r from-teal-900/30 to-blue-900/30 border border-teal-700/50 rounded-xl p-6 sm:p-8 mb-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          <div className="w-full lg:flex-1">
-            {/* Header with icon - centered on mobile */}
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
-              <div className="w-14 h-14 bg-teal-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                <ChartLineIcon
-                  size={28}
-                  weight="fill"
-                  className="text-teal-400"
-                />
-              </div>
-              <div className="text-center sm:text-left">
+        <div className="flex flex-col gap-6">
+          {/* Header with icon and tier pill */}
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+            <div className="w-14 h-14 bg-teal-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+              <ChartLineIcon
+                size={28}
+                weight="fill"
+                className="text-teal-400"
+              />
+            </div>
+            <div className="flex-1 text-center sm:text-left">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                 <h3 className="text-2xl sm:text-3xl font-bold text-gray-100">
                   Your Share Portfolio
                 </h3>
-                <p className="text-gray-400">
-                  Total holdings in the cooperative
-                </p>
+                {summary.currentTier && (
+                  <div className="bg-gradient-to-r from-orange-500/20 to-orange-400/20 border border-orange-500/40 rounded-full px-4 py-2 backdrop-blur-sm">
+                    <p className="text-sm font-semibold text-orange-300">
+                      {summary.currentTier.name}
+                    </p>
+                  </div>
+                )}
               </div>
-            </div>
-
-            {/* Stats Grid - centered on mobile */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-              <div className="text-center sm:text-left">
-                <p className="text-sm text-gray-400 mb-1">Total Shares</p>
-                <p className="text-3xl font-bold text-teal-300">
-                  {summary.totalShares.toLocaleString()}
-                </p>
-              </div>
-              <div className="text-center sm:text-left">
-                <p className="text-sm text-gray-400 mb-1">Portfolio Value</p>
-                <p className="text-3xl font-bold text-gray-100">
-                  {formatCurrency(summary.totalValue)}
-                </p>
-              </div>
-            </div>
-
-            {/* Mobile and Tablet buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 lg:hidden">
-              <Button
-                variant="tealPrimary"
-                size="lg"
-                onClick={handleQuickBuy}
-                fullWidth
-                className="shadow-lg shadow-teal-500/20 flex items-center justify-center gap-2"
-              >
-                <ShoppingCartIcon size={20} weight="bold" />
-                Buy Shares
-              </Button>
-              {isTransferEnabled && (
-                <Button
-                  variant="tealOutline"
-                  size="lg"
-                  fullWidth
-                  className="!border-slate-600 !text-gray-300 hover:!bg-slate-700/50 flex items-center justify-center gap-2"
-                  onClick={() => {
-                    if (activeShares.length > 0) {
-                      setSelectedShareForTransfer(activeShares[0]);
-                      setShowTransferModal(true);
-                    }
-                  }}
-                  disabled={activeShares.length === 0}
-                >
-                  <ArrowsLeftRightIcon size={20} weight="bold" />
-                  Transfer Shares
-                </Button>
-              )}
+              <p className="text-gray-400">Total holdings in the SACCO</p>
             </div>
           </div>
 
-          {/* Desktop buttons */}
-          <div className="hidden lg:flex lg:flex-col gap-3 flex-shrink-0">
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="text-center sm:text-left">
+              <p className="text-sm text-gray-400 mb-1">Total Shares</p>
+              <p className="text-3xl font-bold text-teal-300">
+                {summary.totalShares.toLocaleString()}
+              </p>
+              {summary.membershipStatus.isNewMember && (
+                <p className="text-xs text-blue-400 mt-1">New Account</p>
+              )}
+            </div>
+            <div className="text-center sm:text-left">
+              <p className="text-sm text-gray-400 mb-1">Portfolio Value</p>
+              <p className="text-3xl font-bold text-gray-100">
+                {formatCurrency(summary.totalValue)}
+              </p>
+            </div>
+          </div>
+
+          {/* Membership Tier Progress */}
+          {summary.nextTierInfo.nextTier && (
+            <div className="rounded-lg p-4">
+              <div className="flex justify-between items-center mb-2">
+                <p className="text-sm text-gray-400">
+                  Progress to {summary.nextTierInfo.nextTier.name}
+                </p>
+                <p className="text-sm text-gray-400">
+                  {summary.nextTierInfo.sharesNeeded} shares needed
+                </p>
+              </div>
+              <div className="w-full bg-slate-700 rounded-full h-2">
+                <div
+                  className="bg-teal-500 h-2 rounded-full transition-all duration-300"
+                  style={{
+                    width: `${summary.nextTierInfo.progressPercentage}%`,
+                  }}
+                ></div>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                {Math.round(summary.nextTierInfo.progressPercentage)}% complete
+              </p>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3">
             <Button
               variant="tealPrimary"
               size="lg"
               onClick={handleQuickBuy}
-              className="shadow-lg shadow-teal-500/20 flex items-center justify-center gap-2"
+              className="shadow-lg shadow-teal-500/20 flex items-center justify-center gap-2 flex-1"
             >
               <ShoppingCartIcon size={20} weight="bold" />
               Buy Shares
@@ -331,7 +432,7 @@ export default function MembershipPage() {
               <Button
                 variant="tealOutline"
                 size="lg"
-                className="!border-slate-600 !text-gray-300 hover:!bg-slate-700/50 flex items-center justify-center gap-2"
+                className="!border-slate-600 !text-gray-300 hover:!bg-slate-700/50 flex items-center justify-center gap-2 flex-1"
                 onClick={() => {
                   if (activeShares.length > 0) {
                     setSelectedShareForTransfer(activeShares[0]);
@@ -458,7 +559,11 @@ export default function MembershipPage() {
                           {/* Status pills and Transfer button - mobile: below, desktop: right */}
                           <div className="flex flex-col lg:items-end gap-3">
                             <div className="flex items-center gap-2">
-                              {getTypeBadge(share.type)}
+                              {getTypeBadge(
+                                share.transfer
+                                  ? SharesTxType.TRANSFER
+                                  : SharesTxType.SUBSCRIPTION,
+                              )}
                               {getStatusBadge(share.status)}
                             </div>
                             {isTransferEnabled && (
@@ -518,7 +623,11 @@ export default function MembershipPage() {
                       {/* Status pills and Transfer button - mobile: below, desktop: right */}
                       <div className="flex flex-col lg:items-end gap-3">
                         <div className="flex items-center gap-2">
-                          {getTypeBadge(share.type)}
+                          {getTypeBadge(
+                            share.transfer
+                              ? SharesTxType.TRANSFER
+                              : SharesTxType.SUBSCRIPTION,
+                          )}
                           {getStatusBadge(share.status)}
                         </div>
                         {isTransferEnabled && (
@@ -635,8 +744,14 @@ export default function MembershipPage() {
                           className="text-yellow-400"
                         />
                         <span>
-                          Expires{" "}
-                          {new Date(offer.availableTo).toLocaleDateString()}
+                          {offer.availableTo ? (
+                            <>
+                              Expires{" "}
+                              {new Date(offer.availableTo).toLocaleDateString()}
+                            </>
+                          ) : (
+                            "Available until fully subscribed"
+                          )}
                         </span>
                       </div>
                     </div>
@@ -676,82 +791,11 @@ export default function MembershipPage() {
         )}
 
         {activeTab === "history" && (
-          <div className="p-4 sm:p-6 lg:p-8">
-            {loading ? (
-              <div className="text-center py-16">
-                <div className="animate-spin rounded-full h-14 w-14 border-4 border-slate-700 border-t-teal-400 mx-auto"></div>
-                <p className="mt-6 text-gray-400 text-lg">
-                  Loading transaction history...
-                </p>
-              </div>
-            ) : transactions?.transactions &&
-              transactions.transactions.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="min-w-full">
-                  <thead>
-                    <tr className="border-b border-slate-700">
-                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Date
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Type
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Quantity
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Value
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Status
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-700">
-                    {transactions.transactions.map((tx: SharesTx) => (
-                      <tr
-                        key={tx.id}
-                        className="hover:bg-slate-800/50 transition-colors"
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {new Date(tx.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {getTypeBadge(tx.type)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {tx.quantity} shares
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-teal-300 font-medium">
-                          {formatCurrency(tx.quantity * SHARE_VALUE_KES)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {getStatusBadge(tx.status)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="text-center py-16">
-                <div className="w-20 h-20 bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <ClockIcon
-                    size={40}
-                    weight="thin"
-                    className="text-gray-500"
-                  />
-                </div>
-                <h4 className="text-xl font-semibold text-gray-100 mb-3">
-                  No Transaction History
-                </h4>
-                <p className="text-gray-400 max-w-md mx-auto">
-                  Your share transactions and trading history will appear here
-                  once you start investing
-                </p>
-              </div>
-            )}
-          </div>
+          <TransactionHistory
+            transactions={transactions}
+            loading={loading}
+            onRefresh={fetchTransactions}
+          />
         )}
       </div>
 

@@ -15,9 +15,11 @@
     "@bitsacco/ui": "*",
     "@headlessui/react": "^2.2.7",
     "@phosphor-icons/react": "^2.1.10",
+    "@types/qrcode": "^1.5.5",
     "date-fns": "^4.1.0",
     "next": "15.3.3",
     "next-auth": "5.0.0-beta.28",
+    "qrcode": "^1.5.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

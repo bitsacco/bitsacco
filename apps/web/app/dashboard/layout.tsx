@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import type { Session } from "next-auth";
 import { Button, Logo } from "@bitsacco/ui";
+import type { User as CoreUser } from "@bitsacco/core/types";
 import {
   ListIcon,
   XIcon,
@@ -188,7 +189,7 @@ function SidebarContent({
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-base font-medium text-gray-100 truncate">
-              {session?.user?.name || "User"}
+              {(session?.user as CoreUser)?.profile?.name || "User"}
             </p>
             <p className="text-sm text-gray-400 truncate">
               {session?.user?.id

@@ -1,9 +1,13 @@
-// Based on OS API structure
+import type { PaymentMethod, PaymentStatus } from "./payments";
+
+// Match backend SharesTxStatus exactly from /os/src/common/types/shares.ts
 export enum SharesTxStatus {
-  PENDING = "pending",
-  COMPLETED = "completed",
-  CANCELLED = "cancelled",
-  FAILED = "failed",
+  PROPOSED = 0,
+  PROCESSING = 1,
+  APPROVED = 2,
+  COMPLETE = 3,
+  FAILED = 4,
+  UNRECOGNIZED = -1,
 }
 
 export enum SharesTxType {
@@ -12,25 +16,60 @@ export enum SharesTxType {
   OFFER = "offer",
 }
 
+// Enhanced validation rules
+export interface ShareValidationRules {
+  minPurchaseQuantity: number;
+  maxPurchaseQuantity: number;
+  requiresKyc: boolean;
+  membershipTierRequired?: string;
+  geographicRestrictions?: string[];
+}
+
+export interface MembershipTier {
+  id: string;
+  name: string;
+  level: number;
+  shareRequirements: number;
+  benefits: string[];
+  restrictions?: ShareValidationRules;
+}
+
 export interface SharesOffer {
   id: string;
+  /** Number of shares issued */
   quantity: number;
+  /** Number of shares subscribed by members */
+  subscribedQuantity: number;
+  /** Date from which the shares will be available for subscription */
   availableFrom: string;
-  availableTo: string;
+  /**
+   * Date until which the shares will be available for subscription
+   * Shares can be sold out before this availability date lapses
+   */
+  availableTo?: string | undefined;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string | undefined;
 }
 
 export interface SharesTx {
   id: string;
   userId: string;
-  offerId?: string;
+  offerId: string;
   quantity: number;
-  type: SharesTxType;
   status: SharesTxStatus;
-  transfer?: SharesTxTransferMeta;
+  transfer?: SharesTxTransferMeta | undefined;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string | undefined;
+}
+
+export interface SharesPaymentInfo {
+  paymentIntentId: string;
+  amount: number;
+  currency: string;
+  method: PaymentMethod;
+  status: PaymentStatus;
+  failedAttempts?: number;
+  lastAttemptAt?: string;
 }
 
 export interface SharesTxTransferMeta {
@@ -39,31 +78,49 @@ export interface SharesTxTransferMeta {
   quantity: number;
 }
 
-export interface UserShareTxsResponse {
-  transactions: SharesTx[];
-  totalCount: number;
-  page: number;
-  size: number;
-  pages?: number;
-  totalShares?: number; // Total shares held by the user
-}
-
 export interface AllSharesOffers {
   offers: SharesOffer[];
-  totalCount: number;
+  totalOfferQuantity: number;
+  totalSubscribedQuantity: number;
 }
 
-// Request types
+export interface PaginatedUserSharesTxsResponse {
+  transactions: SharesTx[];
+  page: number;
+  size: number;
+  pages: number;
+}
+
+export interface UserShareTxsResponse {
+  userId: string;
+  shareHoldings: number;
+  shares: PaginatedUserSharesTxsResponse | undefined;
+  offers: AllSharesOffers | undefined;
+}
+
+export interface AllSharesTxsResponse {
+  shares: PaginatedUserSharesTxsResponse | undefined;
+  offers: AllSharesOffers | undefined;
+}
+
+// Request types matching backend DTOs exactly
 export interface OfferSharesRequest {
+  /** Number of shares to issue */
   quantity: number;
+  /** Date from which the shares will be available for subscription */
   availableFrom: string;
-  availableTo: string;
+  /**
+   * Date until which the shares will be available for subscription
+   * Shares can be sold out before this availability date lapses
+   */
+  availableTo?: string | undefined;
 }
 
 export interface SubscribeSharesRequest {
   userId: string;
   offerId: string;
   quantity: number;
+  // Payment fields removed - payment happens separately through chama deposits
 }
 
 export interface TransferSharesRequest {
@@ -73,22 +130,80 @@ export interface TransferSharesRequest {
   quantity: number;
 }
 
+export interface SharesTxUpdates {
+  quantity?: number | undefined;
+  status?: SharesTxStatus | undefined;
+  transfer?: SharesTxTransferMeta | undefined;
+  offerId?: string | undefined;
+}
+
 export interface UpdateSharesRequest {
   sharesId: string;
-  updates: {
-    quantity?: number;
-    status?: SharesTxStatus;
-    transfer?: SharesTxTransferMeta;
-    offerId?: string;
-  };
+  updates: SharesTxUpdates | undefined;
 }
 
 export interface UserSharesTxsRequest {
   userId: string;
-  page?: number;
-  size?: number;
+  pagination:
+    | {
+        page: number;
+        size: number;
+        status?: string;
+        type?: string;
+        startDate?: string;
+        endDate?: string;
+      }
+    | undefined;
 }
 
 export interface FindShareTxRequest {
   sharesId: string;
+}
+
+// Validation and business logic types
+export interface SharePurchaseValidation {
+  isValid: boolean;
+  errors: ValidationError[];
+  warnings: ValidationWarning[];
+  eligibility: UserEligibility;
+}
+
+export interface ValidationError {
+  code: string;
+  message: string;
+  field?: string;
+}
+
+export interface ValidationWarning {
+  code: string;
+  message: string;
+  canProceed: boolean;
+}
+
+export interface UserEligibility {
+  canPurchase: boolean;
+  maxQuantity: number;
+  currentTier?: MembershipTier;
+  nextTier?: MembershipTier;
+  kycStatus: "pending" | "approved" | "rejected" | "not_required";
+}
+
+// Analytics and insights
+export interface SharesAnalytics {
+  totalValue: number;
+  growth: {
+    period: "1M" | "3M" | "6M" | "1Y";
+    percentage: number;
+    amount: number;
+  };
+  distribution: {
+    tier: string;
+    percentage: number;
+    quantity: number;
+  }[];
+  recentActivity: {
+    purchases: number;
+    transfers: number;
+    value: number;
+  };
 }
