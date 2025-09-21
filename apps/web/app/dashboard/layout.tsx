@@ -12,6 +12,7 @@ import {
   UserIcon,
   SignOutIcon,
   ShieldCheckIcon,
+  WalletIcon,
 } from "@phosphor-icons/react";
 
 const navigation = [
@@ -20,11 +21,11 @@ const navigation = [
     href: "/dashboard/membership",
     icon: ShieldCheckIcon,
   },
-  // {
-  //   name: "Personal Savings",
-  //   href: "/dashboard/personal",
-  //   icon: WalletIcon,
-  // },
+  {
+    name: "Personal Savings",
+    href: "/dashboard/personal",
+    icon: WalletIcon,
+  },
   // {
   //   name: "Chamas",
   //   href: "/dashboard/chamas",
