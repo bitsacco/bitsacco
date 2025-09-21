@@ -2,555 +2,346 @@
 
 import { useState } from "react";
 import { Button } from "@bitsacco/ui";
-
-interface SavingsWallet {
-  id: string;
-  name: string;
-  type: "personal" | "goal" | "challenge" | "vacation" | "emergency";
-  balance: number;
-  currency: string;
-  icon: string;
-  color: string;
-  targetAmount?: number;
-}
+import {
+  PlusIcon,
+  WalletIcon,
+  TrendUpIcon,
+  ArrowsCounterClockwise,
+  ArrowDownIcon,
+} from "@phosphor-icons/react";
+import { WalletCard } from "@/components/savings/wallet-card";
+import { CreateWalletCard } from "@/components/savings/create-wallet-card";
+import { CreateWalletModal } from "@/components/savings/create-wallet-modal";
+import { DepositModal } from "@/components/savings/deposit-flow/deposit-modal";
+import { WithdrawModal } from "@/components/savings/withdraw-flow/withdraw-modal";
+import { TransactionHistory } from "@/components/savings/transaction-history";
+import { useWallets } from "@/hooks/savings/use-wallets";
+import type { PersonalWallet } from "@/lib/types/savings";
+import { formatCurrency, formatSats } from "@/lib/utils/format";
 
 export default function PersonalSavingsPage() {
-  const [selectedWallet, setSelectedWallet] = useState("total");
+  const { wallets, totalBalance, totalBalanceFiat, loading, error, refetch } =
+    useWallets();
 
-  // Exchange rates and conversions (mock data)
-  const btcToKes = 5850000; // 1 BTC = 5,850,000 KES (approximate)
-  const btcToSats = 100000000; // 1 BTC = 100,000,000 satoshis
+  const [selectedWallet, setSelectedWallet] = useState<
+    PersonalWallet | undefined
+  >(undefined);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
-  // Helper function to convert BTC to sats
-  const toSats = (btc: number) => Math.round(btc * btcToSats);
+  const handleDeposit = (wallet?: PersonalWallet) => {
+    setSelectedWallet(wallet);
+    setShowDepositModal(true);
+  };
 
-  // Mock data for multiple savings wallets
-  const savingsWallets: SavingsWallet[] = [
-    {
-      id: "locked",
-      name: "Locked Savings",
-      type: "challenge",
-      balance: 0.00125,
-      currency: "BTC",
-      icon: "🔒",
-      color: "from-gray-500 to-gray-700",
-      targetAmount: 0.05,
-    },
-    {
-      id: "emergency",
-      name: "Emergency Fund",
-      type: "emergency",
-      balance: 0.0025,
-      currency: "BTC",
-      icon: "🛡️",
-      color: "from-green-500 to-emerald-600",
-      targetAmount: 0.01,
-    },
-    {
-      id: "vacation",
-      name: "Mauritius ABC25",
-      type: "goal",
-      balance: 0.004,
-      currency: "BTC",
-      icon: "✈️",
-      color: "from-blue-500 to-cyan-600",
-      targetAmount: 0.005,
-    },
-  ];
+  const handleWithdraw = (wallet?: PersonalWallet) => {
+    // Default to first default wallet if no wallet specified
+    const defaultWallet =
+      wallet || wallets.find((w) => w.walletType === "DEFAULT") || wallets[0];
+    setSelectedWallet(defaultWallet || null);
+    setShowWithdrawModal(true);
+  };
 
-  // Calculate total balance
-  const totalBalance = savingsWallets.reduce(
-    (sum, wallet) => sum + wallet.balance,
-    0,
-  );
+  const handleViewDetails = (wallet: PersonalWallet) => {
+    // TODO: Implement wallet details view
+    console.log("View details for wallet:", wallet.id);
+  };
 
-  const currentWallet =
-    savingsWallets.find((w) => w.id === selectedWallet) || savingsWallets[0];
+  const handleModalSuccess = () => {
+    refetch(); // Refresh wallets data
+  };
+
+  if (loading && wallets.length === 0) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+        <div className="animate-pulse">
+          {/* Header Skeleton */}
+          <div className="mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <div className="h-8 bg-slate-700/50 rounded-lg w-64 mb-3" />
+                <div className="h-4 bg-slate-700/30 rounded-lg w-96" />
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-slate-700/50 rounded-lg" />
+                <div className="w-32 h-12 bg-slate-700/50 rounded-lg" />
+              </div>
+            </div>
+          </div>
+
+          {/* Total Summary Skeleton */}
+          <div className="mb-8 p-6 bg-slate-800/30 border border-slate-700/50 rounded-xl">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-slate-700/50 rounded-lg" />
+              <div className="h-6 bg-slate-700/50 rounded-lg w-32" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <div className="h-10 bg-slate-700/50 rounded-lg w-48" />
+                <div className="h-6 bg-slate-700/30 rounded-full w-32" />
+              </div>
+              <div className="space-y-3">
+                <div className="h-10 bg-slate-700/50 rounded-lg w-40" />
+                <div className="h-6 bg-slate-700/30 rounded-full w-36" />
+              </div>
+            </div>
+          </div>
+
+          {/* Cards Skeleton */}
+          <div className="mb-8">
+            <div className="flex overflow-x-auto gap-6 pb-4">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="flex-none w-80 sm:w-96 bg-slate-800/30 border border-slate-700/50 rounded-xl p-6"
+                  style={{ animationDelay: `${i * 100}ms` }}
+                >
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-12 h-12 bg-slate-700/50 rounded-xl" />
+                    <div className="space-y-3 flex-1">
+                      <div className="h-5 bg-slate-700/50 rounded-lg w-32" />
+                      <div className="h-4 bg-slate-700/30 rounded-full w-24" />
+                    </div>
+                  </div>
+                  <div className="space-y-3 mb-6">
+                    <div className="h-8 bg-slate-700/50 rounded-lg w-40" />
+                    <div className="h-5 bg-slate-700/30 rounded-lg w-28" />
+                  </div>
+                  <div className="h-16 bg-slate-700/30 rounded-xl" />
+                </div>
+              ))}
+              {/* Create Wallet Card Skeleton */}
+              <div
+                className="flex-none w-80 sm:w-96 bg-slate-800/30 border border-slate-700/50 rounded-xl p-6"
+                style={{ animationDelay: `${4 * 100}ms` }}
+              >
+                <div className="flex flex-col items-center justify-center h-full space-y-6">
+                  <div className="w-16 h-16 bg-slate-700/50 rounded-xl" />
+                  <div className="space-y-3 text-center">
+                    <div className="h-5 bg-slate-700/50 rounded-lg w-40 mx-auto" />
+                    <div className="h-4 bg-slate-700/30 rounded-lg w-32 mx-auto" />
+                  </div>
+                  <div className="w-12 h-1 bg-slate-700/30 rounded-full" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons Skeleton */}
+          <div className="flex justify-center gap-4 mb-8">
+            <div className="w-48 h-14 bg-slate-700/50 rounded-lg" />
+            <div className="w-48 h-14 bg-slate-700/30 rounded-lg" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4 lg:p-6 max-w-7xl mx-auto">
-      {/* Header - Original Bitsacco style */}
-      <div className="mb-6 lg:mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Personal Savings</h1>
-        <p className="text-gray-600">
-          Manage your individual savings and transactions
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="mb-6 sm:mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-100">
+            Personal Savings
+          </h1>
+          {/* Refresh Button */}
+          <Button
+            variant="tealPrimary"
+            size="md"
+            onClick={refetch}
+            className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/30 hover:scale-[1.02] transition-all duration-300 group"
+            disabled={loading}
+          >
+            <ArrowsCounterClockwise
+              size={16}
+              weight="bold"
+              className={`${loading ? "animate-spin" : ""} group-hover:scale-110 transition-transform duration-300`}
+            />
+            <span className="hidden sm:inline">Refresh</span>
+          </Button>
+        </div>
+        <p className="text-sm sm:text-base text-gray-400">
+          Save in Bitcoin and build your wealth over time
         </p>
-      </div>
 
-      {/* Action Buttons - Mobile/Desktop */}
-      <div className="flex gap-2 lg:gap-3 mb-6">
-        <button className="flex items-center justify-center flex-1 lg:flex-none px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
-          <svg
-            className="w-4 h-4 mr-1.5 flex-shrink-0"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-          <span>Deposit</span>
-        </button>
-        <button className="flex items-center justify-center flex-1 lg:flex-none px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-          <svg
-            className="w-4 h-4 mr-1.5 flex-shrink-0"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M20 12H4"
-            />
-          </svg>
-          <span>Withdraw</span>
-        </button>
-        {/* <button className="flex items-center justify-center flex-1 lg:flex-none px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-          <svg
-            className="w-4 h-4 mr-1.5 flex-shrink-0"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
-            />
-          </svg>
-          <span>Send</span>
-        </button> */}
-      </div>
-
-      {/* Wallets Horizontal Scroll Gallery */}
-      <div className="mb-6 lg:mb-8 -mx-4 lg:-mx-6">
-        <div className="flex gap-3 overflow-x-auto scrollbar-hide px-4 lg:px-6 pb-2">
-          {/* Navigation Arrow Left - Desktop Only */}
-          <button
-            className="hidden lg:flex items-center justify-center flex-shrink-0 w-10 h-[140px] bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-            onClick={() => {
-              const container = document.getElementById(
-                "wallet-scroll-container",
-              );
-              if (container)
-                container.scrollBy({ left: -200, behavior: "smooth" });
-            }}
-          >
-            <svg
-              className="w-5 h-5 text-gray-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-
-          <div
-            id="wallet-scroll-container"
-            className="flex gap-3 overflow-x-auto scrollbar-hide"
-          >
-            {/* Total Balance Card - More Prominent */}
-            <button
-              onClick={() => setSelectedWallet("total")}
-              className={`flex-shrink-0 rounded-xl border-2 p-4 text-left transition-all w-[180px] lg:w-[220px] ${
-                selectedWallet === "total"
-                  ? "bg-gradient-to-br from-orange-50 to-orange-100 border-orange-500 shadow-lg"
-                  : "bg-gradient-to-br from-gray-50 to-white border-gray-300 hover:border-orange-400"
-              }`}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-3xl">₿</span>
-                  <span className="text-sm font-semibold text-gray-600">
-                    BTC
-                  </span>
+        {/* Total Balance Summary */}
+        {wallets.length > 0 && (
+          <div className="mt-6 p-6 bg-gradient-to-br from-slate-800/80 via-slate-800/60 to-slate-700/60 border border-slate-600/50 rounded-xl shadow-lg backdrop-blur-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-teal-500/20 rounded-lg">
+                <TrendUpIcon
+                  size={24}
+                  weight="duotone"
+                  className="text-teal-400"
+                />
+              </div>
+              <h2 className="text-lg font-semibold text-gray-100">
+                Total Savings
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <div className="text-3xl sm:text-4xl font-bold text-gray-100 tracking-tight">
+                  {formatSats(totalBalance)}
+                </div>
+                <div className="text-sm text-gray-400 font-medium bg-slate-700/30 px-3 py-1 rounded-full inline-block">
+                  Bitcoin Balance
                 </div>
               </div>
-              <p className="text-sm font-medium text-gray-600 mb-2">
-                Total Balance
-              </p>
-              <p className="text-xl font-bold text-gray-900 mb-1">
-                ₿ {toSats(totalBalance).toLocaleString()} sats
-              </p>
-              <p className="text-base font-medium text-gray-700">
-                KES {(totalBalance * btcToKes).toLocaleString("en-KE")}
-              </p>
-            </button>
+              <div className="space-y-2">
+                <div className="text-3xl sm:text-4xl font-bold text-gray-100 tracking-tight">
+                  {formatCurrency(totalBalanceFiat)}
+                </div>
+                <div className="text-sm text-gray-400 font-medium bg-slate-700/30 px-3 py-1 rounded-full inline-block">
+                  Kenyan Shillings
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
-            {/* Individual Wallet Cards */}
-            {savingsWallets.map((wallet) => (
+      {/* Error Display */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+          <p className="text-sm text-red-400">{error}</p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={refetch}
+            className="mt-2 !bg-red-500/10 !text-red-400 !border-red-500/20 hover:!bg-red-500/20"
+          >
+            Try Again
+          </Button>
+        </div>
+      )}
+
+      {/* Wallets Gallery */}
+      {wallets.length > 0 ? (
+        <div className="mb-8">
+          <div className="flex overflow-x-auto gap-6 pb-4 scrollbar-hide snap-x snap-mandatory">
+            {wallets.map((wallet, index) => (
               <div
                 key={wallet.id}
-                onClick={() => setSelectedWallet(wallet.id)}
-                className={`flex-shrink-0 bg-white rounded-lg border p-4 cursor-pointer transition-all w-[160px] lg:w-[190px] ${
-                  selectedWallet === wallet.id
-                    ? "border-orange-400 shadow-sm"
-                    : "border-gray-200 hover:border-gray-300"
-                }`}
+                className="flex-none w-80 sm:w-96 animate-in fade-in-50 slide-in-from-bottom-4 duration-700 snap-start"
+                style={{ animationDelay: `${index * 100}ms` }}
               >
-                {/* Header with Icon */}
-                <div className="flex items-start justify-between mb-3">
-                  <span className="text-2xl">{wallet.icon}</span>
-                  {wallet.type === "challenge" && (
-                    <span className="bg-gray-100 text-gray-600 text-xs px-1.5 py-0.5 rounded">
-                      Locked
-                    </span>
-                  )}
-                </div>
-
-                {/* Wallet Name */}
-                <p className="text-sm font-medium text-gray-700 mb-3">
-                  {wallet.name}
-                </p>
-
-                {/* Balance Display */}
-                <div className="space-y-1">
-                  <p className="text-base font-bold text-gray-900">
-                    ₿ {toSats(wallet.balance).toLocaleString()} sats
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    KES{" "}
-                    {(wallet.balance * btcToKes).toLocaleString("en-KE", {
-                      maximumFractionDigits: 0,
-                    })}
-                  </p>
-                </div>
-
-                {/* Target Progress - Simplified */}
-                {wallet.targetAmount && (
-                  <div className="mt-3 pt-3 border-t border-gray-100">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-xs text-gray-500">Progress</span>
-                      <span className="text-xs font-medium text-gray-700">
-                        {Math.round(
-                          (wallet.balance / wallet.targetAmount) * 100,
-                        )}
-                        %
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-100 rounded-full h-1.5">
-                      <div
-                        className="bg-orange-500 h-1.5 rounded-full transition-all"
-                        style={{
-                          width: `${Math.min((wallet.balance / wallet.targetAmount) * 100, 100)}%`,
-                        }}
-                      />
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      of KES{" "}
-                      {(wallet.targetAmount * btcToKes).toLocaleString(
-                        "en-KE",
-                        { maximumFractionDigits: 0 },
-                      )}
-                    </p>
-                  </div>
-                )}
+                <WalletCard
+                  wallet={wallet}
+                  onViewDetails={() => handleViewDetails(wallet)}
+                />
               </div>
             ))}
-
-            {/* Add New Wallet Button */}
-            <button className="flex-shrink-0 bg-white border border-dashed border-gray-300 rounded-lg p-4 w-[160px] lg:w-[190px] flex flex-col items-center justify-center hover:border-orange-400 hover:bg-orange-50 transition-all min-h-[140px]">
-              <svg
-                className="w-8 h-8 text-gray-400 mb-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M12 6v12m6-6H6"
-                />
-              </svg>
-              <span className="text-sm text-gray-600">Add Wallet</span>
-            </button>
-          </div>
-
-          {/* Navigation Arrow Right - Desktop Only */}
-          <button
-            className="hidden lg:flex items-center justify-center flex-shrink-0 w-10 h-[140px] bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-            onClick={() => {
-              const container = document.getElementById(
-                "wallet-scroll-container",
-              );
-              if (container)
-                container.scrollBy({ left: 200, behavior: "smooth" });
-            }}
-          >
-            <svg
-              className="w-5 h-5 text-gray-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+            {/* Create Wallet Card */}
+            <div
+              className="flex-none w-80 sm:w-96 animate-in fade-in-50 slide-in-from-bottom-4 duration-700 snap-start"
+              style={{ animationDelay: `${wallets.length * 100}ms` }}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
+              <CreateWalletCard onClick={() => setShowCreateModal(true)} />
+            </div>
+          </div>
+        </div>
+      ) : (
+        !loading && (
+          /* Empty State */
+          <div className="bg-slate-800/40 border border-slate-700 rounded-xl p-12 text-center mb-8 animate-in fade-in-50 slide-in-from-bottom-4 duration-700">
+            <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-teal-500/20 to-blue-500/20 rounded-full flex items-center justify-center border border-teal-500/30">
+              <WalletIcon
+                size={36}
+                weight="duotone"
+                className="text-teal-400"
               />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      {/* Custom scrollbar hiding styles */}
-      <style jsx>{`
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
-
-      {/* Send Again Section */}
-      {/* <div className="mb-6 lg:mb-8">
-        <h3 className="text-base lg:text-lg font-semibold text-gray-900 mb-4">
-          Send again
-        </h3>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-          <div className="bg-white border border-gray-200 rounded-xl p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white font-bold">
-                SC
-              </div>
-              <div>
-                <p className="font-medium text-gray-900">Savings Challenge</p>
-                <p className="text-sm text-gray-500">Weekly savings goal</p>
-              </div>
             </div>
-            <div className="flex gap-2">
-              <Button variant="primary" size="sm">
-                Repeat
-              </Button>
-              <Button variant="outline" size="sm">
-                Edit
-              </Button>
-            </div>
-          </div>
-
-          <div className="bg-white border border-gray-200 rounded-xl p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
-                JD
-              </div>
-              <div>
-                <p className="font-medium text-gray-900">John Doe</p>
-                <p className="text-sm text-gray-500">Monthly contribution</p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="primary" size="sm">
-                Repeat
-              </Button>
-              <Button variant="outline" size="sm">
-                Edit
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div> */}
-
-      {/* Transactions Section */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="px-4 lg:px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <h3 className="text-base lg:text-lg font-semibold text-gray-900">
-            Transactions
-          </h3>
-          <button className="text-sm text-orange-600 hover:text-orange-700 font-medium">
-            See all
-          </button>
-        </div>
-
-        <div className="divide-y divide-gray-100">
-          {/* Mock Transaction Items */}
-          <div className="px-4 lg:px-6 py-4 hover:bg-gray-50 cursor-pointer">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5 text-green-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M7 11l5-5m0 0l5 5m-5-5v12"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">
-                    To your{" "}
-                    {selectedWallet === "total"
-                      ? "Personal Savings"
-                      : currentWallet?.name || "Personal Savings"}
-                  </p>
-                  <p className="text-sm text-gray-500">Moved • 12 Aug</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="font-semibold text-gray-900">0.00150000 BTC</p>
-                <p className="text-sm text-gray-500">$45.00 USD</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="px-4 lg:px-6 py-4 hover:bg-gray-50 cursor-pointer">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5 text-orange-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 13l-5 5m0 0l-5-5m5 5V6"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">Monthly Savings</p>
-                  <p className="text-sm text-gray-500">Sent • 3 Aug</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="font-semibold text-gray-900">0.00500000 BTC</p>
-                <p className="text-sm text-gray-500">$150.00 USD</p>
-              </div>
-            </div>
-          </div>
-
-          {/* No transactions state */}
-          <div className="px-4 lg:px-6 py-12 text-center">
-            <svg
-              className="w-12 h-12 text-gray-400 mx-auto mb-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-            <h4 className="text-base lg:text-lg font-semibold text-gray-900 mb-2">
-              No transactions yet
-            </h4>
-            <p className="text-sm lg:text-base text-gray-600 mb-4">
-              Start saving to your{" "}
-              {selectedWallet === "total"
-                ? "wallets"
-                : currentWallet?.name || "wallet"}
+            <h3 className="text-2xl font-bold text-gray-100 mb-3">
+              Start Your Savings Journey
+            </h3>
+            <p className="text-gray-400 mb-8 max-w-md mx-auto leading-relaxed">
+              Create your first savings wallet to begin building wealth with
+              Bitcoin. Choose from standard savings, goal-based targets, or
+              locked savings with bonuses.
             </p>
-            <Button variant="primary" size="md">
-              Make Your First Deposit
+            <Button
+              variant="tealPrimary"
+              onClick={() => setShowCreateModal(true)}
+              className="shadow-lg shadow-teal-500/20 hover:shadow-teal-500/30 hover:scale-[1.02] transition-all duration-300 group"
+            >
+              <PlusIcon
+                size={20}
+                weight="bold"
+                className="mr-2 group-hover:rotate-90 transition-transform duration-300"
+              />
+              Create Your First Wallet
             </Button>
           </div>
-        </div>
-      </div>
+        )
+      )}
 
-      {/* Bottom Navigation Bar - Mobile Only */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 lg:hidden">
-        <div className="grid grid-cols-5 py-2">
-          <button className="flex flex-col items-center gap-1 py-2 text-orange-600">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-            </svg>
-            <span className="text-xs">Home</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 py-2 text-gray-600">
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-              />
-            </svg>
-            <span className="text-xs">Cards</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 py-2 text-gray-600">
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-            <span className="text-xs">Recipients</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 py-2 text-gray-600">
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span className="text-xs">Payments</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 py-2 text-gray-600">
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-              />
-            </svg>
-            <span className="text-xs">Insights</span>
-          </button>
+      {/* Unified Action Buttons */}
+      {wallets.length > 0 && (
+        <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+          <Button
+            variant="tealPrimary"
+            size="lg"
+            onClick={() => handleDeposit()}
+            className="flex items-center justify-center gap-3 px-8 py-4 text-lg font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/30 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group"
+          >
+            <PlusIcon
+              size={24}
+              weight="bold"
+              className="group-hover:rotate-90 transition-transform duration-300"
+            />
+            Deposit Funds
+          </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => handleWithdraw()}
+            className="flex items-center justify-center gap-3 px-8 py-4 text-lg font-semibold !bg-slate-700/50 !text-gray-300 !border-slate-600 hover:!bg-slate-700 hover:!border-slate-500 hover:scale-[1.02] hover:shadow-lg hover:shadow-slate-900/20 transition-all duration-300 group"
+          >
+            <ArrowDownIcon
+              size={24}
+              weight="bold"
+              className="group-hover:translate-y-0.5 transition-transform duration-300"
+            />
+            Withdraw Funds
+          </Button>
         </div>
-      </div>
+      )}
+
+      {/* Transaction History */}
+      <TransactionHistory wallets={wallets} />
+
+      {/* Modals */}
+      <CreateWalletModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={handleModalSuccess}
+      />
+
+      {/* Modals */}
+      <DepositModal
+        wallet={selectedWallet}
+        wallets={wallets}
+        isOpen={showDepositModal}
+        onClose={() => {
+          setShowDepositModal(false);
+          setSelectedWallet(undefined);
+        }}
+        onSuccess={handleModalSuccess}
+      />
+
+      <WithdrawModal
+        wallet={selectedWallet}
+        wallets={wallets}
+        isOpen={showWithdrawModal}
+        onClose={() => {
+          setShowWithdrawModal(false);
+          setSelectedWallet(undefined);
+        }}
+        onSuccess={handleModalSuccess}
+      />
     </div>
   );
 }
