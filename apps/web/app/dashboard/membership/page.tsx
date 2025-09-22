@@ -60,10 +60,14 @@ const tabs = [
 export default function MembershipPage() {
   // Feature flags
   const isTransferEnabled = useFeatureFlag(
-    FEATURE_FLAGS.MEMBERSHIP_SHARE_TRANSFER,
+    FEATURE_FLAGS.ENABLE_MEMBERSHIP_SHARE_TRANSFER,
   );
-  const isMarketplaceEnabled = useFeatureFlag(FEATURE_FLAGS.SHARE_MARKETPLACE);
-  const isHistoryEnabled = useFeatureFlag(FEATURE_FLAGS.TRANSACTION_HISTORY);
+  const isMarketplaceEnabled = useFeatureFlag(
+    FEATURE_FLAGS.ENABLE_SHARE_MARKETPLACE,
+  );
+  const isHistoryEnabled = useFeatureFlag(
+    FEATURE_FLAGS.ENABLE_TRANSACTION_HISTORY,
+  );
 
   const [activeTab, setActiveTab] = useState<"shares" | "offers" | "history">(
     "shares",
