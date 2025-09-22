@@ -15,6 +15,8 @@ import { formatCurrency, formatSats } from "@/lib/utils/format";
 import type { DepositModalProps, PaymentMethod } from "@/lib/types/savings";
 // import { useTransactions } from "@/hooks/savings/use-transactions";
 import { usePayment } from "@/hooks/savings/use-payment";
+import { useFeatureFlag } from "@/lib/feature-flags-provider";
+import { FEATURE_FLAGS } from "@/lib/features";
 import { MpesaDepositForm } from "./mpesa-deposit-form";
 import { LightningDepositForm } from "./lightning-deposit-form";
 
@@ -27,12 +29,25 @@ export function DepositModal({
 }: DepositModalProps) {
   // const { initiateDeposit } = useTransactions();
   const { paymentStatus, isPolling, resetStatus } = usePayment();
+  const isAutomaticSplitEnabled = useFeatureFlag(
+    FEATURE_FLAGS.ENABLE_AUTOMATIC_SPLIT_DEPOSITS,
+  );
+  const isSpecificWalletDepositsEnabled = useFeatureFlag(
+    FEATURE_FLAGS.ENABLE_SPECIFIC_WALLET_DEPOSITS,
+  );
+  const isMultiWalletUIEnabled = useFeatureFlag(
+    FEATURE_FLAGS.ENABLE_MULTI_WALLET_DEPOSIT_UI,
+  );
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(
     null,
   );
   const [error, setError] = useState<string | null>(null);
   const [depositTarget, setDepositTarget] = useState<"automatic" | string>(
-    "automatic",
+    isAutomaticSplitEnabled
+      ? "automatic"
+      : wallets.length > 0
+        ? wallets[0].id
+        : "automatic",
   );
   const [showTargetDropdown, setShowTargetDropdown] = useState(false);
 
@@ -111,106 +126,125 @@ export function DepositModal({
 
         {/* Content */}
         <div className="p-6">
-          {/* Deposit Target Selection */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Deposit Target
-            </label>
-            <div className="relative">
-              <button
-                onClick={() => setShowTargetDropdown(!showTargetDropdown)}
-                className="w-full p-4 bg-slate-700/30 border border-slate-600/50 rounded-lg text-left flex items-center justify-between hover:bg-slate-700/50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  {depositTarget === "automatic" ? (
-                    <SplitHorizontalIcon size={20} className="text-teal-400" />
-                  ) : (
-                    <div className="w-5 h-5 bg-teal-500/20 rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-teal-400 rounded-full" />
-                    </div>
-                  )}
-                  <div>
-                    <div className="font-medium text-gray-100">
-                      {depositTarget === "automatic"
-                        ? "Automatic Split"
-                        : wallets.find((w) => w.id === depositTarget)?.name}
-                    </div>
-                    <div className="text-sm text-gray-400">
-                      {depositTarget === "automatic"
-                        ? `Intelligently distribute across ${wallets.length} wallets`
-                        : "Deposit to specific wallet"}
-                    </div>
-                  </div>
-                </div>
-                <CaretDownIcon
-                  size={16}
-                  className={`text-gray-400 transition-transform ${showTargetDropdown ? "rotate-180" : ""}`}
-                />
-              </button>
-
-              {showTargetDropdown && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-10">
-                  <button
-                    onClick={() => {
-                      setDepositTarget("automatic");
-                      setShowTargetDropdown(false);
-                    }}
-                    className="w-full p-3 text-left hover:bg-slate-700/50 transition-colors border-b border-slate-600/50"
-                  >
-                    <div className="flex items-center gap-3">
+          {/* Deposit Target Selection - only show if enhanced features enabled */}
+          {isMultiWalletUIEnabled && (
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Deposit Target
+              </label>
+              <div className="relative">
+                <button
+                  onClick={() => setShowTargetDropdown(!showTargetDropdown)}
+                  className="w-full p-4 bg-slate-700/30 border border-slate-600/50 rounded-lg text-left flex items-center justify-between hover:bg-slate-700/50 transition-colors"
+                  disabled={
+                    !isAutomaticSplitEnabled && !isSpecificWalletDepositsEnabled
+                  }
+                >
+                  <div className="flex items-center gap-3">
+                    {depositTarget === "automatic" &&
+                    isAutomaticSplitEnabled ? (
                       <SplitHorizontalIcon
                         size={20}
                         className="text-teal-400"
                       />
-                      <div>
-                        <div className="font-medium text-gray-100">
-                          Automatic Split
-                        </div>
-                        <div className="text-sm text-gray-400">
-                          Intelligently distribute across {wallets.length}{" "}
-                          wallets
-                        </div>
+                    ) : (
+                      <div className="w-5 h-5 bg-teal-500/20 rounded-full flex items-center justify-center">
+                        <div className="w-2 h-2 bg-teal-400 rounded-full" />
+                      </div>
+                    )}
+                    <div>
+                      <div className="font-medium text-gray-100">
+                        {depositTarget === "automatic" &&
+                        isAutomaticSplitEnabled
+                          ? "Automatic Split"
+                          : wallets.find((w) => w.id === depositTarget)?.name}
+                      </div>
+                      <div className="text-sm text-gray-400">
+                        {depositTarget === "automatic" &&
+                        isAutomaticSplitEnabled
+                          ? `Intelligently distribute across ${wallets.length} wallets`
+                          : "Deposit to specific wallet"}
                       </div>
                     </div>
-                  </button>
-                  {wallets.map((w) => (
-                    <button
-                      key={w.id}
-                      onClick={() => {
-                        setDepositTarget(w.id);
-                        setShowTargetDropdown(false);
-                      }}
-                      className="w-full p-3 text-left hover:bg-slate-700/50 transition-colors last:border-b-0 border-b border-slate-600/50"
-                    >
-                      <div className="flex items-center justify-between">
+                  </div>
+                  {(isAutomaticSplitEnabled ||
+                    isSpecificWalletDepositsEnabled) && (
+                    <CaretDownIcon
+                      size={16}
+                      className={`text-gray-400 transition-transform ${showTargetDropdown ? "rotate-180" : ""}`}
+                    />
+                  )}
+                </button>
+
+                {showTargetDropdown && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-10">
+                    {/* Automatic split option - only show if enabled */}
+                    {isAutomaticSplitEnabled && (
+                      <button
+                        onClick={() => {
+                          setDepositTarget("automatic");
+                          setShowTargetDropdown(false);
+                        }}
+                        className="w-full p-3 text-left hover:bg-slate-700/50 transition-colors border-b border-slate-600/50"
+                      >
                         <div className="flex items-center gap-3">
-                          <div className="w-5 h-5 bg-teal-500/20 rounded-full flex items-center justify-center">
-                            <div className="w-2 h-2 bg-teal-400 rounded-full" />
-                          </div>
+                          <SplitHorizontalIcon
+                            size={20}
+                            className="text-teal-400"
+                          />
                           <div>
                             <div className="font-medium text-gray-100">
-                              {w.name}
+                              Automatic Split
                             </div>
-                            <div className="text-sm text-gray-400 capitalize">
-                              {w.walletType.toLowerCase()} wallet
+                            <div className="text-sm text-gray-400">
+                              Intelligently distribute across {wallets.length}{" "}
+                              wallets
                             </div>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className="text-sm font-medium text-gray-100">
-                            {formatSats(w.balance)}
+                      </button>
+                    )}
+                    {/* Individual wallet options - only show if enabled */}
+                    {isSpecificWalletDepositsEnabled &&
+                      wallets.map((w) => (
+                        <button
+                          key={w.id}
+                          onClick={() => {
+                            setDepositTarget(w.id);
+                            setShowTargetDropdown(false);
+                          }}
+                          className="w-full p-3 text-left hover:bg-slate-700/50 transition-colors last:border-b-0 border-b border-slate-600/50"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="w-5 h-5 bg-teal-500/20 rounded-full flex items-center justify-center">
+                                <div className="w-2 h-2 bg-teal-400 rounded-full" />
+                              </div>
+                              <div>
+                                <div className="font-medium text-gray-100">
+                                  {w.name}
+                                </div>
+                                <div className="text-sm text-gray-400 capitalize">
+                                  {w.walletType.toLowerCase()} wallet
+                                </div>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm font-medium text-gray-100">
+                                {formatSats(w.balance)}
+                              </div>
+                              <div className="text-xs text-gray-400">
+                                {formatCurrency(w.balanceFiat)}
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-xs text-gray-400">
-                            {formatCurrency(w.balanceFiat)}
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
+                        </button>
+                      ))}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {!selectedMethod ? (
             /* Payment Method Selection */

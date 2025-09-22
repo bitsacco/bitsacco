@@ -18,8 +18,20 @@ import { TransactionHistory } from "@/components/savings/transaction-history";
 import { useWallets } from "@/hooks/savings/use-wallets";
 import type { PersonalWallet } from "@/lib/types/savings";
 import { formatCurrency, formatSats } from "@/lib/utils/format";
+import { useFeatureFlag } from "@/lib/feature-flags-provider";
+import { FEATURE_FLAGS } from "@/lib/features";
+import { FeatureTease } from "@/components/feature-tease";
 
 export default function PersonalSavingsPage() {
+  const isPersonalSavingsEnabled = useFeatureFlag(
+    FEATURE_FLAGS.ENABLE_PERSONAL_SAVINGS,
+  );
+  const isMultipleWalletsEnabled = useFeatureFlag(
+    FEATURE_FLAGS.ENABLE_MULTIPLE_WALLETS,
+  );
+  const isWalletDetailsEnabled = useFeatureFlag(
+    FEATURE_FLAGS.ENABLE_WALLET_DETAILS,
+  );
   const { wallets, totalBalance, totalBalanceFiat, loading, error, refetch } =
     useWallets();
 
@@ -44,6 +56,10 @@ export default function PersonalSavingsPage() {
   };
 
   const handleViewDetails = (wallet: PersonalWallet) => {
+    if (!isWalletDetailsEnabled) {
+      console.log("Wallet details feature is disabled");
+      return;
+    }
     // TODO: Implement wallet details view
     console.log("View details for wallet:", wallet.id);
   };
@@ -52,7 +68,28 @@ export default function PersonalSavingsPage() {
     refetch(); // Refresh wallets data
   };
 
-  if (loading && wallets.length === 0) {
+  // Filter wallets based on multiple wallets feature flag
+  const displayedWallets = isMultipleWalletsEnabled
+    ? wallets
+    : wallets.slice(0, 1);
+
+  // Show feature tease when personal savings is disabled
+  if (!isPersonalSavingsEnabled) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+        <FeatureTease
+          icon={
+            <WalletIcon size={48} weight="duotone" className="text-teal-400" />
+          }
+          title="Personal Savings"
+          description="Build your wealth over time with Bitcoin savings. Create different types of wallets for your goals and start saving today."
+          actionText="Coming Soon"
+        />
+      </div>
+    );
+  }
+
+  if (loading && displayedWallets.length === 0) {
     return (
       <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
         <div className="animate-pulse">
@@ -167,7 +204,7 @@ export default function PersonalSavingsPage() {
         </p>
 
         {/* Total Balance Summary */}
-        {wallets.length > 0 && (
+        {displayedWallets.length > 0 && (
           <div className="mt-6 p-6 bg-gradient-to-br from-slate-800/80 via-slate-800/60 to-slate-700/60 border border-slate-600/50 rounded-xl shadow-lg backdrop-blur-sm">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-teal-500/20 rounded-lg">
@@ -219,10 +256,10 @@ export default function PersonalSavingsPage() {
       )}
 
       {/* Wallets Gallery */}
-      {wallets.length > 0 ? (
+      {displayedWallets.length > 0 ? (
         <div className="mb-8">
           <div className="flex overflow-x-auto gap-6 pb-4 scrollbar-hide snap-x snap-mandatory">
-            {wallets.map((wallet, index) => (
+            {displayedWallets.map((wallet, index) => (
               <div
                 key={wallet.id}
                 className="flex-none w-80 sm:w-96 animate-in fade-in-50 slide-in-from-bottom-4 duration-700 snap-start"
@@ -234,13 +271,15 @@ export default function PersonalSavingsPage() {
                 />
               </div>
             ))}
-            {/* Create Wallet Card */}
-            <div
-              className="flex-none w-80 sm:w-96 animate-in fade-in-50 slide-in-from-bottom-4 duration-700 snap-start"
-              style={{ animationDelay: `${wallets.length * 100}ms` }}
-            >
-              <CreateWalletCard onClick={() => setShowCreateModal(true)} />
-            </div>
+            {/* Create Wallet Card - only show if multiple wallets enabled or no wallets exist */}
+            {(isMultipleWalletsEnabled || displayedWallets.length === 0) && (
+              <div
+                className="flex-none w-80 sm:w-96 animate-in fade-in-50 slide-in-from-bottom-4 duration-700 snap-start"
+                style={{ animationDelay: `${displayedWallets.length * 100}ms` }}
+              >
+                <CreateWalletCard onClick={() => setShowCreateModal(true)} />
+              </div>
+            )}
           </div>
         </div>
       ) : (
@@ -279,7 +318,7 @@ export default function PersonalSavingsPage() {
       )}
 
       {/* Unified Action Buttons */}
-      {wallets.length > 0 && (
+      {displayedWallets.length > 0 && (
         <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
           <Button
             variant="tealPrimary"
@@ -311,7 +350,7 @@ export default function PersonalSavingsPage() {
       )}
 
       {/* Transaction History */}
-      <TransactionHistory wallets={wallets} />
+      <TransactionHistory wallets={displayedWallets} />
 
       {/* Modals */}
       <CreateWalletModal
@@ -323,7 +362,7 @@ export default function PersonalSavingsPage() {
       {/* Modals */}
       <DepositModal
         wallet={selectedWallet}
-        wallets={wallets}
+        wallets={displayedWallets}
         isOpen={showDepositModal}
         onClose={() => {
           setShowDepositModal(false);
@@ -334,7 +373,7 @@ export default function PersonalSavingsPage() {
 
       <WithdrawModal
         wallet={selectedWallet}
-        wallets={wallets}
+        wallets={displayedWallets}
         isOpen={showWithdrawModal}
         onClose={() => {
           setShowWithdrawModal(false);

@@ -25,6 +25,8 @@ import {
   canWithdrawFromLockedWallet,
   calculateEarlyWithdrawPenalty,
 } from "@/lib/utils/calculations";
+import { useFeatureFlag } from "@/lib/feature-flags-provider";
+import { FEATURE_FLAGS } from "@/lib/features";
 
 export function WithdrawModal({
   wallet,
@@ -35,6 +37,15 @@ export function WithdrawModal({
 }: WithdrawModalProps) {
   // const { initiateWithdraw } = useTransactions();
   const { paymentStatus, isPolling, resetStatus } = usePayment();
+  const isEarlyWithdrawalEnabled = useFeatureFlag(
+    FEATURE_FLAGS.ENABLE_EARLY_WITHDRAWAL,
+  );
+  const isPenaltyWarningsEnabled = useFeatureFlag(
+    FEATURE_FLAGS.ENABLE_PENALTY_WARNINGS,
+  );
+  const isSmartWithdrawalSelectionEnabled = useFeatureFlag(
+    FEATURE_FLAGS.ENABLE_SMART_WITHDRAWAL_SELECTION,
+  );
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(
     null,
   );
@@ -79,15 +90,22 @@ export function WithdrawModal({
   const availableWallets = wallets.filter((w) => {
     if (w.balance === 0) return false;
     if (w.walletType === "LOCKED" && w.locked) {
-      return canWithdrawFromLockedWallet(new Date(w.locked.lockEndDate));
+      const canWithdraw = canWithdrawFromLockedWallet(
+        new Date(w.locked.lockEndDate),
+      );
+      // If early withdrawal is disabled, only show matured locked wallets
+      return canWithdraw || isEarlyWithdrawalEnabled;
     }
     return true;
   });
 
-  // Get default wallet (first default type or first available)
-  const defaultWallet =
-    availableWallets.find((w) => w.walletType === "DEFAULT") ||
-    availableWallets[0];
+  // Get default wallet (smart selection if enabled, otherwise first default type or first available)
+  const defaultWallet = isSmartWithdrawalSelectionEnabled
+    ? availableWallets.find((w) => w.walletType === "DEFAULT") ||
+      availableWallets.find((w) => w.walletType === "TARGET") ||
+      availableWallets[0]
+    : availableWallets.find((w) => w.walletType === "DEFAULT") ||
+      availableWallets[0];
 
   // Set initial selected wallet
   if (!selectedWallet && defaultWallet) {
@@ -256,8 +274,9 @@ export function WithdrawModal({
             </div>
           </div>
 
-          {/* Locked Wallet Warning */}
-          {selectedWallet &&
+          {/* Locked Wallet Warning - only show if penalty warnings enabled */}
+          {isPenaltyWarningsEnabled &&
+            selectedWallet &&
             selectedWallet.walletType === "LOCKED" &&
             selectedWallet.locked &&
             !canWithdraw && (

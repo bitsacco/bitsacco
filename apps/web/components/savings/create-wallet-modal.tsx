@@ -15,6 +15,8 @@ import type {
   CreateWalletRequest,
 } from "@/lib/types/savings";
 import { useWallets } from "@/hooks/savings/use-wallets";
+import { useFeatureFlag } from "@/lib/feature-flags-provider";
+import { FEATURE_FLAGS } from "@/lib/features";
 // import { formatCurrency } from "@/lib/utils/format";
 
 export function CreateWalletModal({
@@ -23,10 +25,22 @@ export function CreateWalletModal({
   onSuccess,
 }: CreateWalletModalProps) {
   const { createWallet } = useWallets();
+  const isTargetWalletsEnabled = useFeatureFlag(
+    FEATURE_FLAGS.ENABLE_TARGET_WALLETS,
+  );
+  const isLockedWalletsEnabled = useFeatureFlag(
+    FEATURE_FLAGS.ENABLE_LOCKED_WALLETS,
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<"type" | "details">("type");
-  const [walletType, setWalletType] = useState<WalletType>("TARGET");
+  const [walletType, setWalletType] = useState<WalletType>(
+    isTargetWalletsEnabled
+      ? "TARGET"
+      : isLockedWalletsEnabled
+        ? "LOCKED"
+        : "DEFAULT",
+  );
   const [formData, setFormData] = useState({
     name: "",
     targetAmount: "",
@@ -34,7 +48,22 @@ export function CreateWalletModal({
     lockPeriod: "6",
   });
 
-  const walletTypes = [
+  const allWalletTypes = [
+    {
+      value: "DEFAULT" as WalletType,
+      label: "Standard Savings",
+      description:
+        "Simple Bitcoin savings with full flexibility and no restrictions",
+      icon: (
+        <CurrencyCircleDollarIcon
+          size={32}
+          weight="duotone"
+          className="text-teal-400"
+        />
+      ),
+      features: ["Instant withdrawals", "No lock periods", "Simple savings"],
+      enabled: true, // Default wallet is always available
+    },
     {
       value: "TARGET" as WalletType,
       label: "Savings Target",
@@ -46,6 +75,7 @@ export function CreateWalletModal({
         "Goal visualization",
         "Optional auto-deposits",
       ],
+      enabled: isTargetWalletsEnabled,
     },
     {
       value: "LOCKED" as WalletType,
@@ -53,8 +83,12 @@ export function CreateWalletModal({
       description: "Lock your savings for a fixed period with maturity bonuses",
       icon: <LockIcon size={32} weight="duotone" className="text-amber-400" />,
       features: ["Higher returns", "Maturity bonuses", "Disciplined saving"],
+      enabled: isLockedWalletsEnabled,
     },
   ];
+
+  // Filter wallet types based on feature flags
+  const walletTypes = allWalletTypes.filter((type) => type.enabled);
 
   const lockPeriods = [
     {
@@ -224,6 +258,58 @@ export function CreateWalletModal({
                   </div>
                 </button>
               ))}
+
+              {/* Show feature tease for disabled wallet types */}
+              {!isTargetWalletsEnabled && (
+                <div className="p-6 border border-slate-600/50 rounded-lg bg-slate-700/20">
+                  <div className="flex items-start gap-4">
+                    <div className="p-3 bg-slate-700/50 rounded-lg">
+                      <TargetIcon
+                        size={32}
+                        weight="duotone"
+                        className="text-blue-400/50"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-400 text-lg mb-2">
+                        Savings Target
+                      </h3>
+                      <p className="text-gray-500 mb-3">
+                        Set financial goals and track progress with visual
+                        indicators
+                      </p>
+                      <span className="text-xs bg-slate-600/50 text-gray-400 px-3 py-1 rounded-md">
+                        Coming Soon
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {!isLockedWalletsEnabled && (
+                <div className="p-6 border border-slate-600/50 rounded-lg bg-slate-700/20">
+                  <div className="flex items-start gap-4">
+                    <div className="p-3 bg-slate-700/50 rounded-lg">
+                      <LockIcon
+                        size={32}
+                        weight="duotone"
+                        className="text-amber-400/50"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-400 text-lg mb-2">
+                        Locked Savings
+                      </h3>
+                      <p className="text-gray-500 mb-3">
+                        Lock savings for fixed periods with maturity bonuses
+                      </p>
+                      <span className="text-xs bg-slate-600/50 text-gray-400 px-3 py-1 rounded-md">
+                        Coming Soon
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
