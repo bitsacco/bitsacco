@@ -6,7 +6,6 @@ import {
   PlusIcon,
   WalletIcon,
   TrendUpIcon,
-  ArrowsCounterClockwise,
   ArrowDownIcon,
 } from "@phosphor-icons/react";
 import { WalletCard } from "@/components/savings/wallet-card";
@@ -109,18 +108,40 @@ export default function PersonalSavingsPage() {
 
           {/* Total Summary Skeleton */}
           <div className="mb-8 p-6 bg-slate-800/30 border border-slate-700/50 rounded-xl">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-slate-700/50 rounded-lg" />
-              <div className="h-6 bg-slate-700/50 rounded-lg w-32" />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <div className="h-10 bg-slate-700/50 rounded-lg w-48" />
-                <div className="h-6 bg-slate-700/30 rounded-full w-32" />
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <div className="w-full lg:flex-1">
+                {/* Header Skeleton */}
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
+                  <div className="w-14 h-14 bg-slate-700/50 rounded-xl" />
+                  <div className="text-center sm:text-left">
+                    <div className="h-8 bg-slate-700/50 rounded-lg w-48 mb-2" />
+                    <div className="h-4 bg-slate-700/30 rounded-lg w-36" />
+                  </div>
+                </div>
+
+                {/* Balance Grid Skeleton */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                  <div className="text-center sm:text-left space-y-2">
+                    <div className="h-4 bg-slate-700/30 rounded-lg w-32 mx-auto sm:mx-0" />
+                    <div className="h-10 bg-slate-700/50 rounded-lg w-48 mx-auto sm:mx-0" />
+                  </div>
+                  <div className="text-center sm:text-left space-y-2">
+                    <div className="h-4 bg-slate-700/30 rounded-lg w-36 mx-auto sm:mx-0" />
+                    <div className="h-10 bg-slate-700/50 rounded-lg w-40 mx-auto sm:mx-0" />
+                  </div>
+                </div>
+
+                {/* Mobile/Tablet Buttons Skeleton */}
+                <div className="flex flex-col sm:flex-row gap-3 lg:hidden">
+                  <div className="h-14 bg-slate-700/50 rounded-lg" />
+                  <div className="h-14 bg-slate-700/30 rounded-lg" />
+                </div>
               </div>
-              <div className="space-y-3">
-                <div className="h-10 bg-slate-700/50 rounded-lg w-40" />
-                <div className="h-6 bg-slate-700/30 rounded-full w-36" />
+
+              {/* Desktop Buttons Skeleton */}
+              <div className="hidden lg:flex lg:flex-col gap-3 flex-shrink-0">
+                <div className="w-48 h-14 bg-slate-700/50 rounded-lg" />
+                <div className="w-48 h-14 bg-slate-700/30 rounded-lg" />
               </div>
             </div>
           </div>
@@ -164,40 +185,19 @@ export default function PersonalSavingsPage() {
               </div>
             </div>
           </div>
-
-          {/* Action Buttons Skeleton */}
-          <div className="flex justify-center gap-4 mb-8">
-            <div className="w-48 h-14 bg-slate-700/50 rounded-lg" />
-            <div className="w-48 h-14 bg-slate-700/30 rounded-lg" />
-          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 lg:p-8">
       {/* Header */}
       <div className="mb-6 sm:mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-100">
+        <div className="mb-4">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-100 mb-2">
             Personal Savings
           </h1>
-          {/* Refresh Button */}
-          <Button
-            variant="tealPrimary"
-            size="md"
-            onClick={refetch}
-            className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/30 hover:scale-[1.02] transition-all duration-300 group"
-            disabled={loading}
-          >
-            <ArrowsCounterClockwise
-              size={16}
-              weight="bold"
-              className={`${loading ? "animate-spin" : ""} group-hover:scale-110 transition-transform duration-300`}
-            />
-            <span className="hidden sm:inline">Refresh</span>
-          </Button>
         </div>
         <p className="text-sm sm:text-base text-gray-400">
           Save in Bitcoin and build your wealth over time
@@ -205,35 +205,93 @@ export default function PersonalSavingsPage() {
 
         {/* Total Balance Summary */}
         {displayedWallets.length > 0 && (
-          <div className="mt-6 p-6 bg-gradient-to-br from-slate-800/80 via-slate-800/60 to-slate-700/60 border border-slate-600/50 rounded-xl shadow-lg backdrop-blur-sm">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-teal-500/20 rounded-lg">
-                <TrendUpIcon
-                  size={24}
-                  weight="duotone"
-                  className="text-teal-400"
-                />
+          <div className="mt-6 bg-gradient-to-r from-teal-900/30 to-blue-900/30 border border-teal-700/50 rounded-xl p-6 sm:p-8 mb-6">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <div className="w-full lg:flex-1">
+                {/* Header with icon - centered on mobile */}
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
+                  <div className="w-14 h-14 bg-teal-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <TrendUpIcon
+                      size={28}
+                      weight="fill"
+                      className="text-teal-400"
+                    />
+                  </div>
+                  <div className="text-center sm:text-left">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-100">
+                      Total Savings
+                    </h2>
+                    <p className="text-gray-400">
+                      Your Bitcoin savings portfolio
+                    </p>
+                  </div>
+                </div>
+
+                {/* Stats Grid - centered on mobile */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                  <div className="text-center sm:text-left">
+                    <p className="text-sm text-gray-400 mb-1">
+                      Bitcoin Balance
+                    </p>
+                    <p className="text-3xl font-bold text-gray-100">
+                      {formatSats(totalBalance)}
+                    </p>
+                  </div>
+                  <div className="text-center sm:text-left">
+                    <p className="text-sm text-gray-400 mb-1">
+                      Portfolio Value
+                    </p>
+                    <p className="text-3xl font-bold text-gray-100">
+                      {formatCurrency(totalBalanceFiat)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Mobile and Tablet buttons */}
+                <div className="flex flex-col sm:flex-row gap-3 lg:hidden">
+                  <Button
+                    variant="tealPrimary"
+                    size="lg"
+                    onClick={() => handleDeposit()}
+                    fullWidth
+                    className="shadow-lg shadow-teal-500/20 flex items-center justify-center gap-2"
+                  >
+                    <PlusIcon size={20} weight="bold" />
+                    Deposit Funds
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => handleWithdraw()}
+                    fullWidth
+                    className="!bg-slate-700/50 !text-gray-300 !border-slate-600 hover:!bg-slate-700 hover:!border-slate-500 flex items-center justify-center gap-2"
+                  >
+                    <ArrowDownIcon size={20} weight="bold" />
+                    Withdraw Funds
+                  </Button>
+                </div>
               </div>
-              <h2 className="text-lg font-semibold text-gray-100">
-                Total Savings
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <div className="text-3xl sm:text-4xl font-bold text-gray-100 tracking-tight">
-                  {formatSats(totalBalance)}
-                </div>
-                <div className="text-sm text-gray-400 font-medium bg-slate-700/30 px-3 py-1 rounded-full inline-block">
-                  Bitcoin Balance
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="text-3xl sm:text-4xl font-bold text-gray-100 tracking-tight">
-                  {formatCurrency(totalBalanceFiat)}
-                </div>
-                <div className="text-sm text-gray-400 font-medium bg-slate-700/30 px-3 py-1 rounded-full inline-block">
-                  Kenyan Shillings
-                </div>
+
+              {/* Desktop buttons */}
+              <div className="hidden lg:flex lg:flex-col gap-3 flex-shrink-0">
+                <Button
+                  variant="tealPrimary"
+                  size="lg"
+                  onClick={() => handleDeposit()}
+                  className="shadow-lg shadow-teal-500/20 flex items-center justify-center gap-2"
+                >
+                  <PlusIcon size={20} weight="bold" />
+                  Deposit Funds
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => handleWithdraw()}
+                  className="!bg-slate-700/50 !text-gray-300 !border-slate-600 hover:!bg-slate-700 hover:!border-slate-500 flex items-center justify-center gap-2"
+                >
+                  <ArrowDownIcon size={20} weight="bold" />
+                  Withdraw Funds
+                </Button>
               </div>
             </div>
           </div>
@@ -244,19 +302,11 @@ export default function PersonalSavingsPage() {
       {error && (
         <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
           <p className="text-sm text-red-400">{error}</p>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={refetch}
-            className="mt-2 !bg-red-500/10 !text-red-400 !border-red-500/20 hover:!bg-red-500/20"
-          >
-            Try Again
-          </Button>
         </div>
       )}
 
-      {/* Wallets Gallery */}
-      {displayedWallets.length > 0 ? (
+      {/* Wallets Gallery - only show when multiple wallets is enabled */}
+      {isMultipleWalletsEnabled && displayedWallets.length > 0 ? (
         <div className="mb-8">
           <div className="flex overflow-x-auto gap-6 pb-4 scrollbar-hide snap-x snap-mandatory">
             {displayedWallets.map((wallet, index) => (
@@ -283,8 +333,10 @@ export default function PersonalSavingsPage() {
           </div>
         </div>
       ) : (
-        !loading && (
-          /* Empty State */
+        !loading &&
+        isMultipleWalletsEnabled &&
+        displayedWallets.length === 0 && (
+          /* Empty State - only show when multiple wallets is enabled and no wallets exist */
           <div className="bg-slate-800/40 border border-slate-700 rounded-xl p-12 text-center mb-8 animate-in fade-in-50 slide-in-from-bottom-4 duration-700">
             <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-teal-500/20 to-blue-500/20 rounded-full flex items-center justify-center border border-teal-500/30">
               <WalletIcon
@@ -315,38 +367,6 @@ export default function PersonalSavingsPage() {
             </Button>
           </div>
         )
-      )}
-
-      {/* Unified Action Buttons */}
-      {displayedWallets.length > 0 && (
-        <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
-          <Button
-            variant="tealPrimary"
-            size="lg"
-            onClick={() => handleDeposit()}
-            className="flex items-center justify-center gap-3 px-8 py-4 text-lg font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/30 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group"
-          >
-            <PlusIcon
-              size={24}
-              weight="bold"
-              className="group-hover:rotate-90 transition-transform duration-300"
-            />
-            Deposit Funds
-          </Button>
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() => handleWithdraw()}
-            className="flex items-center justify-center gap-3 px-8 py-4 text-lg font-semibold !bg-slate-700/50 !text-gray-300 !border-slate-600 hover:!bg-slate-700 hover:!border-slate-500 hover:scale-[1.02] hover:shadow-lg hover:shadow-slate-900/20 transition-all duration-300 group"
-          >
-            <ArrowDownIcon
-              size={24}
-              weight="bold"
-              className="group-hover:translate-y-0.5 transition-transform duration-300"
-            />
-            Withdraw Funds
-          </Button>
-        </div>
       )}
 
       {/* Transaction History */}
