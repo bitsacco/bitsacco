@@ -20,19 +20,18 @@ export enum FEATURE_FLAGS {
   ENABLE_PERSONAL_SAVINGS = "enable-personal-savings",
 
   // Personal savings - wallet management
+  ENABLE_MULTIPLE_WALLETS = "enable-multiple-wallets",
   ENABLE_TARGET_WALLETS = "enable-target-wallets",
   ENABLE_LOCKED_WALLETS = "enable-locked-wallets",
-  ENABLE_MULTIPLE_WALLETS = "enable-multiple-wallets",
   ENABLE_WALLET_DETAILS = "enable-wallet-details",
   ENABLE_WALLET_ARCHIVAL = "enable-wallet-archival",
 
   // Personal savings - transaction flows
-  ENABLE_AUTOMATIC_SPLIT_DEPOSITS = "enable-automatic-split-deposits",
   ENABLE_SPECIFIC_WALLET_DEPOSITS = "enable-specific-wallet-deposits",
+  ENABLE_AUTOMATIC_SPLIT_DEPOSITS = "enable-automatic-split-deposits",
+  ENABLE_SMART_WITHDRAWAL_SELECTION = "enable-smart-withdrawal-selection",
   ENABLE_EARLY_WITHDRAWAL = "enable-early-withdrawal",
   ENABLE_PENALTY_WARNINGS = "enable-penalty-warnings",
-  ENABLE_MULTI_WALLET_DEPOSIT_UI = "enable-multi-wallet-deposit-ui",
-  ENABLE_SMART_WITHDRAWAL_SELECTION = "enable-smart-withdrawal-selection",
 
   // Global payment infrastructure - cross-product features
   ENABLE_AUTO_DEPOSITS = "enable-auto-deposits",
@@ -169,6 +168,12 @@ export const FALLBACK_FLAGS: IFeatureFlag[] = [
 
   // Personal savings - transaction flows (disabled by default)
   {
+    id: FEATURE_FLAGS.ENABLE_SPECIFIC_WALLET_DEPOSITS,
+    description: "Allow users to deposit directly to specific wallets",
+    variationType: "boolean",
+    variation: false,
+  },
+  {
     id: FEATURE_FLAGS.ENABLE_AUTOMATIC_SPLIT_DEPOSITS,
     description:
       "Automatically split deposits across multiple wallets based on user preferences",
@@ -176,8 +181,9 @@ export const FALLBACK_FLAGS: IFeatureFlag[] = [
     variation: false,
   },
   {
-    id: FEATURE_FLAGS.ENABLE_SPECIFIC_WALLET_DEPOSITS,
-    description: "Allow users to deposit directly to specific wallets",
+    id: FEATURE_FLAGS.ENABLE_SMART_WITHDRAWAL_SELECTION,
+    description:
+      "Intelligent wallet selection for withdrawals based on goals and lock status",
     variationType: "boolean",
     variation: false,
   },
@@ -191,19 +197,6 @@ export const FALLBACK_FLAGS: IFeatureFlag[] = [
     id: FEATURE_FLAGS.ENABLE_PENALTY_WARNINGS,
     description:
       "Show penalty warnings for early withdrawals from locked wallets",
-    variationType: "boolean",
-    variation: false,
-  },
-  {
-    id: FEATURE_FLAGS.ENABLE_MULTI_WALLET_DEPOSIT_UI,
-    description: "Enhanced deposit UI for selecting target wallets",
-    variationType: "boolean",
-    variation: false,
-  },
-  {
-    id: FEATURE_FLAGS.ENABLE_SMART_WITHDRAWAL_SELECTION,
-    description:
-      "Intelligent wallet selection for withdrawals based on goals and lock status",
     variationType: "boolean",
     variation: false,
   },

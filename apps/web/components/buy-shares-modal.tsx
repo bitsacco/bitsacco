@@ -54,6 +54,7 @@ export function BuySharesModal({
   offer,
   onSuccess,
 }: BuySharesModalProps) {
+  const { data: session } = useSession();
   const isPurchaseEnabled = useFeatureFlag(
     FEATURE_FLAGS.ENABLE_SHARE_PURCHASE_MODAL,
   );
@@ -76,6 +77,9 @@ export function BuySharesModal({
   );
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showRetryModal, setShowRetryModal] = useState(false);
+  const [step, setStep] = useState<"quantity" | "payment" | "confirmation">(
+    "quantity",
+  );
 
   // Payment method options
   const paymentMethods: PaymentMethodOption[] = [

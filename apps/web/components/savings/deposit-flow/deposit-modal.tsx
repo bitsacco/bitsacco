@@ -35,9 +35,6 @@ export function DepositModal({
   const isSpecificWalletDepositsEnabled = useFeatureFlag(
     FEATURE_FLAGS.ENABLE_SPECIFIC_WALLET_DEPOSITS,
   );
-  const isMultiWalletUIEnabled = useFeatureFlag(
-    FEATURE_FLAGS.ENABLE_MULTI_WALLET_DEPOSIT_UI,
-  );
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(
     null,
   );
@@ -126,8 +123,8 @@ export function DepositModal({
 
         {/* Content */}
         <div className="p-6">
-          {/* Deposit Target Selection - only show if enhanced features enabled */}
-          {isMultiWalletUIEnabled && (
+          {/* Deposit Target Selection - only show if deposit features enabled */}
+          {(isAutomaticSplitEnabled || isSpecificWalletDepositsEnabled) && (
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Deposit Target
@@ -205,7 +202,7 @@ export function DepositModal({
                       </button>
                     )}
                     {/* Individual wallet options - only show if enabled */}
-                    {isSpecificWalletDepositsEnabled &&
+                    {isSpecificWalletDepositsEnabled && wallets.length > 0 ? (
                       wallets.map((w) => (
                         <button
                           key={w.id}
@@ -239,7 +236,16 @@ export function DepositModal({
                             </div>
                           </div>
                         </button>
-                      ))}
+                      ))
+                    ) : isSpecificWalletDepositsEnabled &&
+                      wallets.length === 0 ? (
+                      <div className="p-3 text-center text-gray-400">
+                        <div className="text-sm">No wallets available</div>
+                        <div className="text-xs">
+                          Create a wallet first to enable specific deposits
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
                 )}
               </div>

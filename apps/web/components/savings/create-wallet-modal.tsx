@@ -34,12 +34,20 @@ export function CreateWalletModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<"type" | "details">("type");
+  // Filter wallet types based on feature flags first
+  const availableWalletTypes = [
+    {
+      value: "TARGET" as WalletType,
+      enabled: isTargetWalletsEnabled,
+    },
+    {
+      value: "LOCKED" as WalletType,
+      enabled: isLockedWalletsEnabled,
+    },
+  ].filter((type) => type.enabled);
+
   const [walletType, setWalletType] = useState<WalletType>(
-    isTargetWalletsEnabled
-      ? "TARGET"
-      : isLockedWalletsEnabled
-        ? "LOCKED"
-        : "DEFAULT",
+    availableWalletTypes.length > 0 ? availableWalletTypes[0].value : "DEFAULT",
   );
   const [formData, setFormData] = useState({
     name: "",
@@ -62,7 +70,7 @@ export function CreateWalletModal({
         />
       ),
       features: ["Instant withdrawals", "No lock periods", "Simple savings"],
-      enabled: true, // Default wallet is always available
+      enabled: false, // Default wallets cannot be created in multiple wallet mode - user already has one
     },
     {
       value: "TARGET" as WalletType,
@@ -193,13 +201,46 @@ export function CreateWalletModal({
       targetDate: "",
       lockPeriod: "6",
     });
-    setWalletType("DEFAULT");
+    setWalletType(
+      availableWalletTypes.length > 0
+        ? availableWalletTypes[0].value
+        : "DEFAULT",
+    );
     setStep("type");
     setError(null);
     onClose();
   };
 
   if (!isOpen) return null;
+
+  // If no wallet types are available for creation, show a message
+  if (walletTypes.length === 0) {
+    return (
+      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="bg-slate-800 border border-slate-700 rounded-xl max-w-md w-full p-6">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-amber-500/20 rounded-xl flex items-center justify-center">
+              <LockIcon size={32} weight="duotone" className="text-amber-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-100 mb-2">
+              No Wallet Types Available
+            </h3>
+            <p className="text-gray-400 mb-6">
+              Wallet creation is currently limited. Please contact support or
+              check back later.
+            </p>
+            <Button
+              variant="tealPrimary"
+              onClick={handleClose}
+              className="w-full"
+            >
+              Close
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -279,7 +320,7 @@ export function CreateWalletModal({
                         indicators
                       </p>
                       <span className="text-xs bg-slate-600/50 text-gray-400 px-3 py-1 rounded-md">
-                        Coming Soon
+                        unavailable
                       </span>
                     </div>
                   </div>
@@ -304,7 +345,7 @@ export function CreateWalletModal({
                         Lock savings for fixed periods with maturity bonuses
                       </p>
                       <span className="text-xs bg-slate-600/50 text-gray-400 px-3 py-1 rounded-md">
-                        Coming Soon
+                        unavailable
                       </span>
                     </div>
                   </div>

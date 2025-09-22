@@ -53,7 +53,7 @@ services:
       # Exclude .next directory to prevent permission issues
       - /app/apps/web/.next
       # Mount external feature configuration files
-      - ./features.json:/app/apps/web/public/features.json:ro
+      - ./apps/web/public/features.dev.json:/app/apps/web/public/features.json:ro
     working_dir: /app/apps/web
     environment:
       - CHOKIDAR_USEPOLLING=true
