@@ -29,11 +29,11 @@
     "clean:docker": "docker compose -p bitsacco down --volumes --remove-orphans && docker system prune -f",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint -- --fix",
+    "lint:mobile": "turbo run lint --filter=@bitsacco/mobile...",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "logs": "docker compose -p bitsacco logs -f",
-    "prepare": "husky"
+    "logs": "docker compose -p bitsacco logs -f"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.7",
@@ -44,12 +44,8 @@
     "qrcode": "^1.5.4"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.8.1",
-    "@commitlint/config-conventional": "^19.8.1",
     "@svgr/webpack": "^8.1.0",
     "concurrently": "^8.2.2",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.1.6",
     "prettier": "^3.3.2",
     "turbo": "^2.3.0",
     "url-loader": "^4.1.1"
@@ -58,14 +54,5 @@
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=7.0.0"
-  },
-  "lint-staged": {
-    "*.{ts,tsx,js,jsx}": [
-      "sh -c 'turbo run lint'",
-      "prettier --write"
-    ],
-    "*.{md,json,yaml,yml}": [
-      "prettier --write"
-    ]
   }
 }

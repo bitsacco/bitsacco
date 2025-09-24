@@ -1,0 +1,72 @@
+name: Mobile Preview Build
+
+on:
+  push:
+    tags: [v*]
+  workflow_dispatch:
+
+jobs:
+  build-preview:
+    name: Build Preview APK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: |
+          cd ../..
+          ls -la
+          npm ci
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      # TODO: Add type  linting for mobile app
+      # - name: Lint mobile app
+      #   run: npm run lint:mobile
+
+      # TODO: Add type checking  for mobile app
+      # - name: Type check mobile app
+      #   run: npm run typecheck
+
+      - name: Build preview APK
+        run: eas build --platform android --profile preview --non-interactive --wait
+
+      - name: Download build artifacts
+        run: |
+          BUILD_URL=$(npx eas build:list --platform android --status finished --limit 1 --json | jq -r '.[0].artifacts.buildUrl')
+          wget -O bitsacco-mobile-preview.apk "$BUILD_URL"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Mobile Preview Build ${{ github.ref_name }}
+          body: |
+            📱 Mobile Preview Build
+
+            This release contains the preview APK build for the mobile application.
+
+            **Build Details:**
+            - Platform: Android
+            - Profile: Preview
+            - Commit: ${{ github.sha }}
+          files: apps/mobile/bitsacco-mobile-preview.apk
+          draft: false
+          prerelease: true
