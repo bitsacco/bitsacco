@@ -6,7 +6,13 @@ import {
   CalendarIcon,
   TargetIcon,
 } from "@phosphor-icons/react";
-import type { WalletCardProps } from "@/lib/types/savings";
+import type { WalletResponseDto } from "@bitsacco/core";
+
+interface WalletCardProps {
+  wallet: WalletResponseDto;
+  exchangeRate?: number;
+  onViewDetails: () => void;
+}
 import {
   formatCurrency,
   formatSats,
@@ -14,15 +20,23 @@ import {
   formatPercentage,
 } from "@/lib/utils/format";
 import { canWithdrawFromLockedWallet } from "@/lib/utils/calculations";
+import { btcToFiat, WalletType } from "@bitsacco/core";
 
-export function WalletCard({ wallet }: WalletCardProps) {
+export function WalletCard({ wallet, exchangeRate }: WalletCardProps) {
+  // Calculate KES value using live exchange rate
+  const walletBalanceFiat = exchangeRate
+    ? btcToFiat({
+        amountSats: Math.floor(wallet.balance / 1000),
+        fiatToBtcRate: exchangeRate,
+      }).amountFiat
+    : 0;
   const getWalletIcon = () => {
     switch (wallet.walletType) {
-      case "TARGET":
+      case WalletType.TARGET:
         return (
           <TargetIcon size={24} weight="duotone" className="text-blue-400" />
         );
-      case "LOCKED":
+      case WalletType.LOCKED:
         return (
           <LockIcon size={24} weight="duotone" className="text-amber-400" />
         );
@@ -34,7 +48,7 @@ export function WalletCard({ wallet }: WalletCardProps) {
   };
 
   const getProgressSection = () => {
-    if (wallet.walletType === "DEFAULT") {
+    if (wallet.walletType === WalletType.STANDARD) {
       return (
         <div
           className={`mt-6 p-4 rounded-xl border backdrop-blur-sm bg-green-500/10 border-green-500/30 shadow-sm`}
@@ -48,8 +62,11 @@ export function WalletCard({ wallet }: WalletCardProps) {
       );
     }
 
-    if (wallet.walletType === "TARGET" && wallet.target) {
-      const progressPercentage = Math.min(wallet.target.progress, 100);
+    if (wallet.walletType === WalletType.TARGET && wallet.progress) {
+      const progressPercentage = Math.min(
+        wallet.progress.progressPercentage,
+        100,
+      );
 
       return (
         <div className="mt-6 p-4 bg-slate-700/20 rounded-xl border border-slate-600/30 backdrop-blur-sm">
@@ -69,35 +86,33 @@ export function WalletCard({ wallet }: WalletCardProps) {
           </div>
           <div className="flex justify-between items-center mt-3">
             <span className="text-xs text-gray-400 font-medium">
-              {formatCurrency(wallet.balanceFiat)} /{" "}
-              {formatCurrency(wallet.target.targetAmount)}
+              {formatCurrency(walletBalanceFiat)} /{" "}
+              {formatCurrency(
+                wallet.progress.targetAmountFiat ||
+                  (wallet.progress.targetAmountMsats
+                    ? wallet.progress.targetAmountMsats / 1000
+                    : 0),
+              )}
             </span>
-            {wallet.target.targetDate && (
+            {wallet.progress.projectedCompletionDate && (
               <span className="text-xs text-gray-400 flex items-center gap-1 bg-slate-700/30 px-2 py-1 rounded-md">
                 <CalendarIcon size={12} />
-                {new Date(wallet.target.targetDate).toLocaleDateString("en-KE")}
+                {new Date(
+                  wallet.progress.projectedCompletionDate,
+                ).toLocaleDateString("en-KE")}
               </span>
             )}
           </div>
-          {wallet.target.autoDeposit?.isActive && (
-            <div className="mt-3 pt-3 border-t border-slate-600/30">
-              <div className="text-xs text-blue-400 bg-blue-500/10 px-2 py-1 rounded-md inline-block">
-                Auto-save:{" "}
-                {formatCurrency(wallet.target.autoDeposit.amount * 100)}{" "}
-                {wallet.target.autoDeposit.frequency}
-              </div>
-            </div>
-          )}
         </div>
       );
     }
 
-    if (wallet.walletType === "LOCKED" && wallet.locked) {
+    if (wallet.walletType === WalletType.LOCKED && wallet.lockInfo) {
       const canWithdraw = canWithdrawFromLockedWallet(
-        new Date(wallet.locked.lockEndDate),
+        new Date(wallet.lockInfo.lockEndDate),
       );
       const timeRemaining = formatTimeRemaining(
-        new Date(wallet.locked.lockEndDate),
+        new Date(wallet.lockInfo.lockEndDate),
       );
 
       return (
@@ -124,10 +139,10 @@ export function WalletCard({ wallet }: WalletCardProps) {
               {canWithdraw ? "Matured" : timeRemaining}
             </span>
           </div>
-          {!canWithdraw && wallet.locked.penaltyRate > 0 && (
+          {!canWithdraw && wallet.lockInfo.penaltyRate > 0 && (
             <div className="text-xs text-red-400 bg-red-500/10 px-2 py-1 rounded-md inline-block">
               Early withdrawal penalty:{" "}
-              {formatPercentage(wallet.locked.penaltyRate)}
+              {formatPercentage(wallet.lockInfo.penaltyRate)}
             </div>
           )}
         </div>
@@ -139,9 +154,9 @@ export function WalletCard({ wallet }: WalletCardProps) {
   };
 
   // const isWithdrawDisabled =
-  //   wallet.walletType === "LOCKED" &&
-  //   wallet.locked &&
-  //   !canWithdrawFromLockedWallet(new Date(wallet.locked.lockEndDate));
+  //   wallet.walletType === WalletType.LOCKED &&
+  //   wallet.lockInfo &&
+  //   !canWithdrawFromLockedWallet(new Date(wallet.lockInfo.lockEndDate));
 
   return (
     <div className="bg-slate-800/40 border border-slate-700 rounded-xl p-6 hover:bg-slate-800/60 transition-all duration-300 hover:border-slate-600 hover:shadow-lg hover:shadow-slate-900/20 group h-full flex flex-col min-h-[320px]">
@@ -153,7 +168,7 @@ export function WalletCard({ wallet }: WalletCardProps) {
           </div>
           <div>
             <h3 className="font-semibold text-gray-100 text-lg mb-1">
-              {wallet.name}
+              {wallet.walletName || "Unnamed Wallet"}
             </h3>
             <span className="text-xs text-gray-400 capitalize bg-slate-700/40 px-3 py-1 rounded-full border border-slate-600/30">
               {wallet.walletType.toLowerCase().replace("_", " ")} wallet
@@ -173,10 +188,10 @@ export function WalletCard({ wallet }: WalletCardProps) {
       {/* Balance */}
       <div className="mb-6">
         <div className="text-2xl font-bold text-gray-100 mb-2 tracking-tight">
-          {formatSats(wallet.balance)}
+          {formatSats(Math.floor(wallet.balance / 1000))}
         </div>
         <div className="text-base text-gray-400 font-medium">
-          ≈ {formatCurrency(wallet.balanceFiat)}
+          ≈ {formatCurrency(walletBalanceFiat)}
         </div>
       </div>
 
@@ -186,7 +201,7 @@ export function WalletCard({ wallet }: WalletCardProps) {
       </div>
 
       {/* Inactive state overlay */}
-      {!wallet.isActive && (
+      {false && ( // isActive property removed - wallets are always active
         <div className="absolute inset-0 bg-slate-900/80 rounded-xl flex items-center justify-center">
           <div className="text-center">
             <div className="text-gray-400 font-medium mb-1">

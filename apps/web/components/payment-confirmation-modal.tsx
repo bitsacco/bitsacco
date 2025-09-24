@@ -73,8 +73,7 @@ export function PaymentConfirmationModal({
         status,
         hasTransaction: !!transaction,
         hasLightning: !!transaction?.lightning,
-        hasBolt11: !!transaction?.lightning?.bolt11,
-        hasPaymentRequest: !!transaction?.lightning?.bolt11?.paymentRequest,
+        hasInvoice: !!transaction?.lightning?.invoice,
         paymentMethod: payment?.method,
       });
       const mappedStatus = mapChamaStatusToPaymentStatus(
@@ -86,8 +85,8 @@ export function PaymentConfirmationModal({
         let invoice = null;
 
         // Check if lightning.invoice exists (correct field path)
-        if (transaction?.lightning?.bolt11) {
-          invoice = transaction.lightning.bolt11.paymentRequest;
+        if (transaction?.lightning) {
+          invoice = transaction.lightning.invoice;
         }
 
         if (invoice && invoice !== lightningInvoice) {
@@ -119,10 +118,8 @@ export function PaymentConfirmationModal({
     onComplete: (completedTransaction) => {
       setCurrentPaymentStatus("completed" as PaymentStatus);
       // Extract Lightning invoice if available
-      if (completedTransaction.lightning?.bolt11?.paymentRequest) {
-        setLightningInvoice(
-          completedTransaction.lightning.bolt11.paymentRequest,
-        );
+      if (completedTransaction.lightning?.invoice) {
+        setLightningInvoice(completedTransaction.lightning.invoice);
       }
       // Create a mock PaymentIntent for compatibility
       const mockPaymentIntent: PaymentIntent = {

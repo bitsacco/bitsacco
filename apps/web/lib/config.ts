@@ -38,6 +38,27 @@ export const BS_ENV = process.env.NEXT_PUBLIC_BS_ENV || "development";
 // Feature flags configuration
 export const FEATURES_JSON_URL = "/features.json";
 
+// Deposit/Withdrawal limits configuration
+export const PERSONAL_DEPOSIT_LIMITS = {
+  MIN_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MIN_DEPOSIT_KES || "1"),
+  MAX_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MAX_DEPOSIT_KES || "100_000"),
+};
+
+export const PERSONAL_WITHDRAW_LIMITS = {
+  MIN_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MIN_WITHDRAW_KES || "100"),
+  MAX_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MAX_WITHDRAW_KES || "100_000"),
+};
+
+// Lightning specific limits (higher max for Lightning)
+export const LIGHTNING_DEPOSIT_LIMITS = {
+  MIN_AMOUNT_KES: Number(
+    process.env.NEXT_PUBLIC_MIN_LIGHTNING_DEPOSIT_KES || "1",
+  ),
+  MAX_AMOUNT_KES: Number(
+    process.env.NEXT_PUBLIC_MAX_LIGHTNING_DEPOSIT_KES || "100_000_000",
+  ),
+};
+
 // Timeouts and intervals
 export const DEBOUNCE_DELAY_MS = 200;
 export const TOAST_TIMEOUT_MS = 2000;

@@ -11,11 +11,20 @@ import {
   CurrencyCircleDollarIcon,
   CaretDownIcon,
 } from "@phosphor-icons/react";
-import type {
-  WithdrawModalProps,
-  PaymentMethod,
-  PersonalWallet,
-} from "@/lib/types/savings";
+import type { WalletResponseDto } from "@bitsacco/core";
+import { PersonalTransactionStatus } from "@bitsacco/core";
+
+type PaymentMethod = "mpesa" | "lightning";
+
+interface WithdrawModalProps {
+  wallet?: WalletResponseDto;
+  wallets?: WalletResponseDto[];
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+import { WalletType, useExchangeRate, btcToFiat } from "@bitsacco/core";
+import { apiClient } from "@/lib/auth";
 // import { useTransactions } from "@/hooks/savings/use-transactions";
 import { usePayment } from "@/hooks/savings/use-payment";
 import { MpesaWithdrawForm } from "./mpesa-withdraw-form";
@@ -37,6 +46,7 @@ export function WithdrawModal({
 }: WithdrawModalProps) {
   // const { initiateWithdraw } = useTransactions();
   const { paymentStatus, isPolling, resetStatus } = usePayment();
+  const { quote } = useExchangeRate({ apiClient });
   const isEarlyWithdrawalEnabled = useFeatureFlag(
     FEATURE_FLAGS.ENABLE_EARLY_WITHDRAWAL,
   );
@@ -50,9 +60,8 @@ export function WithdrawModal({
     null,
   );
   const [error, setError] = useState<string | null>(null);
-  const [selectedWallet, setSelectedWallet] = useState<PersonalWallet | null>(
-    wallet || null,
-  );
+  const [selectedWallet, setSelectedWallet] =
+    useState<WalletResponseDto | null>(wallet || null);
   const [showWalletDropdown, setShowWalletDropdown] = useState(false);
 
   const paymentMethods = [
@@ -89,9 +98,9 @@ export function WithdrawModal({
   // Get available wallets (with balance and can withdraw)
   const availableWallets = wallets.filter((w) => {
     if (w.balance === 0) return false;
-    if (w.walletType === "LOCKED" && w.locked) {
+    if (w.walletType === WalletType.LOCKED && w.lockInfo) {
       const canWithdraw = canWithdrawFromLockedWallet(
-        new Date(w.locked.lockEndDate),
+        new Date(w.lockInfo.lockEndDate),
       );
       // If early withdrawal is disabled, only show matured locked wallets
       return canWithdraw || isEarlyWithdrawalEnabled;
@@ -101,10 +110,10 @@ export function WithdrawModal({
 
   // Get default wallet (smart selection if enabled, otherwise first default type or first available)
   const defaultWallet = isSmartWithdrawalSelectionEnabled
-    ? availableWallets.find((w) => w.walletType === "DEFAULT") ||
-      availableWallets.find((w) => w.walletType === "TARGET") ||
+    ? availableWallets.find((w) => w.walletType === WalletType.STANDARD) ||
+      availableWallets.find((w) => w.walletType === WalletType.TARGET) ||
       availableWallets[0]
-    : availableWallets.find((w) => w.walletType === "DEFAULT") ||
+    : availableWallets.find((w) => w.walletType === WalletType.STANDARD) ||
       availableWallets[0];
 
   // Set initial selected wallet
@@ -114,24 +123,27 @@ export function WithdrawModal({
 
   // Check if withdrawal is allowed for selected wallet
   const canWithdraw = selectedWallet
-    ? selectedWallet.walletType !== "LOCKED" ||
-      (selectedWallet.locked &&
+    ? selectedWallet.walletType !== WalletType.LOCKED ||
+      (selectedWallet.lockInfo &&
         canWithdrawFromLockedWallet(
-          new Date(selectedWallet.locked.lockEndDate),
+          new Date(selectedWallet.lockInfo.lockEndDate),
         ))
     : false;
 
   // Calculate early withdrawal penalty for locked wallets
   const earlyWithdrawPenalty =
     selectedWallet &&
-    selectedWallet.walletType === "LOCKED" &&
-    selectedWallet.locked &&
+    selectedWallet.walletType === WalletType.LOCKED &&
+    selectedWallet.lockInfo &&
     !canWithdraw
       ? calculateEarlyWithdrawPenalty(
-          selectedWallet.balanceFiat,
-          selectedWallet.locked.penaltyRate,
-          new Date(selectedWallet.locked.lockStartDate),
-          new Date(selectedWallet.locked.lockEndDate),
+          quote?.rate
+            ? btcToFiat({
+                amountSats: selectedWallet.balance,
+                fiatToBtcRate: Number(quote.rate),
+              }).amountFiat
+            : 0,
+          selectedWallet.lockInfo.penaltyRate,
         )
       : 0;
 
@@ -171,7 +183,7 @@ export function WithdrawModal({
               </h2>
               <p className="text-sm text-gray-400">
                 {selectedWallet
-                  ? `Withdraw from ${selectedWallet.name}`
+                  ? `Withdraw from ${selectedWallet.walletName || "Unnamed Wallet"}`
                   : "Select a wallet to withdraw from"}
               </p>
             </div>
@@ -202,7 +214,7 @@ export function WithdrawModal({
                       </div>
                       <div>
                         <div className="font-medium text-gray-100">
-                          {selectedWallet.name}
+                          {selectedWallet.walletName || "Unnamed Wallet"}
                         </div>
                         <div className="text-sm text-gray-400 capitalize">
                           {selectedWallet.walletType.toLowerCase()} wallet
@@ -211,10 +223,17 @@ export function WithdrawModal({
                     </div>
                     <div className="text-right">
                       <div className="text-lg font-bold text-gray-100">
-                        {formatSats(selectedWallet.balance)}
+                        {formatSats(Math.floor(selectedWallet.balance / 1000))}
                       </div>
                       <div className="text-sm text-gray-400">
-                        {formatCurrency(selectedWallet.balanceFiat)}
+                        {formatCurrency(
+                          quote?.rate
+                            ? btcToFiat({
+                                amountSats: selectedWallet.balance,
+                                fiatToBtcRate: Number(quote.rate),
+                              }).amountFiat
+                            : 0,
+                        )}
                       </div>
                     </div>
                   </div>
@@ -237,7 +256,7 @@ export function WithdrawModal({
                 <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-10 max-h-60 overflow-y-auto">
                   {availableWallets.map((wallet) => (
                     <button
-                      key={wallet.id}
+                      key={wallet.walletId}
                       onClick={() => {
                         setSelectedWallet(wallet);
                         setShowWalletDropdown(false);
@@ -251,7 +270,7 @@ export function WithdrawModal({
                           </div>
                           <div>
                             <div className="font-medium text-gray-100">
-                              {wallet.name}
+                              {wallet.walletName || "Unnamed Wallet"}
                             </div>
                             <div className="text-sm text-gray-400 capitalize">
                               {wallet.walletType.toLowerCase()} wallet
@@ -260,10 +279,19 @@ export function WithdrawModal({
                         </div>
                         <div className="text-right">
                           <div className="text-sm font-medium text-gray-100">
-                            {formatSats(wallet.balance)}
+                            {formatSats(Math.floor(wallet.balance / 1000))}
                           </div>
                           <div className="text-xs text-gray-400">
-                            {formatCurrency(wallet.balanceFiat)}
+                            {formatCurrency(
+                              quote?.rate
+                                ? btcToFiat({
+                                    amountSats: Math.floor(
+                                      wallet.balance / 1000,
+                                    ),
+                                    fiatToBtcRate: Number(quote.rate),
+                                  }).amountFiat
+                                : 0,
+                            )}
                           </div>
                         </div>
                       </div>
@@ -277,8 +305,8 @@ export function WithdrawModal({
           {/* Locked Wallet Warning - only show if penalty warnings enabled */}
           {isPenaltyWarningsEnabled &&
             selectedWallet &&
-            selectedWallet.walletType === "LOCKED" &&
-            selectedWallet.locked &&
+            selectedWallet.walletType === WalletType.LOCKED &&
+            selectedWallet.lockInfo &&
             !canWithdraw && (
               <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
                 <div className="flex items-start gap-3">
@@ -293,14 +321,14 @@ export function WithdrawModal({
                     <p className="text-amber-400 mb-2">
                       This wallet is locked until{" "}
                       {new Date(
-                        selectedWallet.locked.lockEndDate,
+                        selectedWallet.lockInfo.lockEndDate,
                       ).toLocaleDateString("en-KE")}
                       . Early withdrawal will incur a penalty.
                     </p>
                     <div className="text-amber-300">
                       <strong>
                         Penalty: {formatCurrency(earlyWithdrawPenalty)}(
-                        {selectedWallet.locked.penaltyRate}%)
+                        {selectedWallet.lockInfo.penaltyRate}%)
                       </strong>
                     </div>
                   </div>
@@ -432,7 +460,7 @@ export function WithdrawModal({
                 )}
                 <div>
                   <div className="text-sm font-medium text-blue-300">
-                    {paymentStatus.status === "completed"
+                    {paymentStatus.status === PersonalTransactionStatus.COMPLETE
                       ? "Success!"
                       : "Processing Withdrawal"}
                   </div>

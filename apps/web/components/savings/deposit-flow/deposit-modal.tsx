@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@bitsacco/ui";
 import {
   XIcon,
@@ -12,13 +12,26 @@ import {
   SplitHorizontalIcon,
 } from "@phosphor-icons/react";
 import { formatCurrency, formatSats } from "@/lib/utils/format";
-import type { DepositModalProps, PaymentMethod } from "@/lib/types/savings";
+import type { WalletResponseDto } from "@bitsacco/core";
+import { PersonalTransactionStatus } from "@bitsacco/core";
+
+type PaymentMethod = "mpesa" | "lightning";
+
+interface DepositModalProps {
+  wallet?: WalletResponseDto;
+  wallets?: WalletResponseDto[];
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+}
 // import { useTransactions } from "@/hooks/savings/use-transactions";
 import { usePayment } from "@/hooks/savings/use-payment";
 import { useFeatureFlag } from "@/lib/feature-flags-provider";
 import { FEATURE_FLAGS } from "@/lib/features";
 import { MpesaDepositForm } from "./mpesa-deposit-form";
 import { LightningDepositForm } from "./lightning-deposit-form";
+import { useExchangeRate, btcToFiat } from "@bitsacco/core";
+import { apiClient } from "@/lib/auth";
 
 export function DepositModal({
   wallet,
@@ -29,6 +42,7 @@ export function DepositModal({
 }: DepositModalProps) {
   // const { initiateDeposit } = useTransactions();
   const { paymentStatus, isPolling, resetStatus } = usePayment();
+  const { quote } = useExchangeRate({ apiClient });
   const isAutomaticSplitEnabled = useFeatureFlag(
     FEATURE_FLAGS.ENABLE_AUTOMATIC_SPLIT_DEPOSITS,
   );
@@ -43,10 +57,20 @@ export function DepositModal({
     isAutomaticSplitEnabled
       ? "automatic"
       : wallets.length > 0
-        ? wallets[0].id
+        ? wallets[0].walletId
         : "automatic",
   );
   const [showTargetDropdown, setShowTargetDropdown] = useState(false);
+
+  // Ensure depositTarget is set when wallets become available
+  useEffect(() => {
+    if (!isAutomaticSplitEnabled && wallets.length > 0) {
+      // Only update if depositTarget is "automatic" or empty, preserve user selection
+      if (depositTarget === "automatic" || depositTarget === "") {
+        setDepositTarget(wallets[0].walletId);
+      }
+    }
+  }, [wallets, isAutomaticSplitEnabled, depositTarget]);
 
   const paymentMethods = [
     {
@@ -112,7 +136,7 @@ export function DepositModal({
               <p className="text-sm text-gray-400">
                 {depositTarget === "automatic"
                   ? `Split across ${wallets.length} wallets`
-                  : `Add money to ${wallets.find((w) => w.id === depositTarget)?.name || "selected wallet"}`}
+                  : `Add money to ${wallets.find((w) => w.walletId === depositTarget)?.walletName || "selected wallet"}`}
               </p>
             </div>
           </div>
@@ -154,7 +178,8 @@ export function DepositModal({
                         {depositTarget === "automatic" &&
                         isAutomaticSplitEnabled
                           ? "Automatic Split"
-                          : wallets.find((w) => w.id === depositTarget)?.name}
+                          : wallets.find((w) => w.walletId === depositTarget)
+                              ?.walletName}
                       </div>
                       <div className="text-sm text-gray-400">
                         {depositTarget === "automatic" &&
@@ -205,9 +230,9 @@ export function DepositModal({
                     {isSpecificWalletDepositsEnabled && wallets.length > 0 ? (
                       wallets.map((w) => (
                         <button
-                          key={w.id}
+                          key={w.walletId}
                           onClick={() => {
-                            setDepositTarget(w.id);
+                            setDepositTarget(w.walletId);
                             setShowTargetDropdown(false);
                           }}
                           className="w-full p-3 text-left hover:bg-slate-700/50 transition-colors last:border-b-0 border-b border-slate-600/50"
@@ -219,7 +244,7 @@ export function DepositModal({
                               </div>
                               <div>
                                 <div className="font-medium text-gray-100">
-                                  {w.name}
+                                  {w.walletName || "Unnamed Wallet"}
                                 </div>
                                 <div className="text-sm text-gray-400 capitalize">
                                   {w.walletType.toLowerCase()} wallet
@@ -228,10 +253,19 @@ export function DepositModal({
                             </div>
                             <div className="text-right">
                               <div className="text-sm font-medium text-gray-100">
-                                {formatSats(w.balance)}
+                                {formatSats(Math.floor(w.balance / 1000))}
                               </div>
                               <div className="text-xs text-gray-400">
-                                {formatCurrency(w.balanceFiat)}
+                                {formatCurrency(
+                                  quote?.rate
+                                    ? btcToFiat({
+                                        amountSats: Math.floor(
+                                          w.balance / 1000,
+                                        ),
+                                        fiatToBtcRate: Number(quote.rate),
+                                      }).amountFiat
+                                    : 0,
+                                )}
                               </div>
                             </div>
                           </div>
@@ -357,7 +391,7 @@ export function DepositModal({
                 )}
                 <div>
                   <div className="text-sm font-medium text-blue-300">
-                    {paymentStatus.status === "completed"
+                    {paymentStatus.status === PersonalTransactionStatus.COMPLETE
                       ? "Success!"
                       : "Processing Payment"}
                   </div>

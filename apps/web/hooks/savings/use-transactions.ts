@@ -3,11 +3,45 @@
 import { useState, useEffect, useCallback } from "react";
 import type {
   WalletTransaction,
-  TransactionsResponse,
-  DepositRequest,
-  WithdrawRequest,
-  TransactionResponse,
-} from "@/lib/types/savings";
+  UserTxsResponse,
+  SolowalletTx,
+} from "@bitsacco/core";
+import { PersonalTransactionStatus } from "@bitsacco/core";
+
+// Define simple types inline
+type PaymentMethod = "mpesa" | "lightning";
+type SplitType = "automatic" | "specific";
+
+interface DepositRequest {
+  amount: number;
+  paymentMethod: PaymentMethod;
+  splitType?: SplitType;
+  walletIds?: string[];
+  walletId?: string;
+  phoneNumber?: string;
+}
+
+interface WithdrawRequest {
+  walletId: string;
+  amount: number;
+  paymentMethod: PaymentMethod;
+  phoneNumber?: string;
+  lightningAddress?: string;
+}
+
+// Use the actual backend response type
+type TransactionResponse = UserTxsResponse;
+
+interface TransactionsResponse {
+  transactions: WalletTransaction[];
+  pagination: {
+    page: number;
+    size: number;
+    totalCount: number;
+    totalPages: number;
+    hasMore: boolean;
+  };
+}
 
 export interface UseTransactionsOptions {
   walletId?: string;
@@ -57,7 +91,7 @@ export function useTransactions(
           params.append("walletId", walletId);
         }
 
-        const response = await fetch(`/api/savings/transactions?${params}`, {
+        const response = await fetch(`/api/personal/transactions?${params}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -77,8 +111,8 @@ export function useTransactions(
           setTransactions(data.transactions);
         }
 
-        setHasMore(data.hasMore);
-        setTotalCount(data.totalCount);
+        setHasMore(data.pagination.hasMore);
+        setTotalCount(data.pagination.totalCount);
         setPage(pageNum);
       } catch (err) {
         const errorMessage =
@@ -102,7 +136,7 @@ export function useTransactions(
       try {
         setError(null);
 
-        const response = await fetch("/api/savings/deposit", {
+        const response = await fetch("/api/personal/deposit", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -117,8 +151,30 @@ export function useTransactions(
 
         const result: TransactionResponse = await response.json();
 
-        // Add the new transaction to the local state
-        setTransactions((prev) => [result.transaction, ...prev]);
+        // Extract the transaction from the backend response and add to local state
+        const newTransaction = result.ledger?.transactions?.find(
+          (tx: SolowalletTx) => tx.id === result.txId,
+        );
+
+        if (newTransaction) {
+          // Convert SolowalletTx to WalletTransaction format for local state
+          const walletTransaction: WalletTransaction = {
+            id: newTransaction.id,
+            walletId: "", // Will be filled by the calling component
+            walletName: "Default Wallet",
+            userId: result.userId,
+            type: newTransaction.type,
+            amountMsats: newTransaction.amountMsats,
+            amountFiat: newTransaction.amountFiat || 0,
+            status: newTransaction.status,
+            paymentReference: newTransaction.reference,
+            failureReason: newTransaction.failureReason,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+
+          setTransactions((prev) => [walletTransaction, ...prev]);
+        }
 
         return result;
       } catch (err) {
@@ -136,7 +192,7 @@ export function useTransactions(
       try {
         setError(null);
 
-        const response = await fetch("/api/savings/withdraw", {
+        const response = await fetch("/api/personal/withdraw", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -151,8 +207,30 @@ export function useTransactions(
 
         const result: TransactionResponse = await response.json();
 
-        // Add the new transaction to the local state
-        setTransactions((prev) => [result.transaction, ...prev]);
+        // Extract the transaction from the backend response and add to local state
+        const newTransaction = result.ledger?.transactions?.find(
+          (tx: SolowalletTx) => tx.id === result.txId,
+        );
+
+        if (newTransaction) {
+          // Convert SolowalletTx to WalletTransaction format for local state
+          const walletTransaction: WalletTransaction = {
+            id: newTransaction.id,
+            walletId: "", // Will be filled by the calling component
+            walletName: "Default Wallet",
+            userId: result.userId,
+            type: newTransaction.type,
+            amountMsats: newTransaction.amountMsats,
+            amountFiat: newTransaction.amountFiat || 0,
+            status: newTransaction.status,
+            paymentReference: newTransaction.reference,
+            failureReason: newTransaction.failureReason,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+
+          setTransactions((prev) => [walletTransaction, ...prev]);
+        }
 
         return result;
       } catch (err) {
@@ -171,7 +249,7 @@ export function useTransactions(
         setError(null);
 
         const response = await fetch(
-          `/api/savings/transactions/${transactionId}`,
+          `/api/personal/transactions/${transactionId}`,
           {
             method: "GET",
             headers: {
@@ -214,7 +292,9 @@ export function useTransactions(
 
     const interval = setInterval(() => {
       const hasPendingTransactions = transactions.some(
-        (tx) => tx.status === "pending" || tx.status === "processing",
+        (tx) =>
+          tx.status === PersonalTransactionStatus.PENDING ||
+          tx.status === PersonalTransactionStatus.PROCESSING,
       );
 
       if (hasPendingTransactions) {

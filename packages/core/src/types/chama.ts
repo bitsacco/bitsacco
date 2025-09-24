@@ -1,4 +1,4 @@
-import type { PaginatedRequest } from "./lib";
+import type { PaginatedRequest, FmLightning } from "./lib";
 
 export enum ChamaMemberRole {
   Member = 0,
@@ -137,14 +137,6 @@ export interface OfframpSwapTarget {
 
 export interface Bolt11 {
   paymentRequest: string;
-  description?: string;
-  amountMsats?: number;
-}
-
-export interface FmLightning {
-  bolt11?: Bolt11;
-  preimage?: string;
-  paymentHash?: string;
   description?: string;
   amountMsats?: number;
 }

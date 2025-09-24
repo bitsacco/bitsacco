@@ -46,7 +46,7 @@
       "id": "enable-multiple-wallets",
       "description": "Allow users to create and manage multiple savings wallets",
       "variationType": "boolean",
-      "variation": true
+      "variation": false
     },
     {
       "id": "enable-target-wallets",

@@ -10,6 +10,7 @@ import {
   WarningIcon,
   CheckCircleIcon,
   XCircleIcon,
+  XIcon,
   ClockIcon,
   type IconWeight,
 } from "@phosphor-icons/react";
@@ -549,23 +550,29 @@ export function BuySharesModal({
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-slate-800 border border-slate-700 rounded-xl max-w-md w-full p-8 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 bg-teal-500/20 rounded-xl flex items-center justify-center">
-            <ShoppingBagIcon
-              size={24}
-              weight="fill"
-              className="text-teal-400"
-            />
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-teal-500/20 rounded-xl flex items-center justify-center">
+              <ShoppingBagIcon
+                size={24}
+                weight="fill"
+                className="text-teal-400"
+              />
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold text-gray-100">
+                Purchase Shares
+              </h3>
+              <p className="text-sm text-gray-400">
+                Step{" "}
+                {step === "quantity" ? "1" : step === "payment" ? "2" : "3"} of
+                3
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-xl font-semibold text-gray-100">
-              Purchase Shares
-            </h3>
-            <p className="text-sm text-gray-400">
-              Step {step === "quantity" ? "1" : step === "payment" ? "2" : "3"}{" "}
-              of 3
-            </p>
-          </div>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            <XIcon size={20} />
+          </Button>
         </div>
 
         {/* Error Display */}

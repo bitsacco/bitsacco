@@ -1,25 +1,33 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 import { Button } from "@bitsacco/ui";
-import {
-  LightningIcon,
-  CurrencyCircleDollarIcon,
-  CopyIcon,
-  CheckIcon,
-  QrCodeIcon,
-  InfoIcon,
-} from "@phosphor-icons/react";
-import type { PersonalWallet, DepositRequest } from "@/lib/types/savings";
+import { LightningIcon, CurrencyCircleDollarIcon } from "@phosphor-icons/react";
+import type { WalletResponseDto, SolowalletTx } from "@bitsacco/core";
+import { PersonalTransactionStatus } from "@bitsacco/core";
+
+// Define simple types inline
+type PaymentMethod = "mpesa" | "lightning";
+type SplitType = "automatic" | "specific";
+
+interface DepositRequest {
+  amount: number;
+  paymentMethod: PaymentMethod;
+  splitType: SplitType;
+  walletIds?: string[];
+  walletId?: string;
+  phoneNumber?: string;
+}
 import { useTransactions } from "@/hooks/savings/use-transactions";
 import { usePayment } from "@/hooks/savings/use-payment";
 import { formatAmountInput } from "@/lib/utils/format";
 import { validateAmount } from "@/lib/utils/calculations";
+import { LightningPaymentModal } from "@/components/lightning-payment-modal";
+import { LIGHTNING_DEPOSIT_LIMITS } from "@/lib/config";
 
 interface LightningDepositFormProps {
-  wallet?: PersonalWallet;
-  wallets?: PersonalWallet[];
+  wallet?: WalletResponseDto;
+  wallets?: WalletResponseDto[];
   depositTarget: "automatic" | string;
   onSuccess: () => void;
   onError: (error: string) => void;
@@ -29,17 +37,32 @@ export function LightningDepositForm({
   // wallet,
   wallets = [],
   depositTarget,
-  // onSuccess,
+  onSuccess,
   onError,
 }: LightningDepositFormProps) {
-  const { initiateDeposit } = useTransactions();
-  const { startPolling } = usePayment();
+  const { initiateDeposit, refetch: refetchTransactions } = useTransactions();
+  const { startPolling, paymentStatus } = usePayment(() => {
+    // Refresh transaction history when payment completes in background
+    refetchTransactions();
+  });
   const [amount, setAmount] = useState("");
   const [invoice, setInvoice] = useState("");
-  const [qrCodeUrl, setQrCodeUrl] = useState("");
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [transactionId, setTransactionId] = useState("");
   const [loading, setLoading] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [amountError, setAmountError] = useState<string | null>(null);
+
+  // Monitor payment status updates from the polling hook
+  useEffect(() => {
+    if (paymentStatus?.transactionId === transactionId) {
+      if (paymentStatus.status === PersonalTransactionStatus.COMPLETE) {
+        // Don't call onSuccess immediately - let modal show success state first
+        // Modal will handle calling onSuccess when user clicks "Done"
+      } else if (paymentStatus.status === PersonalTransactionStatus.FAILED) {
+        // Keep modal open but show failed state
+      }
+    }
+  }, [paymentStatus, transactionId]);
 
   const handleAmountChange = (value: string) => {
     const formatted = formatAmountInput(value);
@@ -54,7 +77,11 @@ export function LightningDepositForm({
   const generateInvoice = async () => {
     // Validate amount
     const amountNum = parseFloat(amount);
-    const validation = validateAmount(amountNum, 10, 100000);
+    const validation = validateAmount(
+      amountNum,
+      LIGHTNING_DEPOSIT_LIMITS.MIN_AMOUNT_KES,
+      LIGHTNING_DEPOSIT_LIMITS.MAX_AMOUNT_KES,
+    );
     if (!validation.isValid) {
       setAmountError(validation.error!);
       return;
@@ -71,19 +98,47 @@ export function LightningDepositForm({
       };
 
       if (depositTarget === "automatic") {
-        depositRequest.walletIds = wallets.map((w) => w.id);
+        depositRequest.walletIds = wallets.map((w) => w.walletId);
       } else {
         depositRequest.walletId = depositTarget;
       }
 
+      // Log the deposit request to debug
+      console.log("[Lightning Deposit] Deposit request:", {
+        depositTarget,
+        wallets: wallets.length,
+        depositRequest,
+      });
+
+      // Validate that we have a walletId before proceeding
+      if (!depositRequest.walletId && !depositRequest.walletIds) {
+        throw new Error(
+          "No wallet selected. Please select a wallet to deposit to.",
+        );
+      }
+
       const response = await initiateDeposit(depositRequest);
 
-      setInvoice(response.lightningInvoice || "");
-      setQrCodeUrl(response.qrCodeUrl || "");
+      // Extract Lightning invoice from the transaction in the backend response
+      const transaction = response.ledger?.transactions?.find(
+        (tx: SolowalletTx) => tx.id === response.txId,
+      );
 
-      // Start monitoring for payment
-      await startPolling(response.transaction.id, 120); // 10 minutes
+      if (transaction?.lightning) {
+        // Lightning is now properly typed as FmLightning object, no JSON parsing needed
+        setInvoice(transaction.lightning.invoice || "");
+        setTransactionId(response.txId || "");
+        setShowPaymentModal(true);
+
+        // Start monitoring for payment using txId from backend response
+        if (response.txId) {
+          await startPolling(response.txId, 120); // 10 minutes
+        }
+      } else {
+        throw new Error("No Lightning invoice received from deposit response");
+      }
     } catch (error) {
+      console.error("[Lightning Deposit] Error:", error);
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -94,19 +149,50 @@ export function LightningDepositForm({
     }
   };
 
-  const copyInvoice = async () => {
-    try {
-      await navigator.clipboard.writeText(invoice);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error("Failed to copy invoice:", error);
+  const handlePaymentComplete = () => {
+    // Reset form state
+    setInvoice("");
+    setAmount("");
+    setTransactionId("");
+    setShowPaymentModal(false);
+    // Call onSuccess to refresh data
+    onSuccess();
+  };
+
+  // Map payment status from hook to modal status
+  const getModalStatus = ():
+    | "pending"
+    | "processing"
+    | "completed"
+    | "failed" => {
+    if (!paymentStatus || paymentStatus.transactionId !== transactionId) {
+      return "processing"; // Default state
+    }
+
+    switch (paymentStatus.status) {
+      case PersonalTransactionStatus.PENDING:
+        return "pending";
+      case PersonalTransactionStatus.PROCESSING:
+        return "processing";
+      case PersonalTransactionStatus.COMPLETE:
+        return "completed";
+      case PersonalTransactionStatus.FAILED:
+      case PersonalTransactionStatus.MANUAL_REVIEW:
+      default:
+        return "failed";
     }
   };
 
-  if (!invoice) {
-    // Amount input and generate invoice
-    return (
+  const handleModalClose = () => {
+    setShowPaymentModal(false);
+    // Reset form to allow new payment
+    setInvoice("");
+    setAmount("");
+    setTransactionId("");
+  };
+
+  return (
+    <>
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -133,9 +219,6 @@ export function LightningDepositForm({
           {amountError && (
             <p className="text-sm text-red-400 mt-1">{amountError}</p>
           )}
-          <p className="text-xs text-gray-500 mt-1">
-            Min: KES 10 • No maximum limit
-          </p>
         </div>
 
         <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-lg">
@@ -167,101 +250,17 @@ export function LightningDepositForm({
           {loading ? "Generating Invoice..." : "Generate Lightning Invoice"}
         </Button>
       </div>
-    );
-  }
 
-  // Invoice display and payment
-  return (
-    <div className="space-y-4">
-      {/* QR Code */}
-      <div className="text-center">
-        <div className="bg-white p-4 rounded-lg inline-block mb-4 border-2 border-slate-600">
-          {qrCodeUrl ? (
-            <Image
-              src={qrCodeUrl}
-              alt="Lightning Invoice QR Code"
-              width={192}
-              height={192}
-              className="w-48 h-48"
-            />
-          ) : (
-            <div className="w-48 h-48 bg-gray-100 flex items-center justify-center">
-              <QrCodeIcon size={48} className="text-gray-400" />
-            </div>
-          )}
-        </div>
-        <p className="text-sm text-gray-400 mb-4">
-          Scan with your Lightning wallet or copy the invoice below
-        </p>
-      </div>
-
-      {/* Invoice String */}
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-300">
-          Lightning Invoice
-        </label>
-        <div className="relative">
-          <textarea
-            value={invoice}
-            readOnly
-            className="w-full h-24 p-3 bg-slate-900/50 border border-slate-700 rounded-lg text-sm font-mono text-gray-100 resize-none focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-          />
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={copyInvoice}
-            className="absolute top-2 right-2 text-gray-400 hover:text-gray-300"
-          >
-            {copied ? <CheckIcon size={16} /> : <CopyIcon size={16} />}
-          </Button>
-        </div>
-        {copied && (
-          <p className="text-xs text-green-400">Invoice copied to clipboard!</p>
-        )}
-      </div>
-
-      {/* Instructions */}
-      <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-        <div className="flex items-start gap-3">
-          <InfoIcon size={20} className="text-blue-400 mt-0.5 flex-shrink-0" />
-          <div className="text-sm text-blue-300">
-            <div className="font-medium mb-1">Payment Instructions:</div>
-            <ol className="text-blue-400 space-y-1 list-decimal list-inside">
-              <li>
-                Open your Lightning wallet (e.g., Phoenix, Muun, Wallet of
-                Satoshi)
-              </li>
-              <li>Scan the QR code or paste the invoice</li>
-              <li>Confirm the payment in your wallet</li>
-              <li>Your deposit will be credited instantly</li>
-            </ol>
-          </div>
-        </div>
-      </div>
-
-      {/* Status */}
-      <div className="text-center py-4">
-        <div className="flex items-center justify-center gap-2 text-gray-400">
-          <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
-          <span className="text-sm">Waiting for payment...</span>
-        </div>
-        <p className="text-xs text-gray-500 mt-1">
-          This invoice will expire in 10 minutes
-        </p>
-      </div>
-
-      {/* Generate New Invoice */}
-      <Button
-        onClick={() => {
-          setInvoice("");
-          setQrCodeUrl("");
-          setAmount("");
-        }}
-        variant="outline"
-        className="w-full !bg-slate-700/50 !text-gray-300 !border-slate-600 hover:!bg-slate-700"
-      >
-        Generate New Invoice
-      </Button>
-    </div>
+      {/* Lightning Payment Modal */}
+      <LightningPaymentModal
+        isOpen={showPaymentModal}
+        onClose={handleModalClose}
+        invoice={invoice}
+        amount={parseFloat(amount) || 0}
+        transactionId={transactionId}
+        status={getModalStatus()}
+        onPaymentComplete={handlePaymentComplete}
+      />
+    </>
   );
 }

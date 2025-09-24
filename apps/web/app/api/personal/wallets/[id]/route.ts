@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAuthenticatedApiClient } from "@/lib/api-helper";
 
-// GET /api/savings/wallets/[id] - Get specific wallet
+// GET /api/personal/wallets/[id] - Get specific wallet
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -15,22 +15,20 @@ export async function GET(
 
     const { id: walletId } = await params;
 
-    // In production, this would fetch from the backend
-    // For now, return mock data
-    const mockWallet = {
-      id: walletId,
-      userId: session.user.id,
-      walletType: "DEFAULT",
-      name: "My Savings",
-      balance: 150000,
-      balanceFiat: 8775,
-      isActive: true,
-      metadata: {},
-      createdAt: new Date("2024-01-15"),
-      updatedAt: new Date("2024-09-20"),
-    };
+    // Call the backend API
+    const response = await client.personal.getWallet(session.user.id, walletId);
 
-    return NextResponse.json(mockWallet);
+    if (response.error) {
+      console.error("Backend error:", response.error);
+      return NextResponse.json({ error: response.error }, { status: 500 });
+    }
+
+    if (!response.data) {
+      return NextResponse.json({ error: "Wallet not found" }, { status: 404 });
+    }
+
+    // Return backend response directly without transformation
+    return NextResponse.json(response.data);
   } catch (error) {
     console.error("Error fetching wallet:", error);
     return NextResponse.json(
@@ -40,7 +38,7 @@ export async function GET(
   }
 }
 
-// PUT /api/savings/wallets/[id] - Update wallet
+// PUT /api/personal/wallets/[id] - Update wallet
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -53,17 +51,29 @@ export async function PUT(
     }
 
     const { id: walletId } = await params;
-    const body = await req.json();
+    const updateData = await req.json();
 
-    // In production, this would update the wallet in the backend
-    const updatedWallet = {
-      id: walletId,
-      userId: session.user.id,
-      ...body,
-      updatedAt: new Date(),
-    };
+    // Call the backend API
+    const response = await client.personal.updateWallet(
+      session.user.id,
+      walletId,
+      updateData,
+    );
 
-    return NextResponse.json(updatedWallet);
+    if (response.error) {
+      console.error("Backend error:", response.error);
+      return NextResponse.json({ error: response.error }, { status: 500 });
+    }
+
+    if (!response.data) {
+      return NextResponse.json(
+        { error: "Failed to update wallet" },
+        { status: 500 },
+      );
+    }
+
+    // Return backend response directly without transformation
+    return NextResponse.json(response.data);
   } catch (error) {
     console.error("Error updating wallet:", error);
     return NextResponse.json(
@@ -73,7 +83,7 @@ export async function PUT(
   }
 }
 
-// DELETE /api/savings/wallets/[id] - Delete wallet
+// DELETE /api/personal/wallets/[id] - Delete wallet
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -87,11 +97,19 @@ export async function DELETE(
 
     const { id: walletId } = await params;
 
-    // In production, this would delete the wallet from the backend
-    // Check if wallet has balance before deleting
-    // For now, just return success
+    // Call the backend API
+    const response = await client.personal.deleteWallet(
+      session.user.id,
+      walletId,
+    );
 
-    return NextResponse.json({ success: true, walletId });
+    if (response.error) {
+      console.error("Backend error:", response.error);
+      return NextResponse.json({ error: response.error }, { status: 500 });
+    }
+
+    // Return 204 No Content for successful deletion
+    return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error("Error deleting wallet:", error);
     return NextResponse.json(

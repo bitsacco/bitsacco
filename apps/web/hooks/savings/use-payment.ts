@@ -1,11 +1,15 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import type { WalletTransaction } from "@/lib/types/savings";
+import type { WalletTransaction } from "@bitsacco/core";
+import {
+  PersonalTransactionType,
+  PersonalTransactionStatus,
+} from "@bitsacco/core";
 
 export interface PaymentStatus {
   transactionId: string;
-  status: "pending" | "processing" | "completed" | "failed";
+  status: WalletTransaction["status"];
   message?: string;
 }
 
@@ -17,7 +21,9 @@ export interface UsePaymentReturn {
   resetStatus: () => void;
 }
 
-export function usePayment(): UsePaymentReturn {
+export function usePayment(
+  onTransactionComplete?: () => void,
+): UsePaymentReturn {
   const [isPolling, setIsPolling] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(
     null,
@@ -42,7 +48,7 @@ export function usePayment(): UsePaymentReturn {
       setIsPolling(true);
       setPaymentStatus({
         transactionId,
-        status: "pending",
+        status: PersonalTransactionStatus.PENDING,
         message: "Waiting for payment confirmation...",
       });
 
@@ -51,7 +57,7 @@ export function usePayment(): UsePaymentReturn {
       const poll = async (): Promise<void> => {
         try {
           const response = await fetch(
-            `/api/savings/transactions/${transactionId}`,
+            `/api/personal/transactions/${transactionId}`,
             {
               method: "GET",
               headers: {
@@ -74,9 +80,16 @@ export function usePayment(): UsePaymentReturn {
 
           // Stop polling if transaction is completed or failed
           if (
-            transaction.status === "completed" ||
-            transaction.status === "failed"
+            transaction.status === PersonalTransactionStatus.COMPLETE ||
+            transaction.status === PersonalTransactionStatus.FAILED
           ) {
+            // Call refresh callback when transaction completes
+            if (
+              transaction.status === PersonalTransactionStatus.COMPLETE &&
+              onTransactionComplete
+            ) {
+              onTransactionComplete();
+            }
             stopPolling();
             return;
           }
@@ -87,7 +100,7 @@ export function usePayment(): UsePaymentReturn {
           if (attempts >= maxAttempts) {
             setPaymentStatus({
               transactionId,
-              status: "pending",
+              status: PersonalTransactionStatus.PENDING,
               message:
                 "Transaction is taking longer than expected. Please check back later.",
             });
@@ -102,7 +115,7 @@ export function usePayment(): UsePaymentReturn {
           console.error("Error polling transaction status:", error);
           setPaymentStatus({
             transactionId,
-            status: "failed",
+            status: PersonalTransactionStatus.FAILED,
             message: "Failed to check payment status. Please try again.",
           });
           stopPolling();
@@ -112,7 +125,7 @@ export function usePayment(): UsePaymentReturn {
       // Start polling immediately
       await poll();
     },
-    [stopPolling],
+    [stopPolling, onTransactionComplete],
   );
 
   const resetStatus = useCallback(() => {
@@ -130,23 +143,35 @@ export function usePayment(): UsePaymentReturn {
 }
 
 function getStatusMessage(
-  status: string,
-  type: "deposit" | "withdraw",
+  status: PersonalTransactionStatus,
+  type: PersonalTransactionType,
 ): string {
-  const action = type === "deposit" ? "deposit" : "withdrawal";
+  const action =
+    type === PersonalTransactionType.DEPOSIT
+      ? "deposit"
+      : type === PersonalTransactionType.WITHDRAW
+        ? "withdrawal"
+        : type === PersonalTransactionType.WALLET_CREATION
+          ? "wallet creation"
+          : "transaction";
 
   switch (status) {
-    case "pending":
-      return type === "deposit"
+    case PersonalTransactionStatus.PENDING:
+      return type === PersonalTransactionType.DEPOSIT
         ? "Waiting for payment confirmation..."
-        : "Withdrawal request submitted...";
-    case "processing":
+        : type === PersonalTransactionType.WITHDRAW
+          ? "Withdrawal request submitted..."
+          : "Transaction pending...";
+    case PersonalTransactionStatus.PROCESSING:
       return `Processing ${action}...`;
-    case "completed":
+    case PersonalTransactionStatus.COMPLETE:
       return `${action.charAt(0).toUpperCase() + action.slice(1)} completed successfully!`;
-    case "failed":
+    case PersonalTransactionStatus.FAILED:
       return `${action.charAt(0).toUpperCase() + action.slice(1)} failed. Please try again.`;
+    case PersonalTransactionStatus.MANUAL_REVIEW:
+      return `${action.charAt(0).toUpperCase() + action.slice(1)} is under manual review...`;
+    case PersonalTransactionStatus.UNRECOGNIZED:
     default:
-      return `${action.charAt(0).toUpperCase() + action.slice(1)} status: ${status}`;
+      return `${action.charAt(0).toUpperCase() + action.slice(1)} status unknown`;
   }
 }

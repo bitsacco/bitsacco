@@ -1,31 +1,43 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import type {
-  PersonalWallet,
-  CreateWalletRequest,
-  WalletsResponse,
-} from "@/lib/types/savings";
+import type { WalletResponseDto, WalletType } from "@bitsacco/core";
+
+// Define simple types inline
+interface CreateWalletRequest {
+  name: string;
+  type: WalletType;
+  targetAmount?: number;
+  targetDate?: string;
+  lockPeriod?: {
+    months: number;
+  };
+}
+
+interface WalletsResponse {
+  wallets: WalletResponseDto[];
+  totalBalance: number;
+}
 
 export interface UseWalletsReturn {
-  wallets: PersonalWallet[];
+  wallets: WalletResponseDto[];
   totalBalance: number;
-  totalBalanceFiat: number;
+  // totalBalanceFiat removed - will be computed client-side using live exchange rate
   loading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
-  createWallet: (walletData: CreateWalletRequest) => Promise<PersonalWallet>;
+  createWallet: (walletData: CreateWalletRequest) => Promise<WalletResponseDto>;
   updateWallet: (
     walletId: string,
-    updates: Partial<PersonalWallet>,
-  ) => Promise<PersonalWallet>;
+    updates: Partial<WalletResponseDto>,
+  ) => Promise<WalletResponseDto>;
   deleteWallet: (walletId: string) => Promise<void>;
 }
 
 export function useWallets(): UseWalletsReturn {
-  const [wallets, setWallets] = useState<PersonalWallet[]>([]);
+  const [wallets, setWallets] = useState<WalletResponseDto[]>([]);
   const [totalBalance, setTotalBalance] = useState(0);
-  const [totalBalanceFiat, setTotalBalanceFiat] = useState(0);
+  // totalBalanceFiat state removed - will be computed client-side using live exchange rate
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,7 +46,7 @@ export function useWallets(): UseWalletsReturn {
       setLoading(true);
       setError(null);
 
-      const response = await fetch("/api/savings/wallets", {
+      const response = await fetch("/api/personal/wallets", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -49,7 +61,7 @@ export function useWallets(): UseWalletsReturn {
       const data: WalletsResponse = await response.json();
       setWallets(data.wallets || []);
       setTotalBalance(data.totalBalance || 0);
-      setTotalBalanceFiat(data.totalBalanceFiat || 0);
+      // totalBalanceFiat no longer set from API - computed client-side using live exchange rate
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Unknown error occurred";
@@ -61,11 +73,11 @@ export function useWallets(): UseWalletsReturn {
   }, []);
 
   const createWallet = useCallback(
-    async (walletData: CreateWalletRequest): Promise<PersonalWallet> => {
+    async (walletData: CreateWalletRequest): Promise<WalletResponseDto> => {
       try {
         setError(null);
 
-        const response = await fetch("/api/savings/wallets", {
+        const response = await fetch("/api/personal/wallets", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -78,7 +90,7 @@ export function useWallets(): UseWalletsReturn {
           throw new Error(errorData.error || "Failed to create wallet");
         }
 
-        const newWallet: PersonalWallet = await response.json();
+        const newWallet: WalletResponseDto = await response.json();
 
         // Refresh the wallets list
         await fetchWallets();
@@ -97,12 +109,12 @@ export function useWallets(): UseWalletsReturn {
   const updateWallet = useCallback(
     async (
       walletId: string,
-      updates: Partial<PersonalWallet>,
-    ): Promise<PersonalWallet> => {
+      updates: Partial<WalletResponseDto>,
+    ): Promise<WalletResponseDto> => {
       try {
         setError(null);
 
-        const response = await fetch(`/api/savings/wallets/${walletId}`, {
+        const response = await fetch(`/api/personal/wallets/${walletId}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -115,12 +127,12 @@ export function useWallets(): UseWalletsReturn {
           throw new Error(errorData.error || "Failed to update wallet");
         }
 
-        const updatedWallet: PersonalWallet = await response.json();
+        const updatedWallet: WalletResponseDto = await response.json();
 
         // Update the local state
         setWallets((prev) =>
           prev.map((wallet) =>
-            wallet.id === walletId ? updatedWallet : wallet,
+            wallet.walletId === walletId ? updatedWallet : wallet,
           ),
         );
 
@@ -140,7 +152,7 @@ export function useWallets(): UseWalletsReturn {
       try {
         setError(null);
 
-        const response = await fetch(`/api/savings/wallets/${walletId}`, {
+        const response = await fetch(`/api/personal/wallets/${walletId}`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -153,7 +165,9 @@ export function useWallets(): UseWalletsReturn {
         }
 
         // Remove from local state
-        setWallets((prev) => prev.filter((wallet) => wallet.id !== walletId));
+        setWallets((prev) =>
+          prev.filter((wallet) => wallet.walletId !== walletId),
+        );
 
         // Refresh to get updated totals
         await fetchWallets();
@@ -175,7 +189,7 @@ export function useWallets(): UseWalletsReturn {
   return {
     wallets,
     totalBalance,
-    totalBalanceFiat,
+    // totalBalanceFiat removed - computed client-side using live exchange rate
     loading,
     error,
     refetch: fetchWallets,

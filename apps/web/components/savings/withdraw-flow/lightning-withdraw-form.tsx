@@ -8,14 +8,16 @@ import {
   WarningIcon,
   LinkIcon,
 } from "@phosphor-icons/react";
-import type { PersonalWallet } from "@/lib/types/savings";
+import type { WalletResponseDto } from "@bitsacco/core";
 import { useTransactions } from "@/hooks/savings/use-transactions";
 import { usePayment } from "@/hooks/savings/use-payment";
 import { formatAmountInput, formatCurrency } from "@/lib/utils/format";
 import { validateAmount } from "@/lib/utils/calculations";
+import { useExchangeRate, btcToFiat } from "@bitsacco/core";
+import { apiClient } from "@/lib/auth";
 
 interface LightningWithdrawFormProps {
-  wallet: PersonalWallet;
+  wallet: WalletResponseDto;
   onSuccess: () => void;
   onError: (error: string) => void;
   earlyWithdrawPenalty: number;
@@ -29,6 +31,7 @@ export function LightningWithdrawForm({
 }: LightningWithdrawFormProps) {
   const { initiateWithdraw } = useTransactions();
   const { startPolling } = usePayment();
+  const { quote } = useExchangeRate({ apiClient });
   const [amount, setAmount] = useState("");
   const [lightningAddress, setLightningAddress] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,8 +40,16 @@ export function LightningWithdrawForm({
     {},
   );
 
+  // Calculate fiat balance using live exchange rate
+  const walletBalanceFiat = quote?.rate
+    ? btcToFiat({
+        amountSats: Math.floor(wallet.balance / 1000),
+        fiatToBtcRate: Number(quote.rate),
+      }).amountFiat
+    : 0;
+
   const maxWithdrawAmount = Math.floor(
-    (wallet.balanceFiat - earlyWithdrawPenalty) / 100,
+    (walletBalanceFiat - earlyWithdrawPenalty) / 100,
   );
 
   const handleAmountChange = (value: string) => {
@@ -108,14 +119,18 @@ export function LightningWithdrawForm({
 
     try {
       const response = await initiateWithdraw({
-        walletId: wallet.id,
+        walletId: wallet.walletId,
         amount: parseFloat(amount),
         paymentMethod: "lightning",
         lightningAddress: lightningAddress,
       });
 
-      // Start polling for transaction status
-      await startPolling(response.transaction.id);
+      // Start polling for transaction status using txId from backend response
+      if (response.txId) {
+        await startPolling(response.txId);
+      } else {
+        throw new Error("No transaction ID received from withdraw response");
+      }
 
       // Show success message and close
       onSuccess();
@@ -239,8 +254,11 @@ export function LightningWithdrawForm({
         {errors.amount && (
           <p className="text-sm text-red-400 mt-1">{errors.amount}</p>
         )}
-        <p className="text-xs text-gray-500 mt-1">
+        {/* <p className="text-xs text-gray-500 mt-1">
           Available: KES {maxWithdrawAmount} • Min: KES 10
+        </p> */}
+        <p className="text-xs text-gray-500 mt-1">
+          Available: KES {maxWithdrawAmount}
         </p>
       </div>
 

@@ -8,14 +8,16 @@ import {
   WarningIcon,
   InfoIcon,
 } from "@phosphor-icons/react";
-import type { PersonalWallet } from "@/lib/types/savings";
+import type { WalletResponseDto } from "@bitsacco/core";
 import { useTransactions } from "@/hooks/savings/use-transactions";
 import { usePayment } from "@/hooks/savings/use-payment";
 import { formatAmountInput, formatCurrency } from "@/lib/utils/format";
 import { validateAmount, validatePhoneNumber } from "@/lib/utils/calculations";
+import { useExchangeRate, btcToFiat } from "@bitsacco/core";
+import { apiClient } from "@/lib/auth";
 
 interface MpesaWithdrawFormProps {
-  wallet: PersonalWallet;
+  wallet: WalletResponseDto;
   onSuccess: () => void;
   onError: (error: string) => void;
   earlyWithdrawPenalty: number;
@@ -29,14 +31,23 @@ export function MpesaWithdrawForm({
 }: MpesaWithdrawFormProps) {
   const { initiateWithdraw } = useTransactions();
   const { startPolling } = usePayment();
+  const { quote } = useExchangeRate({ apiClient });
   const [amount, setAmount] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [errors, setErrors] = useState<{ amount?: string; phone?: string }>({});
 
+  // Calculate fiat balance using live exchange rate
+  const walletBalanceFiat = quote?.rate
+    ? btcToFiat({
+        amountSats: Math.floor(wallet.balance / 1000),
+        fiatToBtcRate: Number(quote.rate),
+      }).amountFiat
+    : 0;
+
   const maxWithdrawAmount = Math.floor(
-    (wallet.balanceFiat - earlyWithdrawPenalty) / 100,
+    (walletBalanceFiat - earlyWithdrawPenalty) / 100,
   );
 
   const handleAmountChange = (value: string) => {
@@ -93,14 +104,18 @@ export function MpesaWithdrawForm({
 
     try {
       const response = await initiateWithdraw({
-        walletId: wallet.id,
+        walletId: wallet.walletId,
         amount: parseFloat(amount),
         paymentMethod: "mpesa",
         phoneNumber: phoneNumber.replace(/\D/g, ""), // Remove non-digits
       });
 
-      // Start polling for transaction status
-      await startPolling(response.transaction.id);
+      // Start polling for transaction status using txId from backend response
+      if (response.txId) {
+        await startPolling(response.txId);
+      } else {
+        throw new Error("No transaction ID received from withdraw response");
+      }
 
       // Show success message and close
       onSuccess();
@@ -214,8 +229,11 @@ export function MpesaWithdrawForm({
         {errors.amount && (
           <p className="text-sm text-red-400 mt-1">{errors.amount}</p>
         )}
-        <p className="text-xs text-gray-500 mt-1">
+        {/* <p className="text-xs text-gray-500 mt-1">
           Available: KES {maxWithdrawAmount} • Min: KES 10 • Max: KES 70,000
+        </p> */}
+        <p className="text-xs text-gray-500 mt-1">
+          Available: KES {maxWithdrawAmount} • Min: KES 10
         </p>
       </div>
 

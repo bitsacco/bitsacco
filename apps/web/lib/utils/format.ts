@@ -2,11 +2,12 @@
  * Utility functions for formatting values in the Personal Savings feature
  */
 
+import { WalletType, PersonalTransactionStatus } from "@bitsacco/core";
+
 /**
  * Format currency amount in KES
  */
-export function formatCurrency(amountInCents: number): string {
-  const amount = amountInCents / 100;
+export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-KE", {
     style: "currency",
     currency: "KES",
@@ -127,31 +128,36 @@ export function formatAmountInput(value: string): string {
 /**
  * Format transaction status for display
  */
-export function formatTransactionStatus(status: string): string {
+export function formatTransactionStatus(
+  status: PersonalTransactionStatus,
+): string {
   switch (status) {
-    case "pending":
+    case PersonalTransactionStatus.PENDING:
       return "Pending";
-    case "processing":
+    case PersonalTransactionStatus.PROCESSING:
       return "Processing";
-    case "completed":
+    case PersonalTransactionStatus.COMPLETE:
       return "Completed";
-    case "failed":
+    case PersonalTransactionStatus.FAILED:
       return "Failed";
+    case PersonalTransactionStatus.MANUAL_REVIEW:
+      return "Manual Review";
+    case PersonalTransactionStatus.UNRECOGNIZED:
     default:
-      return status.charAt(0).toUpperCase() + status.slice(1);
+      return "Unknown";
   }
 }
 
 /**
  * Format wallet type for display
  */
-export function formatWalletType(type: string): string {
+export function formatWalletType(type: WalletType): string {
   switch (type) {
-    case "DEFAULT":
+    case WalletType.STANDARD:
       return "Standard Savings";
-    case "TARGET":
+    case WalletType.TARGET:
       return "Savings Target";
-    case "LOCKED":
+    case WalletType.LOCKED:
       return "Locked Savings";
     default:
       return type;
