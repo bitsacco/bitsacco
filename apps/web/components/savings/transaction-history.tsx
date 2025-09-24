@@ -1,25 +1,28 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Button } from "@bitsacco/ui";
 import {
   ArrowUpIcon,
   ArrowDownIcon,
-  DeviceMobileIcon,
-  LightningIcon,
   ClockIcon,
   CheckCircleIcon,
   XCircleIcon,
   FunnelIcon,
   MagnifyingGlassIcon,
 } from "@phosphor-icons/react";
-import type {
-  TransactionHistoryProps,
-  WalletTransaction,
-  PaymentMethod,
-  TransactionType,
-  TransactionStatus,
-} from "@/lib/types/savings";
+import type { WalletResponseDto, WalletTransaction } from "@bitsacco/core";
+import {
+  PersonalTransactionType,
+  PersonalTransactionStatus,
+} from "@bitsacco/core";
+
+// No need for local type definitions - using enums from core
+
+interface TransactionHistoryProps {
+  wallets: WalletResponseDto[];
+  walletId?: string;
+}
 import { useTransactions } from "@/hooks/savings/use-transactions";
 import {
   formatCurrency,
@@ -29,9 +32,8 @@ import {
 
 interface FilterOptions {
   walletId: string;
-  type: TransactionType | "all";
-  status: TransactionStatus | "all";
-  paymentMethod: PaymentMethod | "all";
+  type: string; // Will be "all" or string representation of PersonalTransactionType enum
+  status: string; // Will be "all" or string representation of PersonalTransactionStatus enum
   search: string;
 }
 
@@ -48,7 +50,6 @@ export function TransactionHistory({
     walletId: walletId || "all",
     type: "all",
     status: "all",
-    paymentMethod: "all",
     search: "",
   });
 
@@ -56,22 +57,34 @@ export function TransactionHistory({
 
   // Filter transactions based on current filters
   const filteredTransactions = useMemo(() => {
+    if (!transactions || !Array.isArray(transactions)) {
+      return [];
+    }
     return transactions.filter((tx) => {
+      // Safety check for transaction object
+      if (!tx || typeof tx !== "object") {
+        return false;
+      }
+
       if (filters.walletId !== "all" && tx.walletId !== filters.walletId)
         return false;
-      if (filters.type !== "all" && tx.type !== filters.type) return false;
-      if (filters.status !== "all" && tx.status !== filters.status)
+      if (filters.type !== "all" && tx.type !== Number(filters.type))
         return false;
-      if (
-        filters.paymentMethod !== "all" &&
-        tx.paymentMethod !== filters.paymentMethod
-      )
+      if (filters.status !== "all" && tx.status !== Number(filters.status))
         return false;
 
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
-        const wallet = wallets.find((w) => w.id === tx.walletId);
-        const walletName = wallet?.name.toLowerCase() || "";
+
+        // Get wallet name inline to avoid function reference issues
+        let walletName = "";
+        if (tx.walletName) {
+          walletName = tx.walletName.toLowerCase();
+        } else {
+          const wallet = wallets?.find((w) => w.walletId === tx.walletId);
+          walletName = (wallet?.walletName || "Default Wallet").toLowerCase();
+        }
+
         const paymentRef = tx.paymentReference?.toLowerCase() || "";
 
         return (
@@ -87,52 +100,66 @@ export function TransactionHistory({
     const iconSize = 20;
     const iconWeight = "duotone" as const;
 
-    if (tx.type === "deposit") {
-      return (
-        <ArrowUpIcon
-          size={iconSize}
-          weight={iconWeight}
-          className="text-green-500"
-        />
-      );
-    } else {
-      return (
-        <ArrowDownIcon
-          size={iconSize}
-          weight={iconWeight}
-          className="text-blue-500"
-        />
-      );
+    switch (tx.type) {
+      case PersonalTransactionType.DEPOSIT:
+      case PersonalTransactionType.WALLET_CREATION:
+        return (
+          <ArrowUpIcon
+            size={iconSize}
+            weight={iconWeight}
+            className="text-green-500"
+          />
+        );
+      case PersonalTransactionType.WITHDRAW:
+        return (
+          <ArrowDownIcon
+            size={iconSize}
+            weight={iconWeight}
+            className="text-blue-500"
+          />
+        );
+      case PersonalTransactionType.UNRECOGNIZED:
+      default:
+        return (
+          <MagnifyingGlassIcon
+            size={iconSize}
+            weight={iconWeight}
+            className="text-amber-500"
+          />
+        );
     }
   };
 
-  const getPaymentMethodIcon = (method?: PaymentMethod) => {
-    if (method === "mpesa") {
-      return <DeviceMobileIcon size={16} className="text-green-500" />;
-    } else if (method === "lightning") {
-      return <LightningIcon size={16} className="text-orange-400" />;
-    }
-    return null;
-  };
-
-  const getStatusIcon = (status: TransactionStatus) => {
+  const getStatusIcon = (status: PersonalTransactionStatus) => {
     switch (status) {
-      case "completed":
+      case PersonalTransactionStatus.COMPLETE:
         return <CheckCircleIcon size={16} className="text-green-500" />;
-      case "failed":
+      case PersonalTransactionStatus.FAILED:
         return <XCircleIcon size={16} className="text-red-500" />;
-      case "pending":
-      case "processing":
+      case PersonalTransactionStatus.PENDING:
+      case PersonalTransactionStatus.PROCESSING:
         return <ClockIcon size={16} className="text-amber-500" />;
+      case PersonalTransactionStatus.MANUAL_REVIEW:
+        return <ClockIcon size={16} className="text-yellow-500" />;
+      case PersonalTransactionStatus.UNRECOGNIZED:
       default:
         return <ClockIcon size={16} className="text-gray-500" />;
     }
   };
 
-  const getWalletName = (walletId: string) => {
-    const wallet = wallets.find((w) => w.id === walletId);
-    return wallet?.name || "Unknown Wallet";
-  };
+  const getWalletName = useCallback(
+    (transaction: WalletTransaction) => {
+      // Use walletName from transaction if available (includes backend transformation for legacy transactions)
+      if (transaction.walletName) {
+        return transaction.walletName;
+      }
+
+      // Fallback to wallet lookup for compatibility
+      const wallet = wallets?.find((w) => w.walletId === transaction.walletId);
+      return wallet?.walletName || "Default Wallet";
+    },
+    [wallets],
+  );
 
   if (loading && transactions.length === 0) {
     return (
@@ -228,8 +255,8 @@ export function TransactionHistory({
             >
               <option value="all">All Wallets</option>
               {wallets.map((wallet) => (
-                <option key={wallet.id} value={wallet.id}>
-                  {wallet.name}
+                <option key={wallet.walletId} value={wallet.walletId}>
+                  {wallet.walletName || "Unnamed Wallet"}
                 </option>
               ))}
             </select>
@@ -240,14 +267,22 @@ export function TransactionHistory({
               onChange={(e) =>
                 setFilters((prev) => ({
                   ...prev,
-                  type: e.target.value as TransactionType | "all",
+                  type: e.target.value,
                 }))
               }
               className="w-full px-3 py-2 bg-slate-900/50 border border-slate-700 rounded-lg text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
             >
               <option value="all">All Types</option>
-              <option value="deposit">Deposits</option>
-              <option value="withdraw">Withdrawals</option>
+              <option value={PersonalTransactionType.DEPOSIT}>Deposits</option>
+              <option value={PersonalTransactionType.WITHDRAW}>
+                Withdrawals
+              </option>
+              <option value={PersonalTransactionType.WALLET_CREATION}>
+                Wallet Creation
+              </option>
+              <option value={PersonalTransactionType.UNRECOGNIZED}>
+                Unrecognized
+              </option>
             </select>
 
             {/* Status Filter */}
@@ -256,32 +291,26 @@ export function TransactionHistory({
               onChange={(e) =>
                 setFilters((prev) => ({
                   ...prev,
-                  status: e.target.value as TransactionStatus | "all",
+                  status: e.target.value,
                 }))
               }
               className="w-full px-3 py-2 bg-slate-900/50 border border-slate-700 rounded-lg text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
             >
               <option value="all">All Statuses</option>
-              <option value="completed">Completed</option>
-              <option value="pending">Pending</option>
-              <option value="processing">Processing</option>
-              <option value="failed">Failed</option>
-            </select>
-
-            {/* Payment Method Filter */}
-            <select
-              value={filters.paymentMethod}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  paymentMethod: e.target.value as PaymentMethod | "all",
-                }))
-              }
-              className="w-full px-3 py-2 bg-slate-900/50 border border-slate-700 rounded-lg text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-            >
-              <option value="all">All Methods</option>
-              <option value="mpesa">M-Pesa</option>
-              <option value="lightning">Lightning</option>
+              <option value={PersonalTransactionStatus.COMPLETE}>
+                Completed
+              </option>
+              <option value={PersonalTransactionStatus.PENDING}>Pending</option>
+              <option value={PersonalTransactionStatus.PROCESSING}>
+                Processing
+              </option>
+              <option value={PersonalTransactionStatus.FAILED}>Failed</option>
+              <option value={PersonalTransactionStatus.MANUAL_REVIEW}>
+                Manual Review
+              </option>
+              <option value={PersonalTransactionStatus.UNRECOGNIZED}>
+                Unrecognized
+              </option>
             </select>
           </div>
         )}
@@ -307,8 +336,7 @@ export function TransactionHistory({
             {filters.search ||
             filters.walletId !== "all" ||
             filters.type !== "all" ||
-            filters.status !== "all" ||
-            filters.paymentMethod !== "all" ? (
+            filters.status !== "all" ? (
               <Button
                 variant="outline"
                 onClick={() =>
@@ -316,7 +344,6 @@ export function TransactionHistory({
                     walletId: walletId || "all",
                     type: "all",
                     status: "all",
-                    paymentMethod: "all",
                     search: "",
                   })
                 }
@@ -344,15 +371,27 @@ export function TransactionHistory({
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
                         <h4 className="font-medium text-gray-100 text-sm sm:text-base leading-tight">
-                          {transaction.type === "deposit"
+                          {transaction.type === PersonalTransactionType.DEPOSIT
                             ? "Deposit to"
-                            : "Withdraw from"}{" "}
+                            : transaction.type ===
+                                PersonalTransactionType.WALLET_CREATION
+                              ? "Wallet creation for"
+                              : transaction.type ===
+                                  PersonalTransactionType.WITHDRAW
+                                ? "Withdraw from"
+                                : "Transaction in"}{" "}
                           <span className="hidden sm:inline">
-                            {getWalletName(transaction.walletId)}
+                            {getWalletName(transaction)}
                           </span>
                           <span className="sm:hidden">
-                            {getWalletName(transaction.walletId).split(" ")[0]}
+                            {getWalletName(transaction).split(" ")[0]}
                           </span>
+                          {transaction.type ===
+                            PersonalTransactionType.UNRECOGNIZED && (
+                            <span className="text-xs text-amber-500 ml-2">
+                              (Unrecognized)
+                            </span>
+                          )}
                         </h4>
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-xs sm:text-sm text-gray-400">
@@ -362,10 +401,10 @@ export function TransactionHistory({
                           </span>
                           <div className="flex items-center gap-1">
                             {getStatusIcon(transaction.status)}
-                            {getPaymentMethodIcon(transaction.paymentMethod)}
                           </div>
                         </div>
-                        {transaction.status === "failed" &&
+                        {transaction.status ===
+                          PersonalTransactionStatus.FAILED &&
                           transaction.failureReason && (
                             <div className="text-xs text-red-400 mt-1 line-clamp-1">
                               {transaction.failureReason}
@@ -377,13 +416,29 @@ export function TransactionHistory({
                       <div className="text-right flex-shrink-0">
                         <div
                           className={`text-sm sm:text-base font-bold leading-tight ${
-                            transaction.type === "deposit"
+                            transaction.type ===
+                              PersonalTransactionType.DEPOSIT ||
+                            transaction.type ===
+                              PersonalTransactionType.WALLET_CREATION
                               ? "text-green-400"
-                              : "text-blue-400"
+                              : transaction.type ===
+                                  PersonalTransactionType.WITHDRAW
+                                ? "text-blue-400"
+                                : "text-amber-400"
                           }`}
                         >
-                          {transaction.type === "deposit" ? "+" : "-"}
-                          {formatSats(transaction.amountSats)}
+                          {transaction.type ===
+                            PersonalTransactionType.DEPOSIT ||
+                          transaction.type ===
+                            PersonalTransactionType.WALLET_CREATION
+                            ? "+"
+                            : transaction.type ===
+                                PersonalTransactionType.WITHDRAW
+                              ? "-"
+                              : ""}
+                          {formatSats(
+                            Math.floor(transaction.amountMsats / 1000),
+                          )}
                         </div>
                         <div className="text-xs sm:text-sm text-gray-400 mt-0.5">
                           {formatCurrency(transaction.amountFiat)}

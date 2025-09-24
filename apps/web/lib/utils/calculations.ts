@@ -2,6 +2,11 @@
  * Utility functions for calculations in the Personal Savings feature
  */
 
+import {
+  PersonalTransactionType,
+  PersonalTransactionStatus,
+} from "@bitsacco/core";
+
 /**
  * Convert KES to satoshis using current exchange rate
  */
@@ -43,24 +48,13 @@ export function calculateMaturityBonus(
 
 /**
  * Calculate early withdrawal penalty
+ * TODO: implement reducing penalty rate with time
  */
 export function calculateEarlyWithdrawPenalty(
   amount: number,
   penaltyRate: number,
-  lockStartDate: Date,
-  lockEndDate: Date,
 ): number {
-  const now = new Date();
-  const totalLockPeriod = lockEndDate.getTime() - lockStartDate.getTime();
-  const remainingTime = lockEndDate.getTime() - now.getTime();
-
-  if (remainingTime <= 0) return 0; // No penalty if matured
-
-  // Penalty reduces over time
-  const timeRemaining = remainingTime / totalLockPeriod;
-  const adjustedPenaltyRate = penaltyRate * timeRemaining;
-
-  return (amount * adjustedPenaltyRate) / 100;
+  return (amount * penaltyRate) / 100;
 }
 
 /**
@@ -177,10 +171,10 @@ export function calculateTotalSavings(
  */
 export function calculateAverageMonthlyDeposits(
   transactions: Array<{
-    type: "deposit" | "withdraw";
-    amountSats: number;
+    type: PersonalTransactionType;
+    amountMsats: number;
     createdAt: Date;
-    status: string;
+    status: PersonalTransactionStatus;
   }>,
 ): number {
   const now = new Date();
@@ -189,15 +183,16 @@ export function calculateAverageMonthlyDeposits(
 
   const recentDeposits = transactions.filter(
     (tx) =>
-      tx.type === "deposit" &&
-      tx.status === "completed" &&
+      (tx.type === PersonalTransactionType.DEPOSIT ||
+        tx.type === PersonalTransactionType.WALLET_CREATION) &&
+      tx.status === PersonalTransactionStatus.COMPLETE &&
       tx.createdAt >= sixMonthsAgo,
   );
 
   if (recentDeposits.length === 0) return 0;
 
   const totalDeposits = recentDeposits.reduce(
-    (sum, tx) => sum + tx.amountSats,
+    (sum, tx) => sum + Math.floor(tx.amountMsats / 1000), // Convert msats to sats
     0,
   );
   const monthsOfData = Math.max(

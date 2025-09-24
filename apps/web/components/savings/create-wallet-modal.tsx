@@ -9,11 +9,27 @@ import {
   CalendarIcon,
   CurrencyCircleDollarIcon,
 } from "@phosphor-icons/react";
-import type {
-  CreateWalletModalProps,
-  WalletType,
-  CreateWalletRequest,
-} from "@/lib/types/savings";
+import { WalletType } from "@bitsacco/core";
+
+interface CreateWalletModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+interface CreateWalletRequest {
+  type: WalletType;
+  name: string;
+  // For TARGET wallets
+  targetAmount?: number; // in sats (will be converted to msats)
+  targetDate?: string;
+  // For LOCKED wallets
+  lockPeriod?: {
+    months: number; // 3, 6, 12, 24
+    penaltyRate?: number;
+    maturityBonus?: number;
+  };
+}
 import { useWallets } from "@/hooks/savings/use-wallets";
 import { useFeatureFlag } from "@/lib/feature-flags-provider";
 import { FEATURE_FLAGS } from "@/lib/features";
@@ -37,17 +53,19 @@ export function CreateWalletModal({
   // Filter wallet types based on feature flags first
   const availableWalletTypes = [
     {
-      value: "TARGET" as WalletType,
+      value: WalletType.TARGET,
       enabled: isTargetWalletsEnabled,
     },
     {
-      value: "LOCKED" as WalletType,
+      value: WalletType.LOCKED,
       enabled: isLockedWalletsEnabled,
     },
   ].filter((type) => type.enabled);
 
   const [walletType, setWalletType] = useState<WalletType>(
-    availableWalletTypes.length > 0 ? availableWalletTypes[0].value : "DEFAULT",
+    availableWalletTypes.length > 0
+      ? availableWalletTypes[0].value
+      : WalletType.STANDARD,
   );
   const [formData, setFormData] = useState({
     name: "",
@@ -58,7 +76,7 @@ export function CreateWalletModal({
 
   const allWalletTypes = [
     {
-      value: "DEFAULT" as WalletType,
+      value: WalletType.STANDARD,
       label: "Standard Savings",
       description:
         "Simple Bitcoin savings with full flexibility and no restrictions",
@@ -73,7 +91,7 @@ export function CreateWalletModal({
       enabled: false, // Default wallets cannot be created in multiple wallet mode - user already has one
     },
     {
-      value: "TARGET" as WalletType,
+      value: WalletType.TARGET,
       label: "Savings Target",
       description:
         "Set a financial goal and track your progress with visual indicators",
@@ -86,7 +104,7 @@ export function CreateWalletModal({
       enabled: isTargetWalletsEnabled,
     },
     {
-      value: "LOCKED" as WalletType,
+      value: WalletType.LOCKED,
       label: "Locked Savings",
       description: "Lock your savings for a fixed period with maturity bonuses",
       icon: <LockIcon size={32} weight="duotone" className="text-amber-400" />,
@@ -141,7 +159,7 @@ export function CreateWalletModal({
         throw new Error("Wallet name is required");
       }
 
-      if (walletType === "TARGET") {
+      if (walletType === WalletType.TARGET) {
         const targetAmount = parseFloat(formData.targetAmount);
         if (!targetAmount || targetAmount <= 0) {
           throw new Error("Target amount must be greater than 0");
@@ -156,14 +174,14 @@ export function CreateWalletModal({
         name: formData.name.trim(),
       };
 
-      if (walletType === "TARGET") {
+      if (walletType === WalletType.TARGET) {
         payload.targetAmount = parseFloat(formData.targetAmount);
         if (formData.targetDate) {
           payload.targetDate = formData.targetDate;
         }
       }
 
-      if (walletType === "LOCKED") {
+      if (walletType === WalletType.LOCKED) {
         const months = parseInt(formData.lockPeriod);
         const selectedPeriod = lockPeriods.find(
           (p) => p.value === formData.lockPeriod,
@@ -183,7 +201,7 @@ export function CreateWalletModal({
         targetDate: "",
         lockPeriod: "6",
       });
-      setWalletType("TARGET");
+      setWalletType(WalletType.TARGET);
       setStep("type");
       onSuccess();
       onClose();
@@ -204,7 +222,7 @@ export function CreateWalletModal({
     setWalletType(
       availableWalletTypes.length > 0
         ? availableWalletTypes[0].value
-        : "DEFAULT",
+        : WalletType.STANDARD,
     );
     setStep("type");
     setError(null);
@@ -391,7 +409,7 @@ export function CreateWalletModal({
               </div>
 
               {/* Target-specific fields */}
-              {walletType === "TARGET" && (
+              {walletType === WalletType.TARGET && (
                 <>
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -450,7 +468,7 @@ export function CreateWalletModal({
               )}
 
               {/* Locked-specific fields */}
-              {walletType === "LOCKED" && (
+              {walletType === WalletType.LOCKED && (
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-3">
                     Lock Period *

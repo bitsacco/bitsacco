@@ -72,6 +72,29 @@ export interface Bolt11 {
   invoice: string;
 }
 
+export interface FmLightning {
+  invoice?: string | undefined;
+  operationId?: string | undefined;
+  lnurlWithdrawPoint?: LnUrlWithdrawPoint | undefined;
+}
+
+/**
+ * Message returned as `FmLightning`
+ * when a user want's to withdraw from Bitsacco wallet via LNURL
+ *
+ * REF: https://github.com/lnurl/luds/blob/luds/03.md step 3
+ */
+export interface LnUrlWithdrawPoint {
+  /** The LNURL bech32 encoded string to be encoded as QR code */
+  lnurl: string;
+  /** Key used for withdrawal (k1 parameter) */
+  k1: string;
+  /** URL that will handle the withdrawal callback */
+  callback: string;
+  /** When the withdrawal request expires (Unix timestamp) */
+  expiresAt?: number | undefined;
+}
+
 export interface OnrampSwapSource {
   /** Currency code for the target currency */
   currency: Currency;

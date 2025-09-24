@@ -57,7 +57,6 @@ export type {
   ChamaTxUpdates,
   OnrampSwapSource,
   OfframpSwapTarget,
-  FmLightning,
   ChamaDepositTarget,
   CreateTxContext,
   CreateMpesaDepositTx,
@@ -79,6 +78,8 @@ export type {
   PaginatedResponse,
   MobileMoney,
   Bolt11,
+  FmLightning,
+  LnUrlWithdrawPoint,
   OnrampSwapTarget,
   FindTxRequest,
 } from "./lib";
@@ -165,6 +166,45 @@ export type {
   PaymentConfirmationData,
 } from "./payments";
 
+// Personal Savings types
+export type {
+  CreateWalletDto,
+  UpdateWalletDto,
+  WalletResponseDto,
+  WalletListResponseDto,
+  TargetResponseDto,
+  LockedWalletResponseDto,
+  WalletTransaction,
+  TransactionHistoryResponse,
+  WalletQueryDto,
+  WalletConfig,
+  TargetWalletConfig,
+  LockedWalletConfig,
+  WalletProgress,
+  LockInfo,
+  UpdateTargetDto,
+  UpdateLockedWalletDto,
+  EarlyWithdrawDto,
+  RenewLockDto,
+  TargetProgressResponseDto,
+  LockStatusResponseDto,
+  EarlyWithdrawResponseDto,
+  WalletAnalyticsDto,
+  UserAnalyticsDto,
+  DepositWithdrawResponseDto,
+  // Backend API types
+  SolowalletTx,
+  PaginatedSolowalletTxsResponse,
+  WalletMeta,
+  UserTxsResponse,
+} from "./personal";
+
+// Personal Savings utility functions
+export {
+  mapTransactionTypeToFrontend,
+  mapTransactionStatusToFrontend,
+} from "./personal";
+
 // Re-export enums
 export { Role } from "./auth";
 export {
@@ -184,3 +224,9 @@ export {
   DEFAULT_REFRESH_INTERVAL,
 } from "./exchange";
 export { PaymentMethod, PaymentStatus } from "./payments";
+export {
+  WalletType,
+  LockPeriod,
+  TransactionType as PersonalTransactionType,
+  TransactionStatus as PersonalTransactionStatus,
+} from "./personal";

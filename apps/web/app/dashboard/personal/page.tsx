@@ -7,6 +7,8 @@ import {
   WalletIcon,
   TrendUpIcon,
   ArrowDownIcon,
+  ArrowsClockwiseIcon,
+  SpinnerIcon,
 } from "@phosphor-icons/react";
 import { WalletCard } from "@/components/savings/wallet-card";
 import { CreateWalletCard } from "@/components/savings/create-wallet-card";
@@ -15,11 +17,14 @@ import { DepositModal } from "@/components/savings/deposit-flow/deposit-modal";
 import { WithdrawModal } from "@/components/savings/withdraw-flow/withdraw-modal";
 import { TransactionHistory } from "@/components/savings/transaction-history";
 import { useWallets } from "@/hooks/savings/use-wallets";
-import type { PersonalWallet } from "@/lib/types/savings";
+import type { WalletResponseDto } from "@bitsacco/core";
+import { WalletType } from "@bitsacco/core";
 import { formatCurrency, formatSats } from "@/lib/utils/format";
 import { useFeatureFlag } from "@/lib/feature-flags-provider";
 import { FEATURE_FLAGS } from "@/lib/features";
 import { FeatureTease } from "@/components/feature-tease";
+import { useExchangeRate, formatNumber, btcToFiat } from "@bitsacco/core";
+import { apiClient } from "@/lib/auth";
 
 export default function PersonalSavingsPage() {
   const isPersonalSavingsEnabled = useFeatureFlag(
@@ -31,36 +36,55 @@ export default function PersonalSavingsPage() {
   const isWalletDetailsEnabled = useFeatureFlag(
     FEATURE_FLAGS.ENABLE_WALLET_DETAILS,
   );
-  const { wallets, totalBalance, totalBalanceFiat, loading, error, refetch } =
-    useWallets();
+  const { wallets, totalBalance, loading, error, refetch } = useWallets();
+
+  // Exchange rate hook for the rate widget
+  const {
+    quote,
+    loading: rateLoading,
+    showBtcRate,
+    setShowBtcRate,
+    refresh,
+    kesToSats,
+  } = useExchangeRate({ apiClient });
+
+  // Compute total balance in KES using live exchange rate
+  const totalBalanceFiat = quote?.rate
+    ? btcToFiat({
+        amountSats: Math.floor(totalBalance / 1000),
+        fiatToBtcRate: Number(quote.rate),
+      }).amountFiat
+    : 0;
 
   const [selectedWallet, setSelectedWallet] = useState<
-    PersonalWallet | undefined
+    WalletResponseDto | undefined
   >(undefined);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
-  const handleDeposit = (wallet?: PersonalWallet) => {
+  const handleDeposit = (wallet?: WalletResponseDto) => {
     setSelectedWallet(wallet);
     setShowDepositModal(true);
   };
 
-  const handleWithdraw = (wallet?: PersonalWallet) => {
-    // Default to first default wallet if no wallet specified
+  const handleWithdraw = (wallet?: WalletResponseDto) => {
+    // Default to first standard wallet if no wallet specified
     const defaultWallet =
-      wallet || wallets.find((w) => w.walletType === "DEFAULT") || wallets[0];
+      wallet ||
+      wallets.find((w) => w.walletType === WalletType.STANDARD) ||
+      wallets[0];
     setSelectedWallet(defaultWallet || null);
     setShowWithdrawModal(true);
   };
 
-  const handleViewDetails = (wallet: PersonalWallet) => {
+  const handleViewDetails = (wallet: WalletResponseDto) => {
     if (!isWalletDetailsEnabled) {
       console.log("Wallet details feature is disabled");
       return;
     }
     // TODO: Implement wallet details view
-    console.log("View details for wallet:", wallet.id);
+    console.log("View details for wallet:", wallet.walletId);
   };
 
   const handleModalSuccess = () => {
@@ -194,14 +218,56 @@ export default function PersonalSavingsPage() {
     <div className="p-4 sm:p-6 lg:p-8">
       {/* Header */}
       <div className="mb-6 sm:mb-8">
-        <div className="mb-4">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-100 mb-2">
-            Personal Savings
-          </h1>
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          {/* Title and Subtitle Group */}
+          <div className="flex-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-100 mb-2">
+              Personal Savings
+            </h1>
+            <p className="text-sm sm:text-base text-gray-400">
+              Save in Bitcoin and build your wealth over time
+            </p>
+          </div>
+
+          {/* Bitcoin Rate Widget - Appears after subtitle on mobile, beside on desktop */}
+          <div className="flex-shrink-0 w-full sm:w-auto">
+            <div className="flex items-center justify-center sm:justify-end space-x-2 px-4 py-2 bg-slate-800/40 border border-slate-700/50 rounded-lg">
+              {rateLoading ? (
+                <>
+                  <SpinnerIcon
+                    size={16}
+                    className="animate-spin text-teal-400"
+                  />
+                  <span className="text-sm text-gray-400">
+                    Getting rates...
+                  </span>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setShowBtcRate(!showBtcRate)}
+                    className="text-sm underline decoration-dotted underline-offset-[10px] font-medium text-gray-300 hover:text-teal-400 transition-colors"
+                    disabled={rateLoading}
+                  >
+                    {quote
+                      ? showBtcRate
+                        ? `1 BTC = ${formatNumber(btcToFiat({ amountBtc: 1, fiatToBtcRate: Number(quote.rate) }).amountFiat)} KES`
+                        : `1 KES = ${formatNumber(kesToSats(1), { decimals: 2 })} sats`
+                      : "1 KES = -- sats"}
+                  </button>
+                  <button
+                    className="p-1 text-gray-400 hover:text-teal-400 transition-colors"
+                    onClick={refresh}
+                    disabled={rateLoading}
+                    aria-label="Refresh rates"
+                  >
+                    <ArrowsClockwiseIcon size={16} />
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
         </div>
-        <p className="text-sm sm:text-base text-gray-400">
-          Save in Bitcoin and build your wealth over time
-        </p>
 
         {/* Total Balance Summary */}
         {displayedWallets.length > 0 && (
@@ -234,12 +300,12 @@ export default function PersonalSavingsPage() {
                       Bitcoin Balance
                     </p>
                     <p className="text-3xl font-bold text-gray-100">
-                      {formatSats(totalBalance)}
+                      {formatSats(Math.floor(totalBalance / 1000))}
                     </p>
                   </div>
                   <div className="text-center sm:text-left">
                     <p className="text-sm text-gray-400 mb-1">
-                      Portfolio Value
+                      {`Equivalent KES Value`}
                     </p>
                     <p className="text-3xl font-bold text-gray-100">
                       {formatCurrency(totalBalanceFiat)}
@@ -311,12 +377,13 @@ export default function PersonalSavingsPage() {
           <div className="flex overflow-x-auto gap-6 pb-4 scrollbar-hide snap-x snap-mandatory">
             {displayedWallets.map((wallet, index) => (
               <div
-                key={wallet.id}
+                key={wallet.walletId}
                 className="flex-none w-80 sm:w-96 animate-in fade-in-50 slide-in-from-bottom-4 duration-700 snap-start"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <WalletCard
                   wallet={wallet}
+                  exchangeRate={quote?.rate ? Number(quote.rate) : undefined}
                   onViewDetails={() => handleViewDetails(wallet)}
                 />
               </div>

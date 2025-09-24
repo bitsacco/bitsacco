@@ -110,12 +110,6 @@ export const authConfig: NextAuthConfig = {
     jwt({ token, user, account }) {
       // Store auth data in token on initial sign in
       if (account && user) {
-        console.log("[AUTH] JWT callback - storing auth data:", {
-          userId: user.id,
-          hasAccessToken: !!(user as User).accessToken,
-          hasRefreshToken: !!(user as User).refreshToken,
-        });
-
         // Cast user to our extended User type which includes tokens
         const authUser = user as User;
         const { accessToken, refreshToken, ...coreUser } = authUser;
@@ -131,13 +125,6 @@ export const authConfig: NextAuthConfig = {
       return token;
     },
     session({ session, token }: { session: Session; token: JWT }) {
-      console.log("[AUTH] Session callback - incoming:", {
-        hasToken: !!token,
-        hasAccessToken: !!token.accessToken,
-        tokenKeys: Object.keys(token || {}),
-        sessionStructure: Object.keys(session || {}),
-      });
-
       // Ensure we have a complete user object from the token
       if (token.user) {
         const enhancedSession: Session = {
@@ -146,12 +133,6 @@ export const authConfig: NextAuthConfig = {
           refreshToken: token.refreshToken,
           user: token.user,
         };
-
-        console.log("[AUTH] Session callback - returning:", {
-          hasAccessToken: !!enhancedSession.accessToken,
-          hasRefreshToken: !!enhancedSession.refreshToken,
-          userId: enhancedSession.user?.id,
-        });
 
         return enhancedSession;
       }

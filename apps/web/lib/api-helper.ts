@@ -19,29 +19,9 @@ export async function createAuthenticatedApiClient(): Promise<{
   session: Session | null;
 }> {
   const session = await auth();
-
-  // Debug: Log full session object
   const sessionWithToken = session as SessionWithToken;
-  console.log("[API-HELPER] Full session object:", {
-    sessionKeys: session ? Object.keys(session) : [],
-    userKeys: session?.user ? Object.keys(session.user) : [],
-    hasDirectAccessToken: !!sessionWithToken?.accessToken,
-    fullSession: JSON.stringify(session, null, 2).substring(0, 500),
-  });
-
-  // Debug: Log session status
-  console.log("[API-HELPER] Session check:", {
-    hasSession: !!session,
-    hasUser: !!session?.user,
-    userId: session?.user?.id,
-    hasAccessToken: !!sessionWithToken?.accessToken,
-    tokenPreview: sessionWithToken?.accessToken
-      ? `${sessionWithToken.accessToken.substring(0, 20)}...`
-      : "NO_TOKEN",
-  });
 
   if (!session?.user) {
-    console.log("[API-HELPER] No authenticated session found");
     return { client: null, session: null };
   }
 
@@ -51,15 +31,8 @@ export async function createAuthenticatedApiClient(): Promise<{
 
   const accessToken = sessionWithToken.accessToken;
   if (!accessToken) {
-    console.error("[API-HELPER] Session exists but no access token found!");
     return { client: null, session: null };
   }
-
-  // Debug: Log API client creation
-  console.log("[API-HELPER] Creating authenticated API client:", {
-    apiUrl: process.env.API_URL,
-    authHeader: `Bearer ${accessToken.substring(0, 20)}...`,
-  });
 
   // Create a new ApiClient instance with auth headers for this request
   const client = new ApiClient({
