@@ -51,6 +51,8 @@ export type {
   BulkChamaTxMetaResponse,
   ChamaTxGroupMeta,
   ChamaTxMemberMeta,
+  ChamaMeta,
+  MemberMeta,
   PaginatedChamaTxsResponse,
   ChamaTxContext,
   ChamaTxReview,

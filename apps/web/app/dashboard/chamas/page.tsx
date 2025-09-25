@@ -2,197 +2,409 @@
 
 import { useState } from "react";
 import { Button } from "@bitsacco/ui";
+import { useChamas } from "@/hooks/chama";
+import { ChamaCard } from "@/components/chama/ChamaCard";
+import { ChamaActions } from "@/components/chama/ChamaActions";
+import { CreateChamaModal } from "@/components/chama/CreateChamaModal";
+import { DepositModal } from "@/components/chama/DepositModal";
+import {
+  PageHeaderSkeleton,
+  CardSkeleton,
+  StatsSkeleton,
+} from "@/components/ui/loading-skeleton";
+import { EmptyState } from "@/components/ui/empty-state";
+import { formatSats, formatCurrency } from "@/lib/utils/format";
+import {
+  type Chama,
+  useExchangeRate,
+  satsToKes,
+  formatNumber,
+  btcToFiat,
+} from "@bitsacco/core";
+import { apiClient } from "@/lib/auth";
+import {
+  PlusIcon,
+  UsersThreeIcon,
+  TrendUpIcon,
+  ArrowsLeftRightIcon,
+  ArrowsClockwiseIcon,
+  SpinnerIcon,
+} from "@phosphor-icons/react";
 
 export default function ChamasPage() {
-  const [activeTab, setActiveTab] = useState<"my-chamas" | "discover">(
-    "my-chamas",
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [hideBalances, setHideBalances] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showGroupTotals, setShowGroupTotals] = useState(false);
+  const [depositChama, setDepositChama] = useState<Chama | null>(null);
+  const { chamas, loading, getChamaBalances } = useChamas();
+
+  // Exchange rate for KES conversion
+  const {
+    quote,
+    loading: rateLoading,
+    showBtcRate,
+    setShowBtcRate,
+    refresh,
+    kesToSats,
+  } = useExchangeRate({ apiClient });
+
+  // Calculate total statistics
+  const calculateStats = () => {
+    if (!chamas || chamas.length === 0) {
+      return {
+        totalChamas: 0,
+        totalGroupBalance: 0,
+        totalMemberBalance: 0,
+        totalMembers: 0,
+      };
+    }
+
+    let totalGroupBalance = 0;
+    let totalMemberBalance = 0;
+    let totalMembers = 0;
+
+    chamas.forEach((chama) => {
+      const balance = getChamaBalances(chama.id);
+      if (balance) {
+        totalGroupBalance += balance.groupBalanceMsats;
+        totalMemberBalance += balance.memberBalanceMsats;
+      }
+      totalMembers += chama.members.length;
+    });
+
+    // Convert millisats to sats for display
+    const convertMsatsToSats = (msats: number) => Math.floor(msats / 1000);
+
+    return {
+      totalChamas: chamas.length,
+      totalGroupBalance: convertMsatsToSats(totalGroupBalance),
+      totalMemberBalance: convertMsatsToSats(totalMemberBalance),
+      totalMembers,
+    };
+  };
+
+  const stats = calculateStats();
+
+  // Filter chamas based on search query
+  const filteredChamas = chamas.filter(
+    (chama) =>
+      chama.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      chama.description?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
+  if (loading && chamas.length === 0) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8">
+        <PageHeaderSkeleton />
+        <StatsSkeleton />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <CardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6 lg:p-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Chamas</h1>
-        <p className="text-gray-600">
-          Join or create investment groups to save together
-        </p>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center">
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mr-4">
-              <svg
-                className="w-6 h-6 text-orange-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-600">My Chamas</p>
-              <p className="text-2xl font-bold text-gray-900">0</p>
-            </div>
+      <div className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          {/* Title and Subtitle Group */}
+          <div className="flex-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-100 mb-2">
+              Chama Savings
+            </h1>
+            <p className="text-sm sm:text-base text-gray-400">
+              Join or create investment groups to save together and build wealth
+              collectively
+            </p>
           </div>
-        </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center">
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
-              <svg
-                className="w-6 h-6 text-purple-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                Total Invested
-              </p>
-              <p className="text-2xl font-bold text-gray-900">₿ 0.00</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
-              <svg
-                className="w-6 h-6 text-green-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
-                />
-              </svg>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Returns</p>
-              <p className="text-2xl font-bold text-gray-900">₿ 0.00</p>
+          {/* Bitcoin Rate Widget - Matches personal savings design */}
+          <div className="flex-shrink-0 w-full sm:w-auto">
+            <div className="flex items-center justify-center sm:justify-end space-x-2 px-4 py-2 bg-slate-800/40 border border-slate-700/50 rounded-lg">
+              {rateLoading ? (
+                <>
+                  <SpinnerIcon
+                    size={16}
+                    className="animate-spin text-teal-400"
+                  />
+                  <span className="text-sm text-gray-400">
+                    Getting rates...
+                  </span>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setShowBtcRate(!showBtcRate)}
+                    className="text-sm underline decoration-dotted underline-offset-[10px] font-medium text-gray-300 hover:text-teal-400 transition-colors"
+                    disabled={rateLoading}
+                  >
+                    {quote
+                      ? showBtcRate
+                        ? `1 BTC = ${formatNumber(btcToFiat({ amountBtc: 1, fiatToBtcRate: Number(quote.rate) }).amountFiat)} KES`
+                        : `1 KES = ${formatNumber(kesToSats(1), { decimals: 2 })} sats`
+                      : "1 KES = -- sats"}
+                  </button>
+                  <button
+                    className="p-1 text-gray-400 hover:text-teal-400 transition-colors"
+                    onClick={refresh}
+                    disabled={rateLoading}
+                    aria-label="Refresh rates"
+                  >
+                    <ArrowsClockwiseIcon size={16} />
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="flex space-x-1 rounded-lg bg-gray-100 p-1 mb-6 max-w-md">
-        <button
-          type="button"
-          className={`w-full py-2.5 text-sm font-medium rounded-md transition-colors ${
-            activeTab === "my-chamas"
-              ? "bg-white text-gray-900 shadow-sm"
-              : "text-gray-500 hover:text-gray-900"
-          }`}
-          onClick={() => setActiveTab("my-chamas")}
-        >
-          My Chamas
-        </button>
-        <button
-          type="button"
-          className={`w-full py-2.5 text-sm font-medium rounded-md transition-colors ${
-            activeTab === "discover"
-              ? "bg-white text-gray-900 shadow-sm"
-              : "text-gray-500 hover:text-gray-900"
-          }`}
-          onClick={() => setActiveTab("discover")}
-        >
-          Discover
-        </button>
-      </div>
+      {/* Chama Portfolio Summary */}
+      {chamas.length > 0 && (
+        <div className="mt-6 bg-gradient-to-r from-teal-900/30 to-blue-900/30 border border-teal-700/50 rounded-xl p-6 sm:p-8 mb-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div className="w-full lg:flex-1">
+              {/* Header with icon - centered on mobile */}
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
+                <div className="w-14 h-14 bg-teal-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <TrendUpIcon
+                    size={28}
+                    weight="fill"
+                    className="text-teal-400"
+                  />
+                </div>
+                <div className="text-center sm:text-left">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-gray-100">
+                    Total Chama Savings
+                  </h2>
+                  <p className="text-gray-400">
+                    Collective Bitcoin savings across all your chamas
+                  </p>
+                </div>
+              </div>
 
-      {/* Content */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        {activeTab === "my-chamas" ? (
-          <div className="p-6">
-            <div className="text-center py-12">
-              <svg
-                className="w-16 h-16 text-gray-400 mx-auto mb-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                No chamas yet
-              </h4>
-              <p className="text-gray-600 mb-6">
-                Join existing investment groups or create your own to start
-                saving with others
-              </p>
-              <div className="flex justify-center space-x-4">
-                <Button variant="primary">Create New Chama</Button>
+              {/* Stats Grid - centered on mobile */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                <div className="text-center sm:text-left">
+                  <p className="text-sm text-gray-400 mb-1">
+                    {showGroupTotals
+                      ? "Total Group Balance"
+                      : "Your Contributions"}
+                  </p>
+                  <p className="text-3xl font-bold text-gray-100">
+                    {hideBalances
+                      ? "•••••"
+                      : formatSats(
+                          showGroupTotals
+                            ? stats.totalGroupBalance
+                            : stats.totalMemberBalance,
+                        )}
+                  </p>
+                </div>
+                <div className="text-center sm:text-left">
+                  <p className="text-sm text-gray-400 mb-1">
+                    Equivalent KES Value
+                  </p>
+                  <p className="text-3xl font-bold text-gray-100">
+                    {hideBalances
+                      ? "•••••"
+                      : quote
+                        ? formatCurrency(
+                            satsToKes(
+                              showGroupTotals
+                                ? stats.totalGroupBalance
+                                : stats.totalMemberBalance,
+                              Number(quote.rate),
+                            ),
+                          )
+                        : "--"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Mobile and Tablet buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 lg:hidden">
+                <Button
+                  variant="tealPrimary"
+                  size="lg"
+                  onClick={() => setShowCreateModal(true)}
+                  fullWidth
+                  className="shadow-lg shadow-teal-500/20 flex items-center justify-center gap-2"
+                >
+                  <PlusIcon size={20} weight="bold" />
+                  CREATE CHAMA
+                </Button>
                 <Button
                   variant="outline"
-                  onClick={() => setActiveTab("discover")}
+                  size="lg"
+                  onClick={() => setShowGroupTotals(!showGroupTotals)}
+                  fullWidth
+                  className="!bg-slate-700/50 !text-gray-300 !border-slate-600 hover:!bg-slate-700 hover:!border-slate-500 flex items-center justify-center gap-2"
                 >
-                  Browse Chamas
+                  <ArrowsLeftRightIcon size={20} weight="bold" />
+                  View Group Totals
                 </Button>
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="p-6">
-            <div className="text-center py-12">
-              <svg
-                className="w-16 h-16 text-gray-400 mx-auto mb-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+
+            {/* Desktop buttons */}
+            <div className="hidden lg:flex lg:flex-col gap-3 flex-shrink-0">
+              <Button
+                variant="tealPrimary"
+                size="lg"
+                onClick={() => setShowCreateModal(true)}
+                className="shadow-lg shadow-teal-500/20 flex items-center justify-center gap-2"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                Discover Chamas
-              </h4>
-              <p className="text-gray-600 mb-6">
-                Search for investment groups to join or browse by category
-              </p>
-              <div className="max-w-md mx-auto">
-                <div className="flex space-x-2">
-                  <input
-                    type="text"
-                    placeholder="Search chamas..."
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-                  />
-                  <Button variant="primary">Search</Button>
-                </div>
-              </div>
+                <PlusIcon size={20} weight="bold" />
+                CREATE CHAMA
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setShowGroupTotals(!showGroupTotals)}
+                className="!bg-slate-700/50 !text-gray-300 !border-slate-600 hover:!bg-slate-700 hover:!border-slate-500 flex items-center justify-center gap-2"
+              >
+                <ArrowsLeftRightIcon size={20} weight="bold" />
+                View Group Totals
+              </Button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Actions Component with Active Chama Count - positioned after stats card */}
+      {chamas.length > 0 && (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div className="order-2 sm:order-1">
+            <ChamaActions
+              hideBalances={hideBalances}
+              onToggleBalances={() => setHideBalances(!hideBalances)}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+            />
+          </div>
+
+          {/* Dynamic Chama Count - responsive informational element */}
+          <div className="order-1 sm:order-2 flex-shrink-0">
+            <div className="bg-gradient-to-r from-orange-500/20 to-orange-400/20 border border-orange-500/40 rounded-full px-4 py-2 backdrop-blur-sm">
+              <p className="text-sm font-semibold text-orange-300 text-center sm:text-left">
+                {searchQuery ? (
+                  <>
+                    {filteredChamas.length} of {stats.totalChamas}{" "}
+                    {stats.totalChamas === 1 ? "chama" : "chamas"}{" "}
+                    <span className="text-orange-400/80">visible</span>
+                  </>
+                ) : (
+                  <>
+                    {stats.totalChamas}{" "}
+                    {stats.totalChamas === 1 ? "active chama" : "active chamas"}
+                  </>
+                )}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Content */}
+      <div>
+        {chamas.length > 0 ? (
+          <>
+            {/* Show search results info */}
+            {searchQuery && (
+              <div className="mb-4 text-sm text-gray-400">
+                {filteredChamas.length === 0 ? (
+                  <>No chamas found matching &quot;{searchQuery}&quot;</>
+                ) : filteredChamas.length === 1 ? (
+                  <>Found 1 chama matching &quot;{searchQuery}&quot;</>
+                ) : (
+                  <>
+                    Found {filteredChamas.length} chamas matching &quot;
+                    {searchQuery}
+                    &quot;
+                  </>
+                )}
+              </div>
+            )}
+
+            {filteredChamas.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
+                {filteredChamas.map((chama, index) => (
+                  <div
+                    key={chama.id}
+                    className="animate-in fade-in-50 slide-in-from-bottom-2 duration-500"
+                    style={{ animationDelay: `${index * 80}ms` }}
+                  >
+                    <ChamaCard
+                      chama={chama}
+                      balance={getChamaBalances(chama.id) || undefined}
+                      hideBalances={hideBalances}
+                      exchangeRate={quote || undefined}
+                      onDeposit={() => setDepositChama(chama)}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : searchQuery ? (
+              <EmptyState
+                icon={
+                  <UsersThreeIcon
+                    size={36}
+                    weight="duotone"
+                    className="text-gray-400"
+                  />
+                }
+                title="No Chamas Found"
+                description={`No chamas match your search for "${searchQuery}". Try adjusting your search terms.`}
+                action={{
+                  label: "Clear Search",
+                  onClick: () => setSearchQuery(""),
+                  variant: "outline",
+                }}
+              />
+            ) : null}
+          </>
+        ) : (
+          <div className="py-8 sm:py-12 lg:py-16">
+            <EmptyState
+              icon={
+                <UsersThreeIcon
+                  size={32}
+                  className="sm:w-9 sm:h-9 lg:w-10 lg:h-10"
+                  weight="duotone"
+                  color="currentColor"
+                />
+              }
+              title="Start Your Investment Journey"
+              description="Create or join a chama to save collectively with friends, family, or colleagues. Build wealth together through group investments."
+              action={{
+                label: "Create Your First Chama",
+                onClick: () => setShowCreateModal(true),
+                variant: "tealPrimary",
+              }}
+            />
           </div>
         )}
       </div>
+
+      {/* Modals */}
+      <CreateChamaModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+      />
+
+      {depositChama && (
+        <DepositModal
+          isOpen={!!depositChama}
+          onClose={() => setDepositChama(null)}
+          chama={depositChama}
+        />
+      )}
     </div>
   );
 }

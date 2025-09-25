@@ -67,7 +67,14 @@ export class ChamaApiClient extends BaseApiClient {
       params.size = request.pagination.size;
     }
 
-    return this.get<PaginatedFilterChamasResponse>("/chamas", params);
+    console.log("[CHAMA-CLIENT] Calling filterChamas with params:", params);
+    const response = await this.get<PaginatedFilterChamasResponse>(
+      "/chamas",
+      params,
+    );
+    console.log("[CHAMA-CLIENT] filterChamas response:", response);
+
+    return response;
   }
 
   /**
@@ -198,19 +205,9 @@ export class ChamaApiClient extends BaseApiClient {
   async getTransactionMeta(
     request: ChamaTxMetaRequest,
   ): Promise<ApiResponse<ChamaTxMetaResponse>> {
-    const params: Record<string, string | boolean> = {};
-
-    if (request.selectMemberIds.length > 0) {
-      params.selectMemberIds = request.selectMemberIds.join(",");
-    }
-
-    if (request.skipMemberMeta) {
-      params.skipMemberMeta = request.skipMemberMeta;
-    }
-
-    return this.get<ChamaTxMetaResponse>(
-      `/chamas/${request.chamaId}/meta`,
-      params,
+    return this.post<ChamaTxMetaResponse>(
+      `/chamas/${request.chamaId}/transactions/aggregate`,
+      request,
     );
   }
 
@@ -220,7 +217,10 @@ export class ChamaApiClient extends BaseApiClient {
   async getBulkTransactionMeta(
     request: BulkChamaTxMetaRequest,
   ): Promise<ApiResponse<BulkChamaTxMetaResponse>> {
-    return this.post<BulkChamaTxMetaResponse>("/chamas/bulk-meta", request);
+    return this.post<BulkChamaTxMetaResponse>(
+      "/chamas/transactions/bulk-aggregate",
+      request,
+    );
   }
 
   /**
