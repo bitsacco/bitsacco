@@ -362,9 +362,12 @@ export default function MembershipPage() {
             </div>
             <div className="flex-1 text-center sm:text-left">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-                <h3 className="text-2xl sm:text-3xl font-bold text-gray-100">
-                  Your Share Portfolio
-                </h3>
+                <div>
+                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-100 mb-1">
+                    Your Share Portfolio
+                  </h3>
+                  <p className="text-gray-400">Total holdings in the SACCO</p>
+                </div>
                 {summary.currentTier && (
                   <div className="bg-gradient-to-r from-orange-500/20 to-orange-400/20 border border-orange-500/40 rounded-full px-4 py-2 backdrop-blur-sm">
                     <p className="text-sm font-semibold text-orange-300">
@@ -373,7 +376,6 @@ export default function MembershipPage() {
                   </div>
                 )}
               </div>
-              <p className="text-gray-400">Total holdings in the SACCO</p>
             </div>
           </div>
 

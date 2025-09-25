@@ -285,10 +285,10 @@ export default function PersonalSavingsPage() {
                   </div>
                   <div className="text-center sm:text-left">
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-100">
-                      Total Savings
+                      Total Personal Savings
                     </h2>
                     <p className="text-gray-400">
-                      Your Bitcoin savings portfolio
+                      Your personal Bitcoin savings portfolio
                     </p>
                   </div>
                 </div>
@@ -297,7 +297,7 @@ export default function PersonalSavingsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
                   <div className="text-center sm:text-left">
                     <p className="text-sm text-gray-400 mb-1">
-                      Bitcoin Balance
+                      Personal Bitcoin Balance
                     </p>
                     <p className="text-3xl font-bold text-gray-100">
                       {formatSats(Math.floor(totalBalance / 1000))}
