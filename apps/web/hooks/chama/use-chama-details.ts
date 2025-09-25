@@ -5,6 +5,7 @@ import type {
   Chama,
   ChamaTxsResponse,
   MemberProfilesResponse,
+  BulkChamaTxMetaResponse,
 } from "@bitsacco/core";
 
 interface UseChamaDetailsOptions {
@@ -22,6 +23,9 @@ export function useChamaDetails({
   );
   const [memberProfiles, setMemberProfiles] =
     useState<MemberProfilesResponse | null>(null);
+  const [metadata, setMetadata] = useState<BulkChamaTxMetaResponse | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -100,6 +104,33 @@ export function useChamaDetails({
     }
   }, [chamaId]);
 
+  const fetchMetadata = useCallback(async () => {
+    if (!chamaId) return;
+
+    try {
+      const response = await fetch(`/api/chama/meta`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chamaIds: [chamaId],
+          selectMemberIds: [], // Will be filled with current user ID by the API
+          skipMemberMeta: false,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Failed to fetch chama metadata");
+      }
+
+      setMetadata(data.data);
+    } catch (err) {
+      console.error("Error fetching chama metadata:", err);
+      throw err;
+    }
+  }, [chamaId]);
+
   // Fetch all data
   const fetchAllData = useCallback(async () => {
     if (!enabled || !chamaId) return;
@@ -112,6 +143,7 @@ export function useChamaDetails({
         fetchChamaDetails(),
         fetchTransactions(),
         fetchMemberProfiles(),
+        fetchMetadata(),
       ]);
     } catch (err) {
       const errorMessage =
@@ -126,6 +158,7 @@ export function useChamaDetails({
     fetchChamaDetails,
     fetchTransactions,
     fetchMemberProfiles,
+    fetchMetadata,
   ]);
 
   useEffect(() => {
@@ -143,6 +176,7 @@ export function useChamaDetails({
     chama,
     transactions,
     memberProfiles,
+    metadata,
     isAdmin,
     loading,
     error,
