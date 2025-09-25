@@ -12,6 +12,7 @@ interface ChamaActionsProps {
   onToggleBalances: () => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  placeholder?: string;
 }
 
 export function ChamaActions({
@@ -19,6 +20,7 @@ export function ChamaActions({
   onToggleBalances,
   searchQuery,
   onSearchChange,
+  placeholder = "Search chamas...",
 }: ChamaActionsProps) {
   return (
     <div className="mb-6">
@@ -33,7 +35,7 @@ export function ChamaActions({
             />
             <input
               type="text"
-              placeholder="Search chamas..."
+              placeholder={placeholder}
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               className="w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500/50 transition-all"

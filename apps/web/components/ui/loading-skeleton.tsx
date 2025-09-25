@@ -22,22 +22,48 @@ export function CardSkeleton({ className }: CardSkeletonProps) {
   return (
     <div
       className={[
-        "bg-slate-800/30 border border-slate-700/50 rounded-xl p-6",
+        "bg-slate-800/40 border border-slate-700 rounded-xl overflow-hidden min-h-[280px] sm:min-h-[320px] lg:min-h-[340px] flex flex-col",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="space-y-4">
-        <LoadingSkeleton className="h-6 w-3/4" />
-        <LoadingSkeleton className="h-4 w-full" />
-        <LoadingSkeleton className="h-4 w-24" />
-        <div className="border-t border-slate-700 pt-4 space-y-3">
-          <LoadingSkeleton className="h-16" />
-          <div className="flex gap-2">
-            <LoadingSkeleton className="flex-1 h-10" />
-            <LoadingSkeleton className="flex-1 h-10" />
+      {/* Header section skeleton */}
+      <div className="bg-slate-900/40 border-b border-slate-700/50 p-4 sm:p-5 lg:p-6">
+        <div className="flex items-start justify-between gap-3 sm:gap-4">
+          <div className="flex items-start gap-3 sm:gap-4 flex-1">
+            <LoadingSkeleton className="w-12 h-12 rounded-xl" />
+            <div className="flex-1 space-y-2">
+              <LoadingSkeleton className="h-6 w-32" />
+              <LoadingSkeleton className="h-4 w-48" />
+            </div>
           </div>
+          <LoadingSkeleton className="h-6 w-20 rounded-full" />
+        </div>
+      </div>
+
+      {/* Body section skeleton */}
+      <div className="p-4 sm:p-5 lg:p-6 flex-grow flex flex-col">
+        {/* Balance section skeleton - matches BalanceDisplay structure */}
+        <div className="mb-4 sm:mb-6 py-3 sm:py-4">
+          <div className="grid grid-cols-2 gap-4 sm:gap-6">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <div key={i} className="text-center space-y-1">
+                <LoadingSkeleton className="h-3 w-24 mx-auto" />
+                <LoadingSkeleton className="h-6 w-20 mx-auto" />
+                <LoadingSkeleton className="h-3 w-16 mx-auto" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Spacer */}
+        <div className="flex-grow"></div>
+
+        {/* Action buttons skeleton */}
+        <div className="flex gap-2 sm:gap-3">
+          <LoadingSkeleton className="flex-1 h-10 rounded-lg" />
+          <LoadingSkeleton className="flex-1 h-10 rounded-lg" />
         </div>
       </div>
     </div>
@@ -76,7 +102,7 @@ interface StatsSkeletonProps {
   columns?: 2 | 4;
 }
 
-export function StatsSkeleton({ className, columns = 4 }: StatsSkeletonProps) {
+export function StatsSkeleton({ className, columns = 2 }: StatsSkeletonProps) {
   return (
     <div
       className={[
@@ -93,13 +119,11 @@ export function StatsSkeleton({ className, columns = 4 }: StatsSkeletonProps) {
           <LoadingSkeleton className="h-4 w-64" />
         </div>
       </div>
-      <div
-        className={`grid gap-6 ${columns === 2 ? "grid-cols-2" : "grid-cols-2 lg:grid-cols-4"}`}
-      >
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {Array.from({ length: columns }).map((_, i) => (
-          <div key={i} className="text-center space-y-2">
-            <LoadingSkeleton className="h-4 w-24 mx-auto" />
-            <LoadingSkeleton className="h-8 w-20 mx-auto" />
+          <div key={i} className="text-center sm:text-left space-y-2">
+            <LoadingSkeleton className="h-4 w-32" />
+            <LoadingSkeleton className="h-8 w-28" />
           </div>
         ))}
       </div>

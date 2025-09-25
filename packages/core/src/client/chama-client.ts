@@ -5,6 +5,7 @@ import type {
   FindChamaRequest,
   FilterChamasRequest,
   PaginatedFilterChamasResponse,
+  PaginatedChamaTxsResponse,
   JoinChamaRequest,
   InviteMembersRequest,
   GetMemberProfilesRequest,
@@ -181,10 +182,26 @@ export class ChamaApiClient extends BaseApiClient {
       params.size = request.pagination.size;
     }
 
-    return this.get<ChamaTxsResponse>(
+    // Call the API and get PaginatedChamaTxsResponse
+    const response = await this.get<PaginatedChamaTxsResponse>(
       `/chamas/${request.chamaId}/transactions`,
       params,
     );
+
+    // Transform the response to match ChamaTxsResponse structure
+    if (response.data) {
+      const transformedData: ChamaTxsResponse = {
+        ledger: response.data,
+        // Note: This API doesn't return groupMeta/memberMeta - those come from separate calls
+      };
+
+      return {
+        ...response,
+        data: transformedData,
+      };
+    }
+
+    return response as ApiResponse<ChamaTxsResponse>;
   }
 
   /**

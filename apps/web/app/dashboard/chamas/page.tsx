@@ -8,12 +8,12 @@ import { ChamaActions } from "@/components/chama/ChamaActions";
 import { CreateChamaModal } from "@/components/chama/CreateChamaModal";
 import { DepositModal } from "@/components/chama/DepositModal";
 import {
-  PageHeaderSkeleton,
+  LoadingSkeleton,
   CardSkeleton,
-  StatsSkeleton,
 } from "@/components/ui/loading-skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
-import { formatSats, formatCurrency } from "@/lib/utils/format";
+import { BalanceDisplay } from "@/components/ui/balance-display";
+import { formatCurrency } from "@/lib/utils/format";
 import {
   type Chama,
   useExchangeRate,
@@ -96,9 +96,77 @@ export default function ChamasPage() {
   if (loading && chamas.length === 0) {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
-        <PageHeaderSkeleton />
-        <StatsSkeleton />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Header skeleton */}
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div className="flex-1">
+              <LoadingSkeleton className="h-8 w-48 mb-2" />
+              <LoadingSkeleton className="h-4 w-80" />
+            </div>
+            <div className="flex-shrink-0 w-full sm:w-auto">
+              <LoadingSkeleton className="h-10 w-48 rounded-lg" />
+            </div>
+          </div>
+        </div>
+
+        {/* Chama Portfolio Summary skeleton */}
+        <div className="mt-6 bg-gradient-to-r from-teal-900/30 to-blue-900/30 border border-teal-700/50 rounded-xl p-6 sm:p-8 mb-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div className="w-full lg:flex-1">
+              {/* Header with icon skeleton */}
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
+                <LoadingSkeleton className="w-14 h-14 rounded-xl" />
+                <div className="text-center sm:text-left space-y-2">
+                  <LoadingSkeleton className="h-8 w-56" />
+                  <LoadingSkeleton className="h-4 w-72" />
+                </div>
+              </div>
+
+              {/* Stats Grid skeleton */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                <div className="text-center sm:text-left space-y-2">
+                  <LoadingSkeleton className="h-4 w-32" />
+                  <LoadingSkeleton className="h-9 w-28" />
+                </div>
+                <div className="text-center sm:text-left space-y-2">
+                  <LoadingSkeleton className="h-4 w-40" />
+                  <LoadingSkeleton className="h-9 w-32" />
+                </div>
+              </div>
+
+              {/* Mobile and Tablet buttons skeleton */}
+              <div className="flex flex-col sm:flex-row gap-3 lg:hidden">
+                <LoadingSkeleton className="h-12 w-full rounded-lg" />
+                <LoadingSkeleton className="h-12 w-full rounded-lg" />
+              </div>
+            </div>
+
+            {/* Desktop buttons skeleton */}
+            <div className="hidden lg:flex lg:flex-col gap-3 flex-shrink-0">
+              <LoadingSkeleton className="w-48 h-12 rounded-lg" />
+              <LoadingSkeleton className="w-48 h-12 rounded-lg" />
+            </div>
+          </div>
+        </div>
+
+        {/* Actions Component skeleton */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div className="order-2 sm:order-1">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <LoadingSkeleton className="w-64 h-10 rounded-lg" />
+              <div className="flex items-center gap-3">
+                <LoadingSkeleton className="w-32 h-10 rounded-lg" />
+                <LoadingSkeleton className="w-24 h-10 rounded-lg" />
+              </div>
+            </div>
+          </div>
+          <div className="order-1 sm:order-2 flex-shrink-0">
+            <LoadingSkeleton className="h-10 w-48 rounded-full" />
+          </div>
+        </div>
+
+        {/* Chama cards grid skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
           {[1, 2, 3, 4].map((i) => (
             <CardSkeleton key={i} />
           ))}
@@ -191,20 +259,22 @@ export default function ChamasPage() {
               {/* Stats Grid - centered on mobile */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
                 <div className="text-center sm:text-left">
-                  <p className="text-sm text-gray-400 mb-1">
-                    {showGroupTotals
-                      ? "Total Group Balance"
-                      : "Your Contributions"}
-                  </p>
-                  <p className="text-3xl font-bold text-gray-100">
-                    {hideBalances
-                      ? "•••••"
-                      : formatSats(
-                          showGroupTotals
-                            ? stats.totalGroupBalance
-                            : stats.totalMemberBalance,
-                        )}
-                  </p>
+                  <BalanceDisplay
+                    balanceMsats={
+                      (showGroupTotals
+                        ? stats.totalGroupBalance
+                        : stats.totalMemberBalance) * 1000
+                    }
+                    label={
+                      showGroupTotals
+                        ? "Total Group Balance"
+                        : "Your Contributions"
+                    }
+                    hideBalances={hideBalances}
+                    textColor="text-gray-100"
+                    size="lg"
+                    config={{ centered: false }}
+                  />
                 </div>
                 <div className="text-center sm:text-left">
                   <p className="text-sm text-gray-400 mb-1">

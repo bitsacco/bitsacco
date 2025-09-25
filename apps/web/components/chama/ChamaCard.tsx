@@ -4,9 +4,8 @@ import React from "react";
 import Link from "next/link";
 import { Button } from "@bitsacco/ui";
 import type { Chama } from "@bitsacco/core";
-import { satsToKes } from "@bitsacco/core";
 import { UsersThreeIcon } from "@phosphor-icons/react";
-import { formatSats, formatCurrency } from "@/lib/utils/format";
+import { BalanceDisplay } from "@/components/ui/balance-display";
 
 interface ChamaBalances {
   groupBalanceMsats: number;
@@ -70,66 +69,28 @@ export function ChamaCard({
         {(balance || hideBalances) && (
           <div className="mb-4 sm:mb-6 py-3 sm:py-4">
             <div className="grid grid-cols-2 gap-4 sm:gap-6">
-              <div className="text-center">
-                <p className="text-xs text-gray-500 mb-1.5 sm:mb-2 uppercase tracking-wider font-medium">
-                  Group Balance
-                </p>
-                <div className="space-y-1">
-                  <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-100 tracking-tight">
-                    {hideBalances
-                      ? "•••••"
-                      : balance
-                        ? formatSats(
-                            Math.floor(balance.groupBalanceMsats / 1000),
-                          )
-                        : "•••••"}
-                  </p>
-                  {!hideBalances && balance && exchangeRate && (
-                    <p className="text-xs sm:text-sm text-gray-400">
-                      ≈{" "}
-                      {formatCurrency(
-                        satsToKes(
-                          Math.floor(balance.groupBalanceMsats / 1000),
-                          Number(exchangeRate.rate),
-                        ),
-                      )}
-                    </p>
-                  )}
-                  {hideBalances && (
-                    <p className="text-xs sm:text-sm text-gray-400">≈ •••••</p>
-                  )}
-                </div>
-              </div>
-              <div className="text-center">
-                <p className="text-xs text-gray-500 mb-1.5 sm:mb-2 uppercase tracking-wider font-medium">
-                  Your Contribution
-                </p>
-                <div className="space-y-1">
-                  <p className="text-lg sm:text-xl lg:text-2xl font-bold text-teal-300 tracking-tight">
-                    {hideBalances
-                      ? "•••••"
-                      : balance
-                        ? formatSats(
-                            Math.floor(balance.memberBalanceMsats / 1000),
-                          )
-                        : "•••••"}
-                  </p>
-                  {!hideBalances && balance && exchangeRate && (
-                    <p className="text-xs sm:text-sm text-gray-400">
-                      ≈{" "}
-                      {formatCurrency(
-                        satsToKes(
-                          Math.floor(balance.memberBalanceMsats / 1000),
-                          Number(exchangeRate.rate),
-                        ),
-                      )}
-                    </p>
-                  )}
-                  {hideBalances && (
-                    <p className="text-xs sm:text-sm text-gray-400">≈ •••••</p>
-                  )}
-                </div>
-              </div>
+              <BalanceDisplay
+                balanceMsats={balance?.groupBalanceMsats || 0}
+                label="Group Balance"
+                hideBalances={hideBalances || !balance}
+                exchangeRate={exchangeRate}
+                textColor="text-gray-100"
+                size="md"
+                config={{
+                  centered: true,
+                }}
+              />
+              <BalanceDisplay
+                balanceMsats={balance?.memberBalanceMsats || 0}
+                label="Your Contribution"
+                hideBalances={hideBalances || !balance}
+                exchangeRate={exchangeRate}
+                textColor="text-teal-300"
+                size="md"
+                config={{
+                  centered: true,
+                }}
+              />
             </div>
           </div>
         )}
