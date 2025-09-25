@@ -3,7 +3,13 @@
   "tasks": {
     "build": {
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**", "public/dist/**", "build/**"],
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "!.next/cache/**",
+        "public/dist/**",
+        "build/**"
+      ],
       "dependsOn": ["^build"]
     },
     "@bitsacco/core#build": {
@@ -14,7 +20,7 @@
     "@bitsacco/ui#build": {
       "inputs": ["$TURBO_DEFAULT$"],
       "outputs": ["dist/**"],
-      "dependsOn": ["@bitsacco/tailwind-config#build"]
+      "dependsOn": ["^build"]
     },
     "@bitsacco/tailwind-config#build": {
       "inputs": ["$TURBO_DEFAULT$"],
@@ -52,7 +58,7 @@
     "@bitsacco/ui#dev": {
       "cache": false,
       "persistent": true,
-      "dependsOn": ["@bitsacco/tailwind-config#build"]
+      "dependsOn": ["^build"]
     },
     "@bitsacco/tailwind-config#dev": {
       "cache": false,

@@ -32,6 +32,9 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
+  "dependencies": {
+    "@bitsacco/tailwind-config": "*"
+  },
   "devDependencies": {
     "@bitsacco/eslint-config": "*",
     "@bitsacco/tsconf": "*",
