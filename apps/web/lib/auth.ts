@@ -80,6 +80,7 @@ apiClient.setAuthService(authService);
 
 // NextAuth configuration
 export const authConfig: NextAuthConfig = {
+  trustHost: true,
   pages: {
     signIn: "/auth/login",
     error: "/auth/error",
