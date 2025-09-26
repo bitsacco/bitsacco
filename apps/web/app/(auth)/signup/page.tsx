@@ -22,7 +22,6 @@ export default function SignupPage() {
     pin: "",
     confirmPin: "",
     otp: "",
-    name: "",
   });
   const [regionCode, setRegionCode] = useState<PhoneRegionCode>(
     PhoneRegionCode.Kenya,
@@ -58,7 +57,6 @@ export default function SignupPage() {
         body: JSON.stringify({
           pin: formData.pin,
           phone: formData.phone,
-          name: formData.name,
           roles: [Role.Member],
         }),
       });
@@ -116,13 +114,6 @@ export default function SignupPage() {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-teal-900/20 via-slate-900 to-slate-900" />
@@ -157,25 +148,6 @@ export default function SignupPage() {
           <div className="bg-slate-800/50 backdrop-blur-xl shadow-2xl rounded-2xl p-8 border border-slate-700">
             {step === "register" ? (
               <form onSubmit={handleRegister} className="space-y-6">
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-gray-300"
-                  >
-                    Full Name
-                  </label>
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="John Doe"
-                    className="mt-1 block w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg placeholder-gray-500 text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:bg-slate-900/70 transition-all"
-                  />
-                </div>
-
                 <PhoneInput
                   phone={formData.phone}
                   setPhone={(phone) =>
@@ -240,7 +212,6 @@ export default function SignupPage() {
                   fullWidth
                   loading={isLoading}
                   disabled={
-                    !formData.name ||
                     !formData.phone ||
                     formData.pin.length !== 6 ||
                     formData.confirmPin.length !== 6
