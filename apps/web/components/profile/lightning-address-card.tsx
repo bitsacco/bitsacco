@@ -65,7 +65,11 @@ export function LightningAddressCard({
         );
         if (personalAddress) {
           setExistingAddress(personalAddress);
-          setAddress(personalAddress.address.split("@")[0]);
+          // Extract username from full address if it contains @
+          const addressPart = personalAddress.address.includes("@")
+            ? personalAddress.address.split("@")[0]
+            : personalAddress.address;
+          setAddress(addressPart);
         }
       } catch (error) {
         console.error("Failed to fetch lightning addresses:", error);
@@ -175,7 +179,7 @@ export function LightningAddressCard({
 
     const fullAddress = existingAddress.address.includes("@")
       ? existingAddress.address
-      : `${existingAddress.address}@bitsacco.com`;
+      : `${existingAddress.address}@${existingAddress.domain || "bitsacco.com"}`;
 
     navigator.clipboard.writeText(fullAddress);
     setCopied(true);
@@ -262,7 +266,7 @@ export function LightningAddressCard({
 
     const fullAddress = existingAddress.address.includes("@")
       ? existingAddress.address
-      : `${existingAddress.address}@bitsacco.com`;
+      : `${existingAddress.address}@${existingAddress.domain || "bitsacco.com"}`;
 
     if (!qrDataUrl) {
       try {
@@ -288,7 +292,7 @@ export function LightningAddressCard({
 
     const fullAddress = existingAddress.address.includes("@")
       ? existingAddress.address
-      : `${existingAddress.address}@bitsacco.com`;
+      : `${existingAddress.address}@${existingAddress.domain || "bitsacco.com"}`;
 
     if (navigator.share) {
       try {
@@ -332,7 +336,7 @@ export function LightningAddressCard({
   if (existingAddress) {
     const displayAddress = existingAddress.address.includes("@")
       ? existingAddress.address
-      : `${existingAddress.address}@bitsacco.com`;
+      : `${existingAddress.address}@${existingAddress.domain || "bitsacco.com"}`;
 
     return (
       <div className="bg-gradient-to-r from-orange-500/10 to-yellow-500/10 border border-orange-500/20 rounded-xl p-6">

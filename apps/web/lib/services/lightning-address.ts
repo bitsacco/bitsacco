@@ -12,27 +12,32 @@ export interface LightningAddressSettings {
 }
 
 export enum AddressType {
-  PERSONAL = "personal",
-  CHAMA = "chama",
-  BUSINESS = "business",
+  PERSONAL = "PERSONAL",
+  CHAMA = "CHAMA",
 }
 
 export interface LightningAddress {
   _id: string;
   address: string;
+  domain?: string;
   type: AddressType;
   metadata: LightningAddressMetadata;
   settings: LightningAddressSettings;
-  userId: string;
+  ownerId: string;
+  stats?: {
+    totalReceived: number;
+    paymentCount: number;
+    lastPaymentAt?: Date;
+  };
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateLightningAddressRequest {
-  address?: string;
+  address: string;
   type?: AddressType;
-  metadata?: LightningAddressMetadata;
-  settings?: LightningAddressSettings;
+  metadata?: Partial<LightningAddressMetadata>;
+  settings?: Partial<LightningAddressSettings>;
 }
 
 export interface UpdateLightningAddressRequest {
@@ -48,7 +53,7 @@ export interface ValidateLightningAddressResponse {
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export async function getUserLightningAddresses(): Promise<LightningAddress[]> {
-  const response = await fetch(`${API_BASE}/lnurl/addresses`, {
+  const response = await fetch(`${API_BASE}/lnaddr/my-addresses`, {
     credentials: "include",
   });
 
@@ -62,7 +67,7 @@ export async function getUserLightningAddresses(): Promise<LightningAddress[]> {
 export async function createLightningAddress(
   data: CreateLightningAddressRequest,
 ): Promise<LightningAddress> {
-  const response = await fetch(`${API_BASE}/lnurl/addresses`, {
+  const response = await fetch(`${API_BASE}/lnaddr`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -83,7 +88,7 @@ export async function updateLightningAddress(
   addressId: string,
   data: UpdateLightningAddressRequest,
 ): Promise<LightningAddress> {
-  const response = await fetch(`${API_BASE}/lnurl/addresses/${addressId}`, {
+  const response = await fetch(`${API_BASE}/lnaddr/${addressId}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -100,21 +105,54 @@ export async function updateLightningAddress(
   return response.json();
 }
 
+// Validate lightning address using well-known endpoint
 export async function validateLightningAddress(
   address: string,
 ): Promise<ValidateLightningAddressResponse> {
-  const response = await fetch(
-    `${API_BASE}/lnurl/validate-address?address=${encodeURIComponent(address)}`,
-    {
-      credentials: "include",
-    },
-  );
+  try {
+    const [username, domain] = address.split("@");
+    if (!username || !domain) {
+      return {
+        valid: false,
+        message: "Invalid lightning address format",
+      };
+    }
 
-  if (!response.ok) {
-    throw new Error("Failed to validate lightning address");
+    const response = await fetch(
+      `https://${domain}/.well-known/lnurlp/${encodeURIComponent(username)}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+      },
+    );
+
+    if (!response.ok) {
+      return {
+        valid: false,
+        message:
+          response.status === 404
+            ? "Lightning address not found"
+            : "Failed to reach lightning address server",
+      };
+    }
+
+    const metadata = await response.json();
+    if (metadata && metadata.tag === "payRequest") {
+      return { valid: true };
+    } else {
+      return {
+        valid: false,
+        message: "Invalid LNURL-pay response",
+      };
+    }
+  } catch (error) {
+    return {
+      valid: false,
+      message: "Failed to validate lightning address",
+    };
   }
-
-  return response.json();
 }
 
 export const DEFAULT_LIGHTNING_ADDRESS_DESCRIPTION =
