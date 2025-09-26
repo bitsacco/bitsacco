@@ -382,23 +382,6 @@ export function PaymentConfirmationModal({
               >
                 Done
               </Button>
-              <Button
-                variant="outline"
-                fullWidth
-                onClick={() => {
-                  // Share functionality can be implemented later
-                  if (navigator.share) {
-                    navigator.share({
-                      title: "Share Purchase Confirmation",
-                      text: `Successfully purchased shares for ${formatCurrency(payment.amount)}`,
-                    });
-                  }
-                }}
-                className="!bg-slate-700/50 !text-gray-300 !border-slate-600 hover:!bg-slate-700 transition-all flex items-center justify-center gap-2"
-              >
-                <ShareIcon size={16} />
-                Share
-              </Button>
             </>
           )}
 

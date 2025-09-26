@@ -5,6 +5,7 @@ import type {
   MembershipTier,
   SharePurchaseValidation,
   SharesOffer,
+  UserShareTxsResponse,
 } from "@bitsacco/core";
 
 export async function POST(req: NextRequest) {
@@ -67,7 +68,7 @@ export async function POST(req: NextRequest) {
       let currentShares = 0;
       try {
         const transactionsResponse = await fetch(
-          `${req.nextUrl.origin}/api/membership/shares/transactions?size=1`,
+          `${req.nextUrl.origin}/api/membership/shares/transactions?size=20`,
           {
             headers: {
               cookie: req.headers.get("cookie") || "",
@@ -75,9 +76,15 @@ export async function POST(req: NextRequest) {
           },
         );
         if (transactionsResponse.ok) {
-          const transactionsData = await transactionsResponse.json();
-          currentShares = transactionsData.data?.totalShares || 0;
-          console.log("[Validation] User current shares:", currentShares);
+          const responseData = await transactionsResponse.json();
+          const transactionsData = responseData.data as UserShareTxsResponse;
+          console.log(
+            "[Validation] User share holdings:",
+            transactionsData?.shareHoldings,
+          );
+
+          // Use the shareHoldings field directly from the typed response
+          currentShares = transactionsData?.shareHoldings || 0;
         }
       } catch (error) {
         console.error("[Validation] Failed to fetch user shares:", error);
