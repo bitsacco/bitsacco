@@ -369,13 +369,11 @@ export default function MembershipPage() {
                   </h3>
                   <p className="text-gray-400">Total holdings in the SACCO</p>
                 </div>
-                {summary.currentTier && (
-                  <div className="bg-gradient-to-r from-orange-500/20 to-orange-400/20 border border-orange-500/40 rounded-full px-4 py-2 backdrop-blur-sm">
-                    <p className="text-sm font-semibold text-orange-300">
-                      {summary.currentTier.name}
-                    </p>
-                  </div>
-                )}
+                <div className="bg-gradient-to-r from-orange-500/20 to-orange-400/20 border border-orange-500/40 rounded-full px-4 py-2 backdrop-blur-sm">
+                  <p className="text-sm font-semibold text-orange-300">
+                    {summary.currentTier?.name || "New Account"}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -387,9 +385,6 @@ export default function MembershipPage() {
               <p className="text-3xl font-bold text-teal-300">
                 {summary.totalShares.toLocaleString()}
               </p>
-              {summary.membershipStatus.isNewMember && (
-                <p className="text-xs text-blue-400 mt-1">New Account</p>
-              )}
             </div>
             <div className="text-center sm:text-left">
               <p className="text-sm text-gray-400 mb-1">Portfolio Value</p>
