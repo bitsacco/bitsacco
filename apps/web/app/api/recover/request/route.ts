@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
     const response = await apiClient.auth.recover({
       phone,
       pin: "000000", // Dummy PIN required by backend for OTP request
+      otp: undefined,
     });
 
     // The backend will send OTP and return a response

@@ -11,7 +11,8 @@ import { BaseCard } from "@/components/ui/base-card";
 import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { BalanceDisplay } from "@/components/ui/balance-display";
-import { useExchangeRate, formatNumber, btcToFiat } from "@bitsacco/core";
+import { HeaderControls } from "@/components/ui/header-controls";
+import { useExchangeRate } from "@bitsacco/core";
 import { apiClient } from "@/lib/auth";
 import { Routes } from "@/lib/routes";
 import {
@@ -25,8 +26,6 @@ import {
   ReceiptIcon,
   UserIcon,
   CrownIcon,
-  ArrowsClockwiseIcon,
-  SpinnerIcon,
   CopyIcon,
   PhoneIcon,
 } from "@phosphor-icons/react";
@@ -35,17 +34,18 @@ import {
   ChamaTxStatus,
   ChamaTransactionType,
 } from "@bitsacco/core";
+import { useHideBalances } from "@/hooks/use-hide-balances";
 
 export default function ChamaDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const chamaId = params.id as string;
 
-  const [hideBalances, setHideBalances] = useState(false);
   const [showMembers, setShowMembers] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const { hideBalances } = useHideBalances();
 
   const { chama, transactions, memberProfiles, metadata, loading, error } =
     useChamaDetails({
@@ -209,44 +209,15 @@ export default function ChamaDetailsPage() {
             </div>
           </div>
 
-          {/* Bitcoin Rate Widget - matches gallery page */}
-          <div className="flex-shrink-0 w-full sm:w-auto">
-            <div className="flex items-center justify-center sm:justify-end space-x-2 px-4 py-2 bg-slate-800/40 border border-slate-700/50 rounded-lg">
-              {rateLoading ? (
-                <>
-                  <SpinnerIcon
-                    size={16}
-                    className="animate-spin text-teal-400"
-                  />
-                  <span className="text-sm text-gray-400">
-                    Getting rates...
-                  </span>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={() => setShowBtcRate(!showBtcRate)}
-                    className="text-sm underline decoration-dotted underline-offset-[10px] font-medium text-gray-300 hover:text-teal-400 transition-colors"
-                    disabled={rateLoading}
-                  >
-                    {quote
-                      ? showBtcRate
-                        ? `1 BTC = ${formatNumber(btcToFiat({ amountBtc: 1, fiatToBtcRate: Number(quote.rate) }).amountFiat)} KES`
-                        : `1 KES = ${formatNumber(kesToSats(1), { decimals: 2 })} sats`
-                      : "1 KES = -- sats"}
-                  </button>
-                  <button
-                    className="p-1 text-gray-400 hover:text-teal-400 transition-colors"
-                    onClick={refresh}
-                    disabled={rateLoading}
-                    aria-label="Refresh rates"
-                  >
-                    <ArrowsClockwiseIcon size={16} />
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
+          {/* Rates Widget with Hide Balances Toggle */}
+          <HeaderControls
+            quote={quote}
+            rateLoading={rateLoading}
+            showBtcRate={showBtcRate}
+            onToggleRate={() => setShowBtcRate(!showBtcRate)}
+            onRefresh={refresh}
+            kesToSats={kesToSats}
+          />
         </div>
       </div>
 
@@ -322,8 +293,6 @@ export default function ChamaDetailsPage() {
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-6">
         <div className="flex-1">
           <ChamaActions
-            hideBalances={hideBalances}
-            onToggleBalances={() => setHideBalances(!hideBalances)}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             placeholder="Search transactions..."
@@ -543,6 +512,16 @@ export default function ChamaDetailsPage() {
             transactions.ledger.transactions.length > 0 ? (
             /* Display actual transactions */
             transactions.ledger.transactions.slice(0, 5).map((tx) => {
+              // Debug: Log transaction type to understand what's coming from API
+              console.log(
+                "Transaction type from API:",
+                tx.type,
+                "Expected DEPOSIT:",
+                ChamaTransactionType.DEPOSIT,
+                "Expected WITHDRAWAL:",
+                ChamaTransactionType.WITHDRAWAL,
+              );
+
               const isDeposit = tx.type === ChamaTransactionType.DEPOSIT;
               const getStatusText = (status: ChamaTxStatus): string => {
                 switch (status) {

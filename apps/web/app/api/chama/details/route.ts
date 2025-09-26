@@ -26,8 +26,16 @@ export async function GET(req: NextRequest) {
 
     const response = await client.chamas.getChama(request);
 
+    // Handle API error response
+    if (response.error) {
+      console.error("API returned error:", response.error);
+      return NextResponse.json({ error: response.error }, { status: 404 });
+    }
+
+    // Handle missing data (should not happen if no error, but defensive)
     if (!response.data) {
-      throw new Error("Chama not found");
+      console.warn("API returned no data and no error for chama:", chamaId);
+      return NextResponse.json({ error: "Chama not found" }, { status: 404 });
     }
 
     return NextResponse.json({

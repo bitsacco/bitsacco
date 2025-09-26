@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Button } from "@bitsacco/ui";
 import {
   CheckCircleIcon,
-  ShareIcon,
   ClockIcon,
   XCircleIcon,
   ArrowLeftIcon,
