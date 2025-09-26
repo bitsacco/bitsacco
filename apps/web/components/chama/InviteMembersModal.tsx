@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "@bitsacco/ui";
+import { Button, PhoneInput, PhoneRegionCode } from "@bitsacco/ui";
 import { Spinner } from "@/components/ui/loading-skeleton";
 import {
   XIcon,
@@ -33,12 +33,16 @@ export function InviteMembersModal({
 }: InviteMembersModalProps) {
   const [invites, setInvites] = useState<Invite[]>([]);
   const [newPhone, setNewPhone] = useState("");
-  const [countryCode, setCountryCode] = useState("+254");
+  const [regionCode, setRegionCode] = useState<PhoneRegionCode>(
+    PhoneRegionCode.Kenya,
+  );
   const [isSending, setIsSending] = useState(false);
 
   const handleAddInvite = () => {
     if (newPhone) {
-      const fullNumber = `${countryCode}${newPhone}`;
+      // PhoneInput already returns the full number with country code
+      const fullNumber = newPhone;
+
       // Check if number already added
       if (invites.some((inv) => inv.phoneNumber === fullNumber)) {
         alert("This number is already in the list");
@@ -50,7 +54,9 @@ export function InviteMembersModal({
         {
           id: Date.now().toString(),
           phoneNumber: fullNumber,
-          countryCode,
+          countryCode: newPhone.startsWith("+")
+            ? newPhone.split(" ")[0]
+            : "+254",
         },
       ]);
       setNewPhone("");
@@ -146,44 +152,35 @@ export function InviteMembersModal({
           <div className="space-y-6">
             {/* Add phone number */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Add Phone Numbers
-              </label>
               <div className="flex gap-2">
-                <select
-                  value={countryCode}
-                  onChange={(e) => setCountryCode(e.target.value)}
-                  disabled={isSending}
-                  className="px-3 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <option value="+254">+254 (KE)</option>
-                  <option value="+255">+255 (TZ)</option>
-                  <option value="+256">+256 (UG)</option>
-                  <option value="+1">+1 (US)</option>
-                </select>
-                <input
-                  type="tel"
-                  value={newPhone}
-                  onChange={(e) => setNewPhone(e.target.value)}
-                  disabled={isSending}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddInvite();
-                    }
-                  }}
-                  className="flex-1 px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  placeholder="Enter phone number"
-                />
-                <Button
-                  variant="tealOutline"
-                  size="sm"
-                  onClick={handleAddInvite}
-                  disabled={!newPhone || isSending}
-                  className="px-3"
-                >
-                  <PlusIcon size={16} weight="bold" />
-                </Button>
+                <div className="flex-1">
+                  <PhoneInput
+                    phone={newPhone}
+                    setPhone={setNewPhone}
+                    regionCode={regionCode}
+                    setRegionCode={setRegionCode}
+                    label="Add Phone Numbers"
+                    placeholder="Enter phone number"
+                    disabled={isSending}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddInvite();
+                      }
+                    }}
+                  />
+                </div>
+                <div className="flex items-end">
+                  <Button
+                    variant="tealOutline"
+                    size="sm"
+                    onClick={handleAddInvite}
+                    disabled={!newPhone || isSending}
+                    className="px-3 h-12"
+                  >
+                    <PlusIcon size={16} weight="bold" />
+                  </Button>
+                </div>
               </div>
             </div>
 

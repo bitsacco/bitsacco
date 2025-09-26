@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "@bitsacco/ui";
+import { Button, PhoneInput, PhoneRegionCode } from "@bitsacco/ui";
 import { useCreateChama } from "@/hooks/chama";
 import { Spinner } from "@/components/ui/loading-skeleton";
 import {
@@ -27,19 +27,23 @@ export function CreateChamaModal({ isOpen, onClose }: CreateChamaModalProps) {
   const [description, setDescription] = useState("");
   const [invites, setInvites] = useState<Invite[]>([]);
   const [newPhone, setNewPhone] = useState("");
-  const [countryCode, setCountryCode] = useState("+254");
+  const [regionCode, setRegionCode] = useState<PhoneRegionCode>(
+    PhoneRegionCode.Kenya,
+  );
 
   const { createChama, isCreating } = useCreateChama();
 
   const handleAddInvite = () => {
     if (newPhone) {
-      const fullNumber = `${countryCode}${newPhone}`;
+      const fullNumber = newPhone;
       setInvites([
         ...invites,
         {
           id: Date.now().toString(),
           phoneNumber: fullNumber,
-          countryCode,
+          countryCode: newPhone.startsWith("+")
+            ? newPhone.split(" ")[0] || "+254"
+            : "+254",
         },
       ]);
       setNewPhone("");
@@ -144,40 +148,33 @@ export function CreateChamaModal({ isOpen, onClose }: CreateChamaModalProps) {
                 Invite Members (optional)
               </label>
               <div className="flex gap-2 mb-3">
-                <select
-                  value={countryCode}
-                  onChange={(e) => setCountryCode(e.target.value)}
-                  disabled={isCreating}
-                  className="px-3 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <option value="+254">+254 (KE)</option>
-                  <option value="+255">+255 (TZ)</option>
-                  <option value="+256">+256 (UG)</option>
-                  <option value="+1">+1 (US)</option>
-                </select>
-                <input
-                  type="tel"
-                  value={newPhone}
-                  onChange={(e) => setNewPhone(e.target.value)}
-                  disabled={isCreating}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddInvite();
-                    }
-                  }}
-                  className="flex-1 px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  placeholder="Phone number"
-                />
-                <Button
-                  variant="tealOutline"
-                  size="sm"
-                  onClick={handleAddInvite}
-                  disabled={!newPhone || isCreating}
-                  className="px-3"
-                >
-                  <PlusIcon size={16} weight="bold" />
-                </Button>
+                <div className="flex-1">
+                  <PhoneInput
+                    phone={newPhone}
+                    setPhone={setNewPhone}
+                    regionCode={regionCode}
+                    setRegionCode={setRegionCode}
+                    placeholder="Phone number"
+                    disabled={isCreating}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddInvite();
+                      }
+                    }}
+                  />
+                </div>
+                <div className="flex items-end">
+                  <Button
+                    variant="tealOutline"
+                    size="sm"
+                    onClick={handleAddInvite}
+                    disabled={!newPhone || isCreating}
+                    className="px-3 h-12"
+                  >
+                    <PlusIcon size={16} weight="bold" />
+                  </Button>
+                </div>
               </div>
 
               {/* Invited members list */}

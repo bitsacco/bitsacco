@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "@bitsacco/ui";
+import { Button, PhoneInput, PhoneRegionCode } from "@bitsacco/ui";
 import { Spinner } from "@/components/ui/loading-skeleton";
 import {
   XIcon,
@@ -25,7 +25,9 @@ export function DepositModal({ isOpen, onClose, chama }: DepositModalProps) {
     "mpesa",
   );
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [countryCode, setCountryCode] = useState("+254");
+  const [regionCode, setRegionCode] = useState<PhoneRegionCode>(
+    PhoneRegionCode.Kenya,
+  );
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleDeposit = async () => {
@@ -52,7 +54,7 @@ export function DepositModal({ isOpen, onClose, chama }: DepositModalProps) {
           paymentDetails:
             paymentMethod === "mpesa"
               ? {
-                  phone: `${countryCode}${phoneNumber}`,
+                  phone: phoneNumber.replace(/\D/g, ""),
                 }
               : undefined,
           sharesSubscriptionTracker: `chama-deposit-${Date.now()}`,
@@ -196,29 +198,15 @@ export function DepositModal({ isOpen, onClose, chama }: DepositModalProps) {
             {/* Phone Number (for M-Pesa) */}
             {paymentMethod === "mpesa" && (
               <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-300">
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Phone Number
-                </label>
-                <div className="flex gap-2">
-                  <select
-                    value={countryCode}
-                    onChange={(e) => setCountryCode(e.target.value)}
-                    disabled={isProcessing}
-                    className="px-3 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <option value="+254">+254 (KE)</option>
-                    <option value="+255">+255 (TZ)</option>
-                    <option value="+256">+256 (UG)</option>
-                  </select>
-                  <input
-                    type="tel"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    disabled={isProcessing}
-                    className="flex-1 px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                    placeholder="7XXXXXXXX"
-                  />
-                </div>
+                <PhoneInput
+                  phone={phoneNumber}
+                  setPhone={setPhoneNumber}
+                  regionCode={regionCode}
+                  setRegionCode={setRegionCode}
+                  label="Phone Number"
+                  placeholder="Enter phone number"
+                  disabled={isProcessing}
+                />
                 <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
                   <p className="text-sm text-blue-300 leading-relaxed">
                     <DeviceMobileIcon size={16} className="inline mr-2" />

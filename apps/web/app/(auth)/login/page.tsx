@@ -4,7 +4,13 @@ import { useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Button, Logo, Container } from "@bitsacco/ui";
+import {
+  Button,
+  Logo,
+  Container,
+  PhoneInput,
+  PhoneRegionCode,
+} from "@bitsacco/ui";
 import { PinInput } from "@/components/pin-input";
 import { Routes } from "@/lib/routes";
 
@@ -14,6 +20,9 @@ export default function LoginPage() {
     phone: "",
     pin: "",
   });
+  const [regionCode, setRegionCode] = useState<PhoneRegionCode>(
+    PhoneRegionCode.Kenya,
+  );
   const [error, setError] = useState("");
   const router = useRouter();
 
@@ -49,13 +58,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-teal-900/20 via-slate-900 to-slate-900" />
@@ -66,7 +68,7 @@ export default function LoginPage() {
               <Logo className="h-12 w-auto text-white" />
             </div>
             <h2 className="text-center text-3xl font-bold text-gray-100">
-              Welcome back
+              welcome back
             </h2>
             <p className="mt-2 text-center text-sm text-gray-400">
               Don&apos;t have an account?{" "}
@@ -81,24 +83,23 @@ export default function LoginPage() {
 
           <div className="bg-slate-800/50 backdrop-blur-xl shadow-2xl rounded-2xl p-8 border border-slate-700">
             <form id="login-form" onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label
-                  htmlFor="phone"
-                  className="block text-sm font-medium text-gray-300 mb-2"
-                >
-                  Phone Number
-                </label>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  required
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  placeholder="+254712345678"
-                  className="block w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg placeholder-gray-500 text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:bg-slate-900/70 transition-all"
-                />
-              </div>
+              <PhoneInput
+                phone={formData.phone}
+                setPhone={(phone) =>
+                  setFormData((prev) => ({ ...prev, phone }))
+                }
+                regionCode={regionCode}
+                setRegionCode={setRegionCode}
+                label="Phone Number"
+                placeholder="Enter phone number"
+                required
+                error={
+                  error && error.includes("Invalid")
+                    ? "Please check your phone number"
+                    : undefined
+                }
+                disabled={isLoading}
+              />
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-4">

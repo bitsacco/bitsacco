@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@bitsacco/ui";
+import { Button, PhoneInput, PhoneRegionCode } from "@bitsacco/ui";
 import {
-  DeviceMobileIcon,
   CurrencyCircleDollarIcon,
   WarningIcon,
   InfoIcon,
@@ -57,15 +56,6 @@ export function MpesaWithdrawForm({
     // Clear amount error when user types
     if (errors.amount) {
       setErrors((prev) => ({ ...prev, amount: undefined }));
-    }
-  };
-
-  const handlePhoneChange = (value: string) => {
-    setPhoneNumber(value);
-
-    // Clear phone error when user types
-    if (errors.phone) {
-      setErrors((prev) => ({ ...prev, phone: undefined }));
     }
   };
 
@@ -238,35 +228,36 @@ export function MpesaWithdrawForm({
       </div>
 
       {/* Phone Number Input */}
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          M-Pesa Phone Number *
-        </label>
-        <div className="relative">
-          <DeviceMobileIcon
-            size={20}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-          />
-          <input
-            type="tel"
-            value={phoneNumber}
-            onChange={(e) => handlePhoneChange(e.target.value)}
-            placeholder="254712345678"
-            className={`w-full pl-10 pr-4 py-3 bg-slate-900/50 border rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 transition-all ${
-              errors.phone
-                ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                : "border-slate-700 focus:ring-teal-500 focus:border-teal-500"
-            }`}
-            required
-          />
-        </div>
-        {errors.phone && (
-          <p className="text-sm text-red-400 mt-1">{errors.phone}</p>
-        )}
-        <p className="text-xs text-gray-500 mt-1">
-          Money will be sent to this M-Pesa number
-        </p>
-      </div>
+      <PhoneInput
+        phone={phoneNumber}
+        setPhone={(phone) => {
+          setPhoneNumber(phone);
+          // Clear phone error when user types
+          if (errors.phone) {
+            setErrors((prev) => ({ ...prev, phone: undefined }));
+          }
+        }}
+        regionCode={PhoneRegionCode.Kenya}
+        label="M-Pesa Phone Number"
+        placeholder="Enter Safaricom number"
+        required
+        error={errors.phone}
+        disabled={loading}
+        selectCountryCode={false}
+        validationContext="mpesa"
+        showValidationIcon={true}
+        onValidationChange={(result) => {
+          if (!result.isValid && result.error) {
+            setErrors((prev) => ({ ...prev, phone: result.error }));
+          } else if (result.isValid && errors.phone) {
+            setErrors((prev) => ({ ...prev, phone: undefined }));
+          }
+        }}
+        className="space-y-1"
+      />
+      <p className="text-xs text-gray-500">
+        Money will be sent to this M-Pesa number
+      </p>
 
       {/* Early Withdrawal Warning */}
       {earlyWithdrawPenalty > 0 && finalAmount > 0 && (

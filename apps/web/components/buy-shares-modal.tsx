@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { Button } from "@bitsacco/ui";
+import { Button, PhoneInput, PhoneRegionCode } from "@bitsacco/ui";
 import {
   ShoppingBagIcon,
   LightningIcon,
@@ -507,23 +507,22 @@ export function BuySharesModal({
       case "mpesa":
         return (
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">
-                M-Pesa Phone Number
-              </label>
-              <input
-                type="tel"
-                placeholder="254712345678"
-                value={paymentDetails.phone || ""}
-                onChange={(e) =>
-                  setPaymentDetails({
-                    ...paymentDetails,
-                    phone: e.target.value,
-                  })
-                }
-                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
-              />
-            </div>
+            <PhoneInput
+              phone={paymentDetails.phone || ""}
+              setPhone={(phone) =>
+                setPaymentDetails({
+                  ...paymentDetails,
+                  phone,
+                })
+              }
+              regionCode={PhoneRegionCode.Kenya}
+              label="M-Pesa Phone Number"
+              placeholder="Enter Safaricom number"
+              selectCountryCode={false}
+              disabled={subscribing}
+              validationContext="mpesa"
+              showValidationIcon={true}
+            />
           </div>
         );
       case "lightning":
