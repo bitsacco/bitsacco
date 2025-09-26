@@ -147,7 +147,7 @@ export async function validateLightningAddress(
         message: "Invalid LNURL-pay response",
       };
     }
-  } catch (error) {
+  } catch {
     return {
       valid: false,
       message: "Failed to validate lightning address",

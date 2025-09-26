@@ -3,7 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button, Logo, Container } from "@bitsacco/ui";
+import {
+  Button,
+  Logo,
+  Container,
+  PhoneInput,
+  PhoneRegionCode,
+} from "@bitsacco/ui";
 import { Role } from "@bitsacco/core/types";
 import { PinInput } from "@/components/pin-input";
 import { Routes } from "@/lib/routes";
@@ -18,6 +24,9 @@ export default function SignupPage() {
     otp: "",
     name: "",
   });
+  const [regionCode, setRegionCode] = useState<PhoneRegionCode>(
+    PhoneRegionCode.Kenya,
+  );
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const router = useRouter();
@@ -167,24 +176,23 @@ export default function SignupPage() {
                   />
                 </div>
 
-                <div>
-                  <label
-                    htmlFor="phone"
-                    className="block text-sm font-medium text-gray-300"
-                  >
-                    Phone Number
-                  </label>
-                  <input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    required
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    placeholder="+254712345678"
-                    className="mt-1 block w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg placeholder-gray-500 text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:bg-slate-900/70 transition-all"
-                  />
-                </div>
+                <PhoneInput
+                  phone={formData.phone}
+                  setPhone={(phone) =>
+                    setFormData((prev) => ({ ...prev, phone }))
+                  }
+                  regionCode={regionCode}
+                  setRegionCode={setRegionCode}
+                  label="Phone Number"
+                  placeholder="Enter phone number"
+                  required
+                  error={
+                    error && error.includes("phone")
+                      ? "Please check your phone number"
+                      : undefined
+                  }
+                  disabled={isLoading}
+                />
 
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-4">

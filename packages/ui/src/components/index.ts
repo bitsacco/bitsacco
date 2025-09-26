@@ -15,3 +15,10 @@ export {
   type BitcoinRateDisplayProps,
 } from "./BitcoinRateDisplay";
 export { Hero, type HeroProps } from "./Hero";
+export {
+  PhoneInput,
+  type PhoneInputProps,
+  PhoneRegionCode,
+  type PhoneValidationContext,
+  type PhoneValidationResult,
+} from "./PhoneInput";
