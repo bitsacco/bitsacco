@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Button } from "@bitsacco/ui";
 import { useChamas } from "@/hooks/chama";
+import { useHideBalances } from "@/hooks/use-hide-balances";
+import { HeaderControls } from "@/components/ui/header-controls";
 import { ChamaCard } from "@/components/chama/ChamaCard";
 import { ChamaActions } from "@/components/chama/ChamaActions";
 import { CreateChamaModal } from "@/components/chama/CreateChamaModal";
@@ -14,30 +16,22 @@ import {
 import { EmptyState } from "@/components/ui/empty-state";
 import { BalanceDisplay } from "@/components/ui/balance-display";
 import { formatCurrency } from "@/lib/utils/format";
-import {
-  type Chama,
-  useExchangeRate,
-  satsToKes,
-  formatNumber,
-  btcToFiat,
-} from "@bitsacco/core";
+import { type Chama, useExchangeRate, satsToKes } from "@bitsacco/core";
 import { apiClient } from "@/lib/auth";
 import {
   PlusIcon,
   UsersThreeIcon,
   TrendUpIcon,
   ArrowsLeftRightIcon,
-  ArrowsClockwiseIcon,
-  SpinnerIcon,
 } from "@phosphor-icons/react";
 
 export default function ChamasPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [hideBalances, setHideBalances] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showGroupTotals, setShowGroupTotals] = useState(false);
   const [depositChama, setDepositChama] = useState<Chama | null>(null);
   const { chamas, loading, getChamaBalances } = useChamas();
+  const { hideBalances } = useHideBalances();
 
   // Exchange rate for KES conversion
   const {
@@ -191,44 +185,14 @@ export default function ChamasPage() {
             </p>
           </div>
 
-          {/* Bitcoin Rate Widget - Matches personal savings design */}
-          <div className="flex-shrink-0 w-full sm:w-auto">
-            <div className="flex items-center justify-center sm:justify-end space-x-2 px-4 py-2 bg-slate-800/40 border border-slate-700/50 rounded-lg">
-              {rateLoading ? (
-                <>
-                  <SpinnerIcon
-                    size={16}
-                    className="animate-spin text-teal-400"
-                  />
-                  <span className="text-sm text-gray-400">
-                    Getting rates...
-                  </span>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={() => setShowBtcRate(!showBtcRate)}
-                    className="text-sm underline decoration-dotted underline-offset-[10px] font-medium text-gray-300 hover:text-teal-400 transition-colors"
-                    disabled={rateLoading}
-                  >
-                    {quote
-                      ? showBtcRate
-                        ? `1 BTC = ${formatNumber(btcToFiat({ amountBtc: 1, fiatToBtcRate: Number(quote.rate) }).amountFiat)} KES`
-                        : `1 KES = ${formatNumber(kesToSats(1), { decimals: 2 })} sats`
-                      : "1 KES = -- sats"}
-                  </button>
-                  <button
-                    className="p-1 text-gray-400 hover:text-teal-400 transition-colors"
-                    onClick={refresh}
-                    disabled={rateLoading}
-                    aria-label="Refresh rates"
-                  >
-                    <ArrowsClockwiseIcon size={16} />
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
+          <HeaderControls
+            quote={quote}
+            rateLoading={rateLoading}
+            showBtcRate={showBtcRate}
+            onToggleRate={() => setShowBtcRate(!showBtcRate)}
+            onRefresh={refresh}
+            kesToSats={kesToSats}
+          />
         </div>
       </div>
 
@@ -352,10 +316,9 @@ export default function ChamasPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div className="order-2 sm:order-1">
             <ChamaActions
-              hideBalances={hideBalances}
-              onToggleBalances={() => setHideBalances(!hideBalances)}
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
+              placeholder="Search chamas..."
             />
           </div>
 

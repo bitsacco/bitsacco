@@ -26,13 +26,15 @@ export async function GET(req: NextRequest) {
 
     const response = await client.chamas.getMemberProfiles(request);
 
-    if (!response.data) {
-      throw new Error("Failed to fetch member profiles");
+    // Handle both error and empty data cases
+    if (response.error) {
+      console.error("API returned error:", response.error);
+      return NextResponse.json({ error: response.error }, { status: 400 });
     }
 
     return NextResponse.json({
       success: true,
-      data: response.data,
+      data: response.data || [],
     });
   } catch (error) {
     console.error("Failed to fetch member profiles:", error);

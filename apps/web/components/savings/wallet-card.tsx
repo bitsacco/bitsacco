@@ -11,6 +11,7 @@ import type { WalletResponseDto } from "@bitsacco/core";
 interface WalletCardProps {
   wallet: WalletResponseDto;
   exchangeRate?: number;
+  hideBalances?: boolean;
   onViewDetails: () => void;
 }
 import {
@@ -22,7 +23,11 @@ import {
 import { canWithdrawFromLockedWallet } from "@/lib/utils/calculations";
 import { btcToFiat, WalletType } from "@bitsacco/core";
 
-export function WalletCard({ wallet, exchangeRate }: WalletCardProps) {
+export function WalletCard({
+  wallet,
+  exchangeRate,
+  hideBalances = false,
+}: WalletCardProps) {
   // Calculate KES value using live exchange rate
   const walletBalanceFiat = exchangeRate
     ? btcToFiat({
@@ -86,13 +91,14 @@ export function WalletCard({ wallet, exchangeRate }: WalletCardProps) {
           </div>
           <div className="flex justify-between items-center mt-3">
             <span className="text-xs text-gray-400 font-medium">
-              {formatCurrency(walletBalanceFiat)} /{" "}
-              {formatCurrency(
-                wallet.progress.targetAmountFiat ||
-                  (wallet.progress.targetAmountMsats
-                    ? wallet.progress.targetAmountMsats / 1000
-                    : 0),
-              )}
+              {hideBalances
+                ? "•••••"
+                : `${formatCurrency(walletBalanceFiat)} / ${formatCurrency(
+                    wallet.progress.targetAmountFiat ||
+                      (wallet.progress.targetAmountMsats
+                        ? wallet.progress.targetAmountMsats / 1000
+                        : 0),
+                  )}`}
             </span>
             {wallet.progress.projectedCompletionDate && (
               <span className="text-xs text-gray-400 flex items-center gap-1 bg-slate-700/30 px-2 py-1 rounded-md">
@@ -188,10 +194,12 @@ export function WalletCard({ wallet, exchangeRate }: WalletCardProps) {
       {/* Balance */}
       <div className="mb-6">
         <div className="text-2xl font-bold text-gray-100 mb-2 tracking-tight">
-          {formatSats(Math.floor(wallet.balance / 1000))}
+          {hideBalances
+            ? "•••••"
+            : formatSats(Math.floor(wallet.balance / 1000))}
         </div>
         <div className="text-base text-gray-400 font-medium">
-          ≈ {formatCurrency(walletBalanceFiat)}
+          ≈ {hideBalances ? "•••••" : formatCurrency(walletBalanceFiat)}
         </div>
       </div>
 

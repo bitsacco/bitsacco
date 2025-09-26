@@ -24,8 +24,27 @@ export async function GET(req: NextRequest) {
 
     const response = await client.chamas.getTransactions(request);
 
+    // Handle API error response
+    if (response.error) {
+      console.error("API returned error:", response.error);
+      return NextResponse.json({ error: response.error }, { status: 400 });
+    }
+
+    // Handle empty data (valid case - no transactions yet)
     if (!response.data) {
-      throw new Error("Failed to fetch chama transactions");
+      console.info("No transactions found for chama:", chamaId);
+      // Return empty structure matching ChamaTxsResponse
+      return NextResponse.json({
+        success: true,
+        data: {
+          ledger: {
+            transactions: [],
+            page: 0,
+            size: 0,
+            pages: 0,
+          },
+        },
+      });
     }
 
     return NextResponse.json({

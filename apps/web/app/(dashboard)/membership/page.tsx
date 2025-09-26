@@ -35,6 +35,10 @@ import { Routes } from "@/lib/routes";
 import { FEATURE_FLAGS } from "@/lib/features";
 import { MembershipBusinessLogic } from "@/lib/membership-business-logic";
 import { fetchMembershipTiers } from "@/lib/membership-tiers-service";
+import { useHideBalances } from "@/hooks/use-hide-balances";
+import { HeaderControls } from "@/components/ui/header-controls";
+import { useExchangeRate } from "@bitsacco/core";
+import { apiClient } from "@/lib/auth";
 
 // Tab configuration
 const tabs = [
@@ -78,6 +82,17 @@ export default function MembershipPage() {
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [selectedShareForTransfer, setSelectedShareForTransfer] =
     useState<SharesTx | null>(null);
+  const { hideBalances } = useHideBalances();
+
+  // Exchange rate for KES conversion
+  const {
+    quote,
+    loading: rateLoading,
+    showBtcRate,
+    setShowBtcRate,
+    refresh,
+    kesToSats,
+  } = useExchangeRate({ apiClient });
 
   // State for data
   const [offers, setOffers] = useState<AllSharesOffers | null>(null);
@@ -259,11 +274,13 @@ export default function MembershipPage() {
         bg: "bg-yellow-500/20",
         text: "text-yellow-300",
         icon: <ClockIcon size={14} weight="fill" />,
+        content: "proposed",
       },
       [SharesTxStatus.PROCESSING]: {
         bg: "bg-blue-500/20",
         text: "text-blue-300",
         icon: <ClockIcon size={14} weight="fill" />,
+        content: "proposed",
       },
       [SharesTxStatus.APPROVED]: {
         bg: "bg-green-500/20",
@@ -340,113 +357,130 @@ export default function MembershipPage() {
     <div className="p-4 sm:p-6 lg:p-8">
       {/* Header */}
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-100 mb-2">
-          Membership Dashboard
-        </h1>
-        <p className="text-sm sm:text-base text-gray-400">
-          Manage your shares, track your investment journey and participate in
-          your SACCO
-        </p>
-      </div>
+        <div className="flex flex-col mb-6 sm:mb-8 sm:flex-row sm:items-start sm:justify-between gap-4">
+          {/* Title and Subtitle Group */}
+          <div className="flex-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-100 mb-2">
+              Membership Dashboard
+            </h1>
+            <p className="text-sm sm:text-base text-gray-400">
+              Manage your shares, track your investment journey and participate
+              in your SACCO
+            </p>
+          </div>
 
-      {/* Stats Card */}
-      <div className="bg-gradient-to-r from-teal-900/30 to-blue-900/30 border border-teal-700/50 rounded-xl p-6 sm:p-8 mb-6">
-        <div className="flex flex-col gap-6">
-          {/* Header with icon and tier pill */}
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-            <div className="w-14 h-14 bg-teal-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
-              <ChartLineIcon
-                size={28}
-                weight="fill"
-                className="text-teal-400"
-              />
-            </div>
-            <div className="flex-1 text-center sm:text-left">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-                <div>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-100 mb-1">
-                    Your Share Portfolio
-                  </h3>
-                  <p className="text-gray-400">Total holdings in the SACCO</p>
+          <HeaderControls
+            quote={quote}
+            rateLoading={rateLoading}
+            showBtcRate={showBtcRate}
+            onToggleRate={() => setShowBtcRate(!showBtcRate)}
+            onRefresh={refresh}
+            kesToSats={kesToSats}
+          />
+        </div>
+
+        {/* Stats Card */}
+        <div className="bg-gradient-to-r from-teal-900/30 to-blue-900/30 border border-teal-700/50 rounded-xl p-6 sm:p-8 mb-6">
+          <div className="flex flex-col gap-6">
+            {/* Header with icon and tier pill */}
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+              <div className="w-14 h-14 bg-teal-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                <ChartLineIcon
+                  size={28}
+                  weight="fill"
+                  className="text-teal-400"
+                />
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                  <div>
+                    <h3 className="text-2xl sm:text-3xl font-bold text-gray-100 mb-1">
+                      Your Share Portfolio
+                    </h3>
+                    <p className="text-gray-400">Total holdings in the SACCO</p>
+                  </div>
+                  <div className="bg-gradient-to-r from-orange-500/20 to-orange-400/20 border border-orange-500/40 rounded-full px-4 py-2 backdrop-blur-sm">
+                    <p className="text-sm font-semibold text-orange-300">
+                      {summary.currentTier?.name || "New Account"}
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-gradient-to-r from-orange-500/20 to-orange-400/20 border border-orange-500/40 rounded-full px-4 py-2 backdrop-blur-sm">
-                  <p className="text-sm font-semibold text-orange-300">
-                    {summary.currentTier?.name || "New Account"}
+              </div>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="text-center sm:text-left">
+                <p className="text-sm text-gray-400 mb-1">Total Shares</p>
+                <p className="text-3xl font-bold text-teal-300">
+                  {hideBalances
+                    ? "•••••"
+                    : summary.totalShares.toLocaleString()}
+                </p>
+              </div>
+              <div className="text-center sm:text-left">
+                <p className="text-sm text-gray-400 mb-1">Portfolio Value</p>
+                <p className="text-3xl font-bold text-gray-100">
+                  {hideBalances ? "•••••" : formatCurrency(summary.totalValue)}
+                </p>
+              </div>
+            </div>
+
+            {/* Membership Tier Progress */}
+            {summary.nextTierInfo.nextTier && (
+              <div className="rounded-lg p-4">
+                <div className="flex justify-between items-center mb-2">
+                  <p className="text-sm text-gray-400">
+                    Progress to {summary.nextTierInfo.nextTier.name}
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    {summary.nextTierInfo.sharesNeeded} shares needed
                   </p>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="text-center sm:text-left">
-              <p className="text-sm text-gray-400 mb-1">Total Shares</p>
-              <p className="text-3xl font-bold text-teal-300">
-                {summary.totalShares.toLocaleString()}
-              </p>
-            </div>
-            <div className="text-center sm:text-left">
-              <p className="text-sm text-gray-400 mb-1">Portfolio Value</p>
-              <p className="text-3xl font-bold text-gray-100">
-                {formatCurrency(summary.totalValue)}
-              </p>
-            </div>
-          </div>
-
-          {/* Membership Tier Progress */}
-          {summary.nextTierInfo.nextTier && (
-            <div className="rounded-lg p-4">
-              <div className="flex justify-between items-center mb-2">
-                <p className="text-sm text-gray-400">
-                  Progress to {summary.nextTierInfo.nextTier.name}
-                </p>
-                <p className="text-sm text-gray-400">
-                  {summary.nextTierInfo.sharesNeeded} shares needed
+                <div className="w-full bg-slate-700 rounded-full h-2">
+                  <div
+                    className="bg-teal-500 h-2 rounded-full transition-all duration-300"
+                    style={{
+                      width: `${summary.nextTierInfo.progressPercentage}%`,
+                    }}
+                  ></div>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  {Math.round(summary.nextTierInfo.progressPercentage)}%
+                  complete
                 </p>
               </div>
-              <div className="w-full bg-slate-700 rounded-full h-2">
-                <div
-                  className="bg-teal-500 h-2 rounded-full transition-all duration-300"
-                  style={{
-                    width: `${summary.nextTierInfo.progressPercentage}%`,
-                  }}
-                ></div>
-              </div>
-              <p className="text-xs text-gray-500 mt-2">
-                {Math.round(summary.nextTierInfo.progressPercentage)}% complete
-              </p>
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button
-              variant="tealPrimary"
-              size="lg"
-              onClick={handleQuickBuy}
-              className="shadow-lg shadow-teal-500/20 flex items-center justify-center gap-2 flex-1"
-            >
-              <ShoppingCartIcon size={20} weight="bold" />
-              Buy Shares
-            </Button>
-            {isTransferEnabled && (
-              <Button
-                variant="tealOutline"
-                size="lg"
-                className="!border-slate-600 !text-gray-300 hover:!bg-slate-700/50 flex items-center justify-center gap-2 flex-1"
-                onClick={() => {
-                  if (activeShares.length > 0) {
-                    setSelectedShareForTransfer(activeShares[0]);
-                    setShowTransferModal(true);
-                  }
-                }}
-                disabled={activeShares.length === 0}
-              >
-                <ArrowsLeftRightIcon size={20} weight="bold" />
-                Transfer Shares
-              </Button>
             )}
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button
+                variant="tealPrimary"
+                size="lg"
+                onClick={handleQuickBuy}
+                className="shadow-lg shadow-teal-500/20 flex items-center justify-center gap-2 flex-1"
+              >
+                <ShoppingCartIcon size={20} weight="bold" />
+                Buy Shares
+              </Button>
+              {isTransferEnabled && (
+                <Button
+                  variant="tealOutline"
+                  size="lg"
+                  className="!border-slate-600 !text-gray-300 hover:!bg-slate-700/50 flex items-center justify-center gap-2 flex-1"
+                  onClick={() => {
+                    if (activeShares.length > 0) {
+                      setSelectedShareForTransfer(activeShares[0]);
+                      setShowTransferModal(true);
+                    }
+                  }}
+                  disabled={activeShares.length === 0}
+                >
+                  <ArrowsLeftRightIcon size={20} weight="bold" />
+                  Transfer Shares
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -545,9 +579,11 @@ export default function MembershipPage() {
                             <p className="text-gray-400 mb-2">
                               Value:{" "}
                               <span className="text-teal-300 font-medium">
-                                {formatCurrency(
-                                  share.quantity * SHARE_VALUE_KES,
-                                )}
+                                {hideBalances
+                                  ? "•••••"
+                                  : formatCurrency(
+                                      share.quantity * SHARE_VALUE_KES,
+                                    )}
                               </span>
                             </p>
                             <p className="text-sm text-gray-500">
@@ -611,7 +647,11 @@ export default function MembershipPage() {
                         <p className="text-gray-400 mb-2">
                           Value:{" "}
                           <span className="text-teal-300 font-medium">
-                            {formatCurrency(share.quantity * SHARE_VALUE_KES)}
+                            {hideBalances
+                              ? "•••••"
+                              : formatCurrency(
+                                  share.quantity * SHARE_VALUE_KES,
+                                )}
                           </span>
                         </p>
                         <p className="text-sm text-gray-500">
@@ -723,7 +763,9 @@ export default function MembershipPage() {
                       <p className="text-gray-400">
                         Total value:{" "}
                         <span className="text-teal-300 font-medium">
-                          {formatCurrency(offer.quantity * SHARE_VALUE_KES)}
+                          {hideBalances
+                            ? "•••••"
+                            : formatCurrency(offer.quantity * SHARE_VALUE_KES)}
                         </span>
                       </p>
                     </div>

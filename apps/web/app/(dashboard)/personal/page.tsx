@@ -7,8 +7,6 @@ import {
   WalletIcon,
   TrendUpIcon,
   ArrowDownIcon,
-  ArrowsClockwiseIcon,
-  SpinnerIcon,
 } from "@phosphor-icons/react";
 import { WalletCard } from "@/components/savings/wallet-card";
 import { CreateWalletCard } from "@/components/savings/create-wallet-card";
@@ -23,8 +21,10 @@ import { formatCurrency, formatSats } from "@/lib/utils/format";
 import { useFeatureFlag } from "@/lib/feature-flags-provider";
 import { FEATURE_FLAGS } from "@/lib/features";
 import { FeatureTease } from "@/components/feature-tease";
-import { useExchangeRate, formatNumber, btcToFiat } from "@bitsacco/core";
+import { useExchangeRate, btcToFiat } from "@bitsacco/core";
 import { apiClient } from "@/lib/auth";
+import { useHideBalances } from "@/hooks/use-hide-balances";
+import { HeaderControls } from "@/components/ui/header-controls";
 
 export default function PersonalSavingsPage() {
   const isPersonalSavingsEnabled = useFeatureFlag(
@@ -62,6 +62,7 @@ export default function PersonalSavingsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const { hideBalances } = useHideBalances();
 
   const handleDeposit = (wallet?: WalletResponseDto) => {
     setSelectedWallet(wallet);
@@ -229,44 +230,14 @@ export default function PersonalSavingsPage() {
             </p>
           </div>
 
-          {/* Bitcoin Rate Widget - Appears after subtitle on mobile, beside on desktop */}
-          <div className="flex-shrink-0 w-full sm:w-auto">
-            <div className="flex items-center justify-center sm:justify-end space-x-2 px-4 py-2 bg-slate-800/40 border border-slate-700/50 rounded-lg">
-              {rateLoading ? (
-                <>
-                  <SpinnerIcon
-                    size={16}
-                    className="animate-spin text-teal-400"
-                  />
-                  <span className="text-sm text-gray-400">
-                    Getting rates...
-                  </span>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={() => setShowBtcRate(!showBtcRate)}
-                    className="text-sm underline decoration-dotted underline-offset-[10px] font-medium text-gray-300 hover:text-teal-400 transition-colors"
-                    disabled={rateLoading}
-                  >
-                    {quote
-                      ? showBtcRate
-                        ? `1 BTC = ${formatNumber(btcToFiat({ amountBtc: 1, fiatToBtcRate: Number(quote.rate) }).amountFiat)} KES`
-                        : `1 KES = ${formatNumber(kesToSats(1), { decimals: 2 })} sats`
-                      : "1 KES = -- sats"}
-                  </button>
-                  <button
-                    className="p-1 text-gray-400 hover:text-teal-400 transition-colors"
-                    onClick={refresh}
-                    disabled={rateLoading}
-                    aria-label="Refresh rates"
-                  >
-                    <ArrowsClockwiseIcon size={16} />
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
+          <HeaderControls
+            quote={quote}
+            rateLoading={rateLoading}
+            showBtcRate={showBtcRate}
+            onToggleRate={() => setShowBtcRate(!showBtcRate)}
+            onRefresh={refresh}
+            kesToSats={kesToSats}
+          />
         </div>
 
         {/* Total Balance Summary */}
@@ -300,7 +271,9 @@ export default function PersonalSavingsPage() {
                       Personal Bitcoin Balance
                     </p>
                     <p className="text-3xl font-bold text-gray-100">
-                      {formatSats(Math.floor(totalBalance / 1000))}
+                      {hideBalances
+                        ? "•••••"
+                        : formatSats(Math.floor(totalBalance / 1000))}
                     </p>
                   </div>
                   <div className="text-center sm:text-left">
@@ -308,7 +281,9 @@ export default function PersonalSavingsPage() {
                       {`Equivalent KES Value`}
                     </p>
                     <p className="text-3xl font-bold text-gray-100">
-                      {formatCurrency(totalBalanceFiat)}
+                      {hideBalances
+                        ? "•••••"
+                        : formatCurrency(totalBalanceFiat)}
                     </p>
                   </div>
                 </div>
@@ -384,6 +359,7 @@ export default function PersonalSavingsPage() {
                 <WalletCard
                   wallet={wallet}
                   exchangeRate={quote?.rate ? Number(quote.rate) : undefined}
+                  hideBalances={hideBalances}
                   onViewDetails={() => handleViewDetails(wallet)}
                 />
               </div>
