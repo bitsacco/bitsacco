@@ -1,4 +1,5 @@
 import type { ValidationError } from "@bitsacco/core";
+import { Routes } from "./routes";
 
 export enum ErrorSeverity {
   LOW = "low",
@@ -456,7 +457,7 @@ export class ErrorHandlingService {
     if (errorCode === "UNAUTHORIZED" || errorCode === "SESSION_EXPIRED") {
       actions.push({
         label: "Log In",
-        action: () => (window.location.href = "/login"),
+        action: () => (window.location.href = Routes.LOGIN),
         variant: "primary",
       });
     }
@@ -464,7 +465,7 @@ export class ErrorHandlingService {
     if (errorCode === "KYC_REQUIRED") {
       actions.push({
         label: "Complete Verification",
-        action: () => (window.location.href = "/kyc"),
+        action: () => (window.location.href = "/kyc"), // TODO: Add Routes.KYC when KYC page exists
         variant: "primary",
       });
     }

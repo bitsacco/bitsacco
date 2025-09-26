@@ -12,6 +12,7 @@ import {
   type StorageAdapter,
 } from "@bitsacco/core/adapters";
 import type { LoginUserRequest, User as CoreUser } from "@bitsacco/core/types";
+import { Routes } from "./routes";
 
 // Type augmentations for NextAuth
 declare module "next-auth" {
@@ -82,8 +83,8 @@ apiClient.setAuthService(authService);
 export const authConfig: NextAuthConfig = {
   trustHost: true,
   pages: {
-    signIn: "/auth/login",
-    error: "/auth/error",
+    signIn: Routes.LOGIN,
+    error: Routes.AUTH_ERROR,
   },
   session: {
     strategy: "jwt" as const,
@@ -98,13 +99,33 @@ export const authConfig: NextAuthConfig = {
       request: { nextUrl: URL };
     }) {
       const isLoggedIn = !!auth?.user;
-      const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
-      const isOnAuth = nextUrl.pathname.startsWith("/auth");
+
+      // Define auth routes (flattened)
+      const authRoutes = [
+        Routes.LOGIN,
+        Routes.SIGNUP,
+        Routes.RECOVER,
+        Routes.AUTH_ERROR,
+      ];
+      const isOnAuth = authRoutes.some((route) => nextUrl.pathname === route);
+
+      // Define protected dashboard routes (flattened)
+      const dashboardRoutes = [
+        Routes.MEMBERSHIP,
+        Routes.PERSONAL,
+        Routes.CHAMAS,
+        Routes.ACCOUNT,
+      ];
+      const isOnDashboard = dashboardRoutes.some(
+        (route) =>
+          nextUrl.pathname === route ||
+          nextUrl.pathname.startsWith(route + "/"),
+      );
 
       if (isOnDashboard) {
         return isLoggedIn;
       } else if (isLoggedIn && isOnAuth) {
-        return Response.redirect(new URL("/dashboard", nextUrl));
+        return Response.redirect(new URL(Routes.MEMBERSHIP, nextUrl));
       }
       return true;
     },

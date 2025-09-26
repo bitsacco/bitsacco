@@ -6,6 +6,7 @@ import { Button } from "@bitsacco/ui";
 import type { Chama } from "@bitsacco/core";
 import { UsersThreeIcon } from "@phosphor-icons/react";
 import { BalanceDisplay } from "@/components/ui/balance-display";
+import { Routes } from "@/lib/routes";
 
 interface ChamaBalances {
   groupBalanceMsats: number;
@@ -110,7 +111,7 @@ export function ChamaCard({
             <span className="hidden sm:inline">Deposit Funds</span>
             <span className="sm:hidden">Deposit</span>
           </Button>
-          <Link href={`/dashboard/chamas/${chama.id}`} className="w-full">
+          <Link href={Routes.CHAMA_DETAILS(chama.id)} className="w-full">
             <Button
               variant="tealOutline"
               size="sm"

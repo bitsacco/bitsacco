@@ -8,6 +8,7 @@ import {
 } from "@phosphor-icons/react";
 import type { SharesTx } from "@bitsacco/core";
 import { SHARE_VALUE_KES } from "@/lib/config";
+import { Routes } from "@/lib/routes";
 
 interface Member {
   id: string;
@@ -104,7 +105,7 @@ export function TransferSharesModal({
 
     try {
       if (transferType === "direct") {
-        const response = await fetch("/api/membership/shares/transfer", {
+        const response = await fetch(Routes.API.MEMBERSHIP.SHARES.TRANSFER, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -120,7 +121,7 @@ export function TransferSharesModal({
         }
       } else {
         // List on marketplace
-        const response = await fetch("/api/membership/shares/list", {
+        const response = await fetch(Routes.API.MEMBERSHIP.SHARES.LIST, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

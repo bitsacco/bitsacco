@@ -28,6 +28,7 @@ import { PaymentRetryModal } from "./payment-retry-modal";
 import { SHARE_VALUE_KES } from "@/lib/config";
 import { useFeatureFlag } from "@/lib/feature-flags-provider";
 import { FEATURE_FLAGS } from "@/lib/features";
+import { Routes } from "@/lib/routes";
 
 interface PaymentMethodOption {
   id: PaymentMethod;
@@ -136,7 +137,7 @@ export function BuySharesModal({
     setErrors([]); // Clear previous errors
 
     try {
-      const response = await fetch("/api/membership/shares/validate", {
+      const response = await fetch(Routes.API.MEMBERSHIP.SHARES.VALIDATE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -287,7 +288,7 @@ export function BuySharesModal({
     try {
       // STEP 1: Create share subscription FIRST (matching webapp implementation)
       const subscriptionResponse = await fetch(
-        "/api/membership/shares/subscribe",
+        Routes.API.MEMBERSHIP.SHARES.SUBSCRIBE,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -314,7 +315,7 @@ export function BuySharesModal({
         return;
       }
 
-      const paymentResponse = await fetch("/api/chama/deposits", {
+      const paymentResponse = await fetch(Routes.API.CHAMA.DEPOSITS, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -413,7 +414,7 @@ export function BuySharesModal({
     newPaymentMethod?: PaymentMethod,
   ) => {
     try {
-      const response = await fetch("/api/membership/payments/retry", {
+      const response = await fetch(Routes.API.MEMBERSHIP.PAYMENTS.RETRY, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

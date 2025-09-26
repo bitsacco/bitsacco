@@ -16,21 +16,22 @@ import {
   WalletIcon,
   UsersThreeIcon,
 } from "@phosphor-icons/react";
+import { Routes } from "@/lib/routes";
 
 const navigation = [
   {
     name: "Membership",
-    href: "/dashboard/membership",
+    href: Routes.MEMBERSHIP,
     icon: ShieldCheckIcon,
   },
   {
     name: "Personal Savings",
-    href: "/dashboard/personal",
+    href: Routes.PERSONAL,
     icon: WalletIcon,
   },
   {
     name: "Chama Savings",
-    href: "/dashboard/chamas",
+    href: Routes.CHAMAS,
     icon: UsersThreeIcon,
   },
 ];
@@ -45,7 +46,7 @@ export default function DashboardLayout({
   const { data: session } = useSession();
 
   const handleSignOut = () => {
-    signOut({ callbackUrl: "/" });
+    signOut({ callbackUrl: Routes.HOME });
   };
 
   return (
@@ -180,7 +181,7 @@ function SidebarContent({
       >
         <Link
           key={"account-settings"}
-          href={"/dashboard/account"}
+          href={Routes.ACCOUNT}
           onClick={onNavigate}
           className={`group flex items-center transition-all duration-200 mb-4 ${
             isMobile
@@ -205,7 +206,7 @@ function SidebarContent({
               </p>
             </div>
           </div>
-          {!isMobile && pathname.startsWith("/dashboard/account") && (
+          {!isMobile && pathname.startsWith(Routes.ACCOUNT) && (
             <div className="ml-auto w-1 h-5 bg-teal-400 rounded-full" />
           )}
         </Link>

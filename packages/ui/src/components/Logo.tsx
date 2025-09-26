@@ -7,47 +7,31 @@ export interface LogoProps {
   className?: string;
   isDark?: boolean;
   href?: string;
+  full?: boolean;
 }
 
 export function Logo({
   className = "",
   isDark = false,
   href = "/",
+  full = true,
 }: LogoProps) {
   return (
     <Link
       href={href}
       className={`inline-flex items-center group transition-all duration-200 hover:scale-105 ${className}`}
     >
-      {/* Small screen logo (just the icon) */}
-      {/* <div className="block md:hidden">
-        <Image
-          src="/logo.svg"
-          alt="Bitsacco Logo"
-          width={65}
-          height={65}
-          className="h-[50px] w-auto cursor-pointer select-none"
-          style={{
-            filter: `${isDark ? "brightness(1.1)" : ""} drop-shadow(0 1px 2px rgba(0,128,128,0.1))`,
-          }}
-          priority
-        />
-      </div> */}
-
-      {/* Large screen logo (full logo with text) */}
-      <div>
-        <Image
-          src="/logo_full.svg"
-          alt="Bitsacco Full Logo"
-          width={202}
-          height={120}
-          className="object-contain"
-          style={{
-            filter: `${isDark ? "brightness(1.1)" : ""} drop-shadow(0 1px 2px rgba(0,128,128,0.1))`,
-          }}
-          priority
-        />
-      </div>
+      <Image
+        src={full ? "/logo_full.svg" : "/logo.svg"}
+        alt="Bitsacco Full Logo"
+        width={202}
+        height={120}
+        className="object-contain"
+        style={{
+          filter: `${isDark ? "brightness(1.1)" : ""} drop-shadow(0 1px 2px rgba(0,128,128,0.1))`,
+        }}
+        priority
+      />
     </Link>
   );
 }

@@ -11,6 +11,7 @@ import {
 } from "@phosphor-icons/react";
 import { useExchangeRate, formatNumber, btcToFiat } from "@bitsacco/core";
 import { apiClient } from "@/lib/auth";
+import { Routes } from "@/lib/routes";
 
 export default function Home() {
   const [isDark, setIsDark] = useState(false);
@@ -34,12 +35,12 @@ export default function Home() {
   const buttons: NavbarButton[] = [
     {
       text: "LOGIN",
-      href: "/auth/login",
+      href: Routes.LOGIN,
       variant: "tealOutline",
     },
     {
       text: "SIGNUP",
-      href: "/auth/signup",
+      href: Routes.SIGNUP,
       variant: "tealPrimary",
     },
   ];
@@ -83,12 +84,12 @@ export default function Home() {
         buttons={[
           {
             text: "LOGIN",
-            href: "/auth/login",
+            href: Routes.LOGIN,
             variant: "tealOutline",
           },
           {
             text: "SIGNUP",
-            href: "/auth/signup",
+            href: Routes.SIGNUP,
             variant: "tealPrimary",
           },
         ]}

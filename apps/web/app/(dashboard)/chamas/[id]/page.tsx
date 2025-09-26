@@ -13,6 +13,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { BalanceDisplay } from "@/components/ui/balance-display";
 import { useExchangeRate, formatNumber, btcToFiat } from "@bitsacco/core";
 import { apiClient } from "@/lib/auth";
+import { Routes } from "@/lib/routes";
 import {
   ArrowLeftIcon,
   UsersThreeIcon,
@@ -174,7 +175,7 @@ export default function ChamaDetailsPage() {
           description="We encountered an error while loading this chama's details. Please try again or check your connection."
           action={{
             label: "Back to Chamas",
-            onClick: () => router.push("/dashboard/chamas"),
+            onClick: () => router.push(Routes.CHAMAS),
             variant: "tealPrimary",
           }}
         />
@@ -191,7 +192,7 @@ export default function ChamaDetailsPage() {
             <Button
               variant="tealOutline"
               size="sm"
-              onClick={() => router.push("/dashboard/chamas")}
+              onClick={() => router.push(Routes.CHAMAS)}
               className="p-2"
             >
               <ArrowLeftIcon size={20} />

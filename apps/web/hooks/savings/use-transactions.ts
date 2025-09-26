@@ -7,6 +7,7 @@ import type {
   SolowalletTx,
 } from "@bitsacco/core";
 import { PersonalTransactionStatus } from "@bitsacco/core";
+import { Routes } from "@/lib/routes";
 
 // Define simple types inline
 type PaymentMethod = "mpesa" | "lightning";
@@ -136,7 +137,7 @@ export function useTransactions(
       try {
         setError(null);
 
-        const response = await fetch("/api/personal/deposit", {
+        const response = await fetch(Routes.API.PERSONAL.DEPOSIT, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -192,7 +193,7 @@ export function useTransactions(
       try {
         setError(null);
 
-        const response = await fetch("/api/personal/withdraw", {
+        const response = await fetch(Routes.API.PERSONAL.WITHDRAW, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

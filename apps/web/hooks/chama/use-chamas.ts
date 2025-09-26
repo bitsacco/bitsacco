@@ -7,6 +7,7 @@ import type {
   BulkChamaTxMetaResponse,
   ChamaMeta,
 } from "@bitsacco/core";
+import { Routes } from "@/lib/routes";
 
 interface UseChamasOptions {
   page?: number;
@@ -71,7 +72,7 @@ export function useChamas({
     try {
       if (!chamas?.chamas?.length || !session?.user?.id) return;
 
-      const response = await fetch("/api/chama/meta", {
+      const response = await fetch(Routes.API.CHAMA.META, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
