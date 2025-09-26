@@ -33,11 +33,6 @@ const navigation = [
     href: "/dashboard/chamas",
     icon: UsersThreeIcon,
   },
-  // {
-  //   name: "Account",
-  //   href: "/dashboard/account",
-  //   icon: GearIcon,
-  // },
 ];
 
 export default function DashboardLayout({
@@ -181,25 +176,39 @@ function SidebarContent({
 
       {/* User section - Fixed at bottom */}
       <div
-        className={`flex-shrink-0 border-t border-slate-700 ${isMobile ? "px-6 py-4 mt-8" : "p-4"}`}
+        className={`flex-shrink-0 gap-2 border-t border-slate-700 ${isMobile ? "px-6 py-4 mt-8" : "p-4"}`}
       >
-        <div
-          className={`flex items-center space-x-3 mb-4 ${isMobile ? "" : "px-2"}`}
+        <Link
+          key={"account-settings"}
+          href={"/dashboard/account"}
+          onClick={onNavigate}
+          className={`group flex items-center transition-all duration-200 mb-4 ${
+            isMobile
+              ? `px-4 py-3 text-xl font-semibold rounded-lg text-white hover:bg-slate-700/50`
+              : `px-4 py-3 text-base font-medium rounded-xl text-gray-300 hover:bg-slate-700/60 hover:text-white`
+          }`}
         >
-          <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg">
-            <UserIcon size={18} weight="fill" className="text-white" />
+          <div
+            className={`flex items-center space-x-3 ${isMobile ? "" : "px-2"}`}
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg">
+              <UserIcon size={18} weight="fill" className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-base font-medium text-gray-100 truncate">
+                {(session?.user as CoreUser)?.profile?.name || "User"}
+              </p>
+              <p className="text-sm text-gray-400 truncate">
+                {session?.user?.id
+                  ? `ID: ${session.user.id.slice(0, 8)}...`
+                  : "Member"}
+              </p>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-base font-medium text-gray-100 truncate">
-              {(session?.user as CoreUser)?.profile?.name || "User"}
-            </p>
-            <p className="text-sm text-gray-400 truncate">
-              {session?.user?.id
-                ? `ID: ${session.user.id.slice(0, 8)}...`
-                : "Member"}
-            </p>
-          </div>
-        </div>
+          {!isMobile && pathname.startsWith("/dashboard/account") && (
+            <div className="ml-auto w-1 h-5 bg-teal-400 rounded-full" />
+          )}
+        </Link>
         <Button
           variant="outline"
           size="md"
