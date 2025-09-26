@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { WalletResponseDto, WalletType } from "@bitsacco/core";
+import { Routes } from "@/lib/routes";
 
 // Define simple types inline
 interface CreateWalletRequest {
@@ -46,7 +47,7 @@ export function useWallets(): UseWalletsReturn {
       setLoading(true);
       setError(null);
 
-      const response = await fetch("/api/personal/wallets", {
+      const response = await fetch(Routes.API.PERSONAL.WALLETS, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -77,7 +78,7 @@ export function useWallets(): UseWalletsReturn {
       try {
         setError(null);
 
-        const response = await fetch("/api/personal/wallets", {
+        const response = await fetch(Routes.API.PERSONAL.WALLETS, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

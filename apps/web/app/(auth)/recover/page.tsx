@@ -4,52 +4,35 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, Logo, Container } from "@bitsacco/ui";
-import { Role } from "@bitsacco/core/types";
 import { PinInput } from "@/components/pin-input";
+import { Routes } from "@/lib/routes";
 
-export default function SignupPage() {
+export default function RecoverPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [step, setStep] = useState<"register" | "verify">("register");
+  const [step, setStep] = useState<"request" | "verify" | "reset">("request");
   const [formData, setFormData] = useState({
     phone: "",
-    pin: "",
-    confirmPin: "",
     otp: "",
-    name: "",
+    newPin: "",
+    confirmPin: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const router = useRouter();
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRequestOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
-    // Validate PIN length and confirmation
-    if (formData.pin.length !== 6) {
-      setError("Please enter a complete 6-digit PIN");
-      setIsLoading(false);
-      return;
-    }
-
-    if (formData.pin !== formData.confirmPin) {
-      setError("PINs do not match");
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      const response = await fetch("/api/auth/register", {
+      const response = await fetch(Routes.API.RECOVER.REQUEST, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          pin: formData.pin,
           phone: formData.phone,
-          name: formData.name,
-          roles: [Role.Member],
         }),
       });
 
@@ -58,7 +41,7 @@ export default function SignupPage() {
         setSuccess("Verification code sent to your phone");
       } else {
         const data = await response.json();
-        setError(data.message || "Registration failed");
+        setError(data.message || "Request failed");
       }
     } catch {
       setError("An error occurred. Please try again.");
@@ -67,13 +50,41 @@ export default function SignupPage() {
     }
   };
 
-  const handleVerify = async (e: React.FormEvent) => {
+  const handleProceedToReset = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validate OTP format
+    if (formData.otp.length !== 6) {
+      setError("Please enter a complete 6-digit code");
+      return;
+    }
+
+    // Move to PIN reset step
+    setStep("reset");
+    setError("");
+    setSuccess("Enter your new PIN");
+  };
+
+  const handleResetPin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
+    // Validate PIN length and confirmation
+    if (formData.newPin.length !== 6) {
+      setError("Please enter a complete 6-digit PIN");
+      setIsLoading(false);
+      return;
+    }
+
+    if (formData.newPin !== formData.confirmPin) {
+      setError("PINs do not match");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetch("/api/auth/verify", {
+      const response = await fetch(Routes.API.RECOVER.RESET, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -81,6 +92,7 @@ export default function SignupPage() {
         body: JSON.stringify({
           phone: formData.phone,
           otp: formData.otp,
+          newPin: formData.newPin,
         }),
       });
 
@@ -89,15 +101,14 @@ export default function SignupPage() {
 
         // If we got auth tokens, the user is now authenticated
         if (data.accessToken && data.refreshToken) {
-          // User is automatically logged in after verification
-          router.push("/dashboard");
+          router.push(Routes.MEMBERSHIP);
         } else {
           // Otherwise redirect to login
-          router.push("/auth/login");
+          router.push(Routes.LOGIN);
         }
       } else {
         const data = await response.json();
-        setError(data.message || "Verification failed");
+        setError(data.message || "Reset failed");
       }
     } catch {
       setError("An error occurred. Please try again.");
@@ -123,49 +134,34 @@ export default function SignupPage() {
               <Logo className="h-12 w-auto text-white" />
             </div>
             <h2 className="text-center text-3xl font-bold text-gray-100">
-              {step === "register"
-                ? "Create your account"
-                : "Verify your account"}
+              {step === "request"
+                ? "Recover your account"
+                : step === "verify"
+                  ? "Verify your identity"
+                  : "Create new PIN"}
             </h2>
             <p className="mt-2 text-center text-sm text-gray-400">
-              {step === "register" ? (
+              {step === "request" ? (
                 <>
-                  Already have an account?{" "}
+                  Remember your PIN?{" "}
                   <Link
-                    href="/auth/login"
+                    href={Routes.LOGIN}
                     className="font-medium text-teal-400 hover:text-teal-300 transition-colors"
                   >
                     Sign in
                   </Link>
                 </>
+              ) : step === "verify" ? (
+                "Enter the code we sent you"
               ) : (
-                "Enter the verification code sent to you"
+                "Choose a secure PIN you'll remember"
               )}
             </p>
           </div>
 
           <div className="bg-slate-800/50 backdrop-blur-xl shadow-2xl rounded-2xl p-8 border border-slate-700">
-            {step === "register" ? (
-              <form onSubmit={handleRegister} className="space-y-6">
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-gray-300"
-                  >
-                    Full Name
-                  </label>
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="John Doe"
-                    className="mt-1 block w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg placeholder-gray-500 text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:bg-slate-900/70 transition-all"
-                  />
-                </div>
-
+            {step === "request" ? (
+              <form onSubmit={handleRequestOTP} className="space-y-6">
                 <div>
                   <label
                     htmlFor="phone"
@@ -185,39 +181,6 @@ export default function SignupPage() {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-4">
-                    Create a 6-digit PIN
-                  </label>
-                  <PinInput
-                    value={formData.pin}
-                    onChange={(value) =>
-                      setFormData((prev) => ({ ...prev, pin: value }))
-                    }
-                    autoFocus={false}
-                    error={!!error && error.includes("PIN")}
-                    disabled={isLoading}
-                  />
-                  <p className="mt-2 text-xs text-gray-500 text-center">
-                    You&apos;ll use this PIN to access your account
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-4">
-                    Confirm your PIN
-                  </label>
-                  <PinInput
-                    value={formData.confirmPin}
-                    onChange={(value) =>
-                      setFormData((prev) => ({ ...prev, confirmPin: value }))
-                    }
-                    autoFocus={false}
-                    error={!!error && error.includes("match")}
-                    disabled={isLoading}
-                  />
-                </div>
-
                 {error && (
                   <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-4">
                     <div className="text-sm text-red-400">{error}</div>
@@ -230,23 +193,13 @@ export default function SignupPage() {
                   size="lg"
                   fullWidth
                   loading={isLoading}
-                  disabled={
-                    !formData.name ||
-                    !formData.phone ||
-                    formData.pin.length !== 6 ||
-                    formData.confirmPin.length !== 6
-                  }
                   className="shadow-lg shadow-teal-500/20"
                 >
-                  Create Account
+                  Send Recovery Code
                 </Button>
               </form>
-            ) : (
-              <form
-                id="verify-form"
-                onSubmit={handleVerify}
-                className="space-y-6"
-              >
+            ) : step === "verify" ? (
+              <form onSubmit={handleProceedToReset} className="space-y-6">
                 {success && (
                   <div className="rounded-lg bg-teal-500/10 border border-teal-500/30 p-4">
                     <div className="text-sm text-teal-400">{success}</div>
@@ -285,18 +238,80 @@ export default function SignupPage() {
                   disabled={formData.otp.length !== 6}
                   className="shadow-lg shadow-teal-500/20"
                 >
-                  Verify Account
+                  Continue
                 </Button>
 
                 <div className="text-center">
                   <button
                     type="button"
-                    onClick={() => setStep("register")}
+                    onClick={() => {
+                      setStep("request");
+                      setFormData((prev) => ({ ...prev, otp: "" }));
+                    }}
                     className="text-sm text-teal-400 hover:text-teal-300 transition-colors"
                   >
-                    Back to registration
+                    Request new code
                   </button>
                 </div>
+              </form>
+            ) : (
+              <form onSubmit={handleResetPin} className="space-y-6">
+                {success && (
+                  <div className="rounded-lg bg-teal-500/10 border border-teal-500/30 p-4">
+                    <div className="text-sm text-teal-400">{success}</div>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-4">
+                    Create new 6-digit PIN
+                  </label>
+                  <PinInput
+                    value={formData.newPin}
+                    onChange={(value) =>
+                      setFormData((prev) => ({ ...prev, newPin: value }))
+                    }
+                    autoFocus={true}
+                    error={!!error && error.includes("PIN")}
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-4">
+                    Confirm new PIN
+                  </label>
+                  <PinInput
+                    value={formData.confirmPin}
+                    onChange={(value) =>
+                      setFormData((prev) => ({ ...prev, confirmPin: value }))
+                    }
+                    autoFocus={false}
+                    error={!!error && error.includes("match")}
+                    disabled={isLoading}
+                  />
+                </div>
+
+                {error && (
+                  <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-4">
+                    <div className="text-sm text-red-400">{error}</div>
+                  </div>
+                )}
+
+                <Button
+                  type="submit"
+                  variant="tealPrimary"
+                  size="lg"
+                  fullWidth
+                  loading={isLoading}
+                  disabled={
+                    formData.newPin.length !== 6 ||
+                    formData.confirmPin.length !== 6
+                  }
+                  className="shadow-lg shadow-teal-500/20"
+                >
+                  Reset PIN
+                </Button>
               </form>
             )}
           </div>

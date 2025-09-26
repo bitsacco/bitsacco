@@ -6,6 +6,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button, Logo, Container } from "@bitsacco/ui";
 import { PinInput } from "@/components/pin-input";
+import { Routes } from "@/lib/routes";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +40,7 @@ export default function LoginPage() {
       if (result?.error) {
         setError("Invalid credentials. Please try again.");
       } else {
-        router.push("/dashboard");
+        router.push(Routes.MEMBERSHIP);
       }
     } catch {
       setError("An error occurred. Please try again.");
@@ -70,7 +71,7 @@ export default function LoginPage() {
             <p className="mt-2 text-center text-sm text-gray-400">
               Don&apos;t have an account?{" "}
               <Link
-                href="/auth/signup"
+                href={Routes.SIGNUP}
                 className="font-medium text-teal-400 hover:text-teal-300 transition-colors"
               >
                 Sign up
@@ -134,7 +135,7 @@ export default function LoginPage() {
 
               <div className="text-center">
                 <Link
-                  href="/auth/recover"
+                  href={Routes.RECOVER}
                   className="text-sm text-teal-400 hover:text-teal-300 transition-colors"
                 >
                   Forgot your PIN?

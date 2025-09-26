@@ -2,6 +2,7 @@
 
 import { Button, Container, Logo } from "@bitsacco/ui";
 import { WhatsappLogoIcon, EnvelopeIcon } from "@phosphor-icons/react";
+import { Routes } from "@/lib/routes";
 
 export default function NotFound() {
   const whatsappNumber =
@@ -15,12 +16,11 @@ export default function NotFound() {
         <div className="text-center space-y-8">
           {/* Logo */}
           <div className="flex justify-center">
-            <Logo className="h-16 w-auto" href="/" />
+            <Logo className="h-16 w-auto mb-12" href="/" full={false} />
           </div>
 
           {/* 404 Error */}
           <div>
-            <h1 className="text-8xl font-bold text-teal-400 mb-4">404</h1>
             <h2 className="text-3xl font-bold text-gray-100 mb-4">
               Page Not Found
             </h2>
@@ -32,7 +32,7 @@ export default function NotFound() {
           {/* Actions */}
           <div className="space-y-4">
             <Button
-              href="/"
+              href={Routes.HOME}
               variant="tealPrimary"
               size="lg"
               fullWidth
@@ -40,8 +40,13 @@ export default function NotFound() {
             >
               Go to Homepage
             </Button>
-            <Button href="/dashboard" variant="tealOutline" size="lg" fullWidth>
-              Go to Dashboard
+            <Button
+              href={Routes.MEMBERSHIP}
+              variant="tealOutline"
+              size="lg"
+              fullWidth
+            >
+              Go to Membership
             </Button>
           </div>
 

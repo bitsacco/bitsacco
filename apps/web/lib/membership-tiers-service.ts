@@ -1,4 +1,5 @@
 import type { MembershipTier } from "@bitsacco/core";
+import { Routes } from "./routes";
 
 /**
  * Mock membership tiers service
@@ -23,7 +24,7 @@ export interface MembershipTiersResponse {
  */
 export async function fetchMembershipTiers(): Promise<MembershipTiersResponse> {
   try {
-    const response = await fetch("/api/membership/tiers");
+    const response = await fetch(Routes.API.MEMBERSHIP.TIERS);
     const data = await response.json();
     return data;
   } catch (error) {

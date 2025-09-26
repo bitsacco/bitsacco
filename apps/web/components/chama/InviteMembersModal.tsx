@@ -10,6 +10,7 @@ import {
   PaperPlaneIcon,
   UsersThreeIcon,
 } from "@phosphor-icons/react";
+import { Routes } from "@/lib/routes";
 
 interface InviteMembersModalProps {
   isOpen: boolean;
@@ -69,7 +70,7 @@ export function InviteMembersModal({
     setIsSending(true);
 
     try {
-      const response = await fetch("/api/chama/invite", {
+      const response = await fetch(Routes.API.CHAMA.INVITE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

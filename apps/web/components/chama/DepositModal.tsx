@@ -11,6 +11,7 @@ import {
   PlusIcon,
 } from "@phosphor-icons/react";
 import type { Chama } from "@bitsacco/core";
+import { Routes } from "@/lib/routes";
 
 interface DepositModalProps {
   isOpen: boolean;
@@ -41,7 +42,7 @@ export function DepositModal({ isOpen, onClose, chama }: DepositModalProps) {
     setIsProcessing(true);
 
     try {
-      const response = await fetch("/api/chama/deposits", {
+      const response = await fetch(Routes.API.CHAMA.DEPOSITS, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

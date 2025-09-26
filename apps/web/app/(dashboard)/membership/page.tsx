@@ -31,6 +31,7 @@ import { BuySharesModal } from "@/components/buy-shares-modal";
 import { TransactionHistory } from "@/components/transaction-history";
 import { SHARE_VALUE_KES } from "@/lib/config";
 import { useFeatureFlag } from "@/lib/feature-flags-provider";
+import { Routes } from "@/lib/routes";
 import { FEATURE_FLAGS } from "@/lib/features";
 import { MembershipBusinessLogic } from "@/lib/membership-business-logic";
 import { fetchMembershipTiers } from "@/lib/membership-tiers-service";
@@ -101,7 +102,7 @@ export default function MembershipPage() {
   // Fetch offers
   const fetchOffers = async () => {
     try {
-      const response = await fetch("/api/membership/shares/offers");
+      const response = await fetch(Routes.API.MEMBERSHIP.SHARES.OFFERS);
       const data = await response.json();
       setOffers(data.data);
     } catch (error) {
@@ -113,7 +114,7 @@ export default function MembershipPage() {
   const fetchTransactions = async () => {
     try {
       const response = await fetch(
-        "/api/membership/shares/transactions?size=20",
+        `${Routes.API.MEMBERSHIP.SHARES.TRANSACTIONS}?size=20`,
       );
       const data = await response.json();
       console.log("[MembershipPage] Raw API response:", data);

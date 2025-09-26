@@ -1,14 +1,34 @@
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import type { NextAuthRequest } from "next-auth";
+import { Routes } from "@/lib/routes";
 
 export default auth((req: NextAuthRequest) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
 
   const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth");
-  const isAuthRoute = nextUrl.pathname.startsWith("/auth");
-  const isDashboardRoute = nextUrl.pathname.startsWith("/dashboard");
+
+  // Define auth routes (flattened)
+  const authRoutes = [
+    Routes.LOGIN,
+    Routes.SIGNUP,
+    Routes.RECOVER,
+    Routes.AUTH_ERROR,
+  ];
+  const isAuthRoute = authRoutes.some((route) => nextUrl.pathname === route);
+
+  // Define protected dashboard routes (flattened)
+  const dashboardRoutes = [
+    Routes.MEMBERSHIP,
+    Routes.PERSONAL,
+    Routes.CHAMAS,
+    Routes.ACCOUNT,
+  ];
+  const isDashboardRoute = dashboardRoutes.some(
+    (route) =>
+      nextUrl.pathname === route || nextUrl.pathname.startsWith(route + "/"),
+  );
 
   // Allow API auth routes
   if (isApiAuthRoute) {
@@ -17,12 +37,12 @@ export default auth((req: NextAuthRequest) => {
 
   // Redirect authenticated users away from auth pages
   if (isAuthRoute && isLoggedIn) {
-    return Response.redirect(new URL("/dashboard", nextUrl));
+    return Response.redirect(new URL(Routes.MEMBERSHIP, nextUrl));
   }
 
   // Protect dashboard routes
   if (isDashboardRoute && !isLoggedIn) {
-    return Response.redirect(new URL("/auth/login", nextUrl));
+    return Response.redirect(new URL(Routes.LOGIN, nextUrl));
   }
 
   return NextResponse.next();

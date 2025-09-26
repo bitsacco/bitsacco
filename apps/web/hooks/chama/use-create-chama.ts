@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import type { Chama } from "@bitsacco/core";
+import { Routes } from "@/lib/routes";
 
 interface CreateChamaData {
   name: string;
@@ -25,7 +26,7 @@ export function useCreateChama() {
         setError(null);
         setIsSuccess(false);
 
-        const response = await fetch("/api/chama/create", {
+        const response = await fetch(Routes.API.CHAMA.CREATE, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
