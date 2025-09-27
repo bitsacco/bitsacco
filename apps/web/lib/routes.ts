@@ -53,6 +53,11 @@ export const Routes = {
         LIST: "/api/chama/transactions/list",
         STATUS: "/api/chama/transactions/status",
       },
+      WITHDRAWALS: {
+        REQUEST: "/api/chama/withdraw/request",
+        APPROVE: "/api/chama/withdraw/approve",
+        EXECUTE: "/api/chama/withdraw/execute",
+      },
     },
     MEMBERSHIP: {
       MEMBERS: "/api/membership/members",
