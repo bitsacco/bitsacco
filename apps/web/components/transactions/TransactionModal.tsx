@@ -218,10 +218,6 @@ export function TransactionModal({
     switch (context) {
       case "chama":
         return targetName || "Chama";
-      case "personal":
-        return targetName || "Personal Wallet";
-      case "membership":
-        return "Membership Shares";
       default:
         return "Account";
     }

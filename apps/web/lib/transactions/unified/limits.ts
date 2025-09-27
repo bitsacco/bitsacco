@@ -4,13 +4,10 @@
  */
 
 import {
-  PERSONAL_DEPOSIT_LIMITS,
-  PERSONAL_WITHDRAW_LIMITS,
   LIGHTNING_DEPOSIT_LIMITS,
   LIGHTNING_WITHDRAW_LIMITS,
   CHAMA_DEPOSIT_LIMITS,
   CHAMA_WITHDRAW_LIMITS,
-  SHARE_VALUE_KES,
 } from "@/lib/config";
 
 import type {
@@ -61,27 +58,11 @@ function getLimitConfig(
 
   // Context-based limits for M-Pesa and other payment methods
   switch (context) {
-    case "personal":
-      return type === "deposit"
-        ? PERSONAL_DEPOSIT_LIMITS
-        : PERSONAL_WITHDRAW_LIMITS;
-
     case "chama":
       return type === "deposit" ? CHAMA_DEPOSIT_LIMITS : CHAMA_WITHDRAW_LIMITS;
 
-    case "membership":
-      // Membership transactions are based on share value
-      // Minimum 1 share, maximum reasonable number of shares
-      return {
-        MIN_AMOUNT_KES: SHARE_VALUE_KES,
-        MAX_AMOUNT_KES: SHARE_VALUE_KES * 100, // Max 100 shares
-      };
-
     default:
-      // Fallback to personal limits
-      return type === "deposit"
-        ? PERSONAL_DEPOSIT_LIMITS
-        : PERSONAL_WITHDRAW_LIMITS;
+      return type === "deposit" ? CHAMA_DEPOSIT_LIMITS : CHAMA_WITHDRAW_LIMITS;
   }
 }
 

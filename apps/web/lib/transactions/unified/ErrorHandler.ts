@@ -391,9 +391,7 @@ export class TransactionErrorHandler {
 
       case TransactionErrorCode.INSUFFICIENT_BALANCE:
         actions.push("Check your account balance");
-        if (error.context === "personal") {
-          actions.push("Deposit funds to your wallet");
-        } else if (error.context === "chama") {
+        if (error.context === "chama") {
           actions.push("Make a chama deposit first");
         }
         break;

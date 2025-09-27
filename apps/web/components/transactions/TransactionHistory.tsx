@@ -67,7 +67,7 @@ export function TransactionHistory({
   className,
 }: TransactionHistoryProps) {
   const { transactions, loading, error } = useTransactions();
-  const { monitor, getHighPriorityTransactions } = useTransactionMonitor();
+  const { getHighPriorityTransactions } = useTransactionMonitor();
 
   // Local state
   const [searchTerm, setSearchTerm] = useState("");
@@ -143,23 +143,6 @@ export function TransactionHistory({
     });
   }, [getHighPriorityTransactions, context]);
 
-  // Handle action execution
-  const handleTransactionAction = async (action: {
-    handler: () => Promise<void>;
-  }) => {
-    try {
-      await action.handler();
-      // Optionally monitor the transaction for status changes
-      const transaction = filteredTransactions.find((tx) =>
-        tx.actions.some((a) => a === action),
-      );
-      if (transaction) {
-        monitor(transaction);
-      }
-    } catch {
-      // Handle action error silently
-    }
-  };
 
   // Get unique values for filters
   const availableStatuses = useMemo(() => {
@@ -226,7 +209,6 @@ export function TransactionHistory({
                   ) : (
                     <TransactionCard
                       transaction={tx}
-                      onAction={handleTransactionAction}
                       variant="compact"
                     />
                   )}
@@ -401,9 +383,6 @@ export function TransactionHistory({
                   ) : (
                     <TransactionCard
                       transaction={transaction}
-                      onAction={
-                        showActions ? handleTransactionAction : undefined
-                      }
                       variant="compact"
                     />
                   )}

@@ -137,7 +137,7 @@ function getPaymentMethodInfo(
 export function PaymentMethodSelector({
   amount,
   type,
-  context = "personal",
+  context = "chama",
   selectedMethod,
   availableMethods = ["mpesa", "lightning"],
   onSelect,
