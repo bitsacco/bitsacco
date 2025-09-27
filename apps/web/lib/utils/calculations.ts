@@ -8,14 +8,6 @@ import {
 } from "@bitsacco/core";
 
 /**
- * Convert KES to satoshis using current exchange rate
- */
-export function kestoSats(kesAmount: number, exchangeRate: number): number {
-  const btcAmount = kesAmount / exchangeRate;
-  return Math.round(btcAmount * 100000000); // Convert to sats
-}
-
-/**
  * Convert satoshis to KES using current exchange rate
  */
 export function satsToKes(sats: number, exchangeRate: number): number {

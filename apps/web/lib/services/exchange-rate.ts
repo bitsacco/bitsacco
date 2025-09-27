@@ -1,4 +1,4 @@
-import { FxApiClient, Currency } from "@bitsacco/core";
+import { FxApiClient } from "@bitsacco/core";
 import { satsToKes } from "@bitsacco/core";
 import type { QuoteResponse } from "@bitsacco/core";
 
@@ -9,9 +9,6 @@ import type { QuoteResponse } from "@bitsacco/core";
 export class ExchangeRateService {
   private static instance: ExchangeRateService;
   private fxClient: FxApiClient;
-  private cachedQuote: QuoteResponse | null = null;
-  private cacheExpiry: Date | null = null;
-  private readonly CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
 
   private constructor() {
     // Initialize FX client with base URL from environment
@@ -31,67 +28,35 @@ export class ExchangeRateService {
   }
 
   /**
-   * Get current BTC/KES exchange rate with caching
+   * Get current BTC/KES exchange rate from API
    */
   public async getExchangeRate(): Promise<{
     rate: number;
     quote: QuoteResponse;
-    isFromCache: boolean;
-  }> {
+  } | null> {
     try {
-      // Check if we have a valid cached quote
-      if (
-        this.cachedQuote &&
-        this.cacheExpiry &&
-        new Date() < this.cacheExpiry
-      ) {
-        return {
-          rate: Number(this.cachedQuote.rate),
-          quote: this.cachedQuote,
-          isFromCache: true,
-        };
-      }
-
       // Fetch fresh quote from API
       const quote = await this.fxClient.getQuote("KES");
 
-      // Cache the quote
-      this.cachedQuote = quote;
-      this.cacheExpiry = new Date(Date.now() + this.CACHE_DURATION_MS);
+      if (!quote) {
+        console.error("Failed to fetch exchange rate: API returned null");
+        return null;
+      }
+
+      // Validate the rate is a positive number
+      const rate = Number(quote.rate);
+      if (isNaN(rate) || rate <= 0) {
+        console.error("Invalid exchange rate received:", quote.rate);
+        return null;
+      }
 
       return {
-        rate: Number(quote.rate),
+        rate,
         quote,
-        isFromCache: false,
       };
     } catch (error) {
       console.error("Failed to fetch exchange rate:", error);
-
-      // If we have a cached quote, use it even if expired
-      if (this.cachedQuote) {
-        console.warn("Using expired cached exchange rate due to API failure");
-        return {
-          rate: Number(this.cachedQuote.rate),
-          quote: this.cachedQuote,
-          isFromCache: true,
-        };
-      }
-
-      // Fallback to default rate if no cache available
-      const fallbackQuote: QuoteResponse = {
-        id: "fallback",
-        from: Currency.KES,
-        to: Currency.BTC,
-        rate: "145000", // Reasonable fallback rate
-        expiry: new Date(Date.now() + this.CACHE_DURATION_MS).toISOString(),
-      };
-
-      console.warn("Using fallback exchange rate:", fallbackQuote.rate);
-      return {
-        rate: Number(fallbackQuote.rate),
-        quote: fallbackQuote,
-        isFromCache: false,
-      };
+      return null;
     }
   }
 
@@ -102,8 +67,13 @@ export class ExchangeRateService {
     kesAmount: number;
     rate: number;
     satsAmount: number;
-  }> {
-    const { rate } = await this.getExchangeRate();
+  } | null> {
+    const result = await this.getExchangeRate();
+    if (!result) {
+      return null;
+    }
+
+    const { rate } = result;
 
     // Convert msats to sats first (1 sat = 1000 msats)
     const satsAmount = Math.floor(msats / 1000);
@@ -124,8 +94,13 @@ export class ExchangeRateService {
   public async satsToKes(sats: number): Promise<{
     kesAmount: number;
     rate: number;
-  }> {
-    const { rate } = await this.getExchangeRate();
+  } | null> {
+    const result = await this.getExchangeRate();
+    if (!result) {
+      return null;
+    }
+
+    const { rate } = result;
 
     // Convert sats to KES using the utility function
     const kesAmount = satsToKes(sats, rate);
@@ -133,29 +108,6 @@ export class ExchangeRateService {
     return {
       kesAmount: Math.round(kesAmount), // Round to nearest cent
       rate,
-    };
-  }
-
-  /**
-   * Clear cache (useful for testing or manual refresh)
-   */
-  public clearCache(): void {
-    this.cachedQuote = null;
-    this.cacheExpiry = null;
-  }
-
-  /**
-   * Get cache status
-   */
-  public getCacheStatus(): {
-    hasCachedQuote: boolean;
-    isExpired: boolean;
-    expiresAt: Date | null;
-  } {
-    return {
-      hasCachedQuote: this.cachedQuote !== null,
-      isExpired: this.cacheExpiry ? new Date() >= this.cacheExpiry : true,
-      expiresAt: this.cacheExpiry,
     };
   }
 }

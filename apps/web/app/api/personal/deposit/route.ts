@@ -115,9 +115,27 @@ export async function POST(req: NextRequest) {
     } else if (body.paymentMethod === "lightning") {
       // For Lightning deposits, use amountMsats (convert from KES)
       const exchangeRateService = getExchangeRateService();
-      const { rate } = await exchangeRateService.getExchangeRate();
-      const amountSats = kesToSats(body.amount, rate);
-      depositData.amountMsats = amountSats * 1000; // Convert sats to msats
+      const result = await exchangeRateService.getExchangeRate();
+
+      if (!result) {
+        return NextResponse.json(
+          {
+            error: "Exchange rate service unavailable. Please try again later.",
+          },
+          { status: 503 },
+        );
+      }
+
+      try {
+        const amountSats = kesToSats(body.amount, result.rate);
+        depositData.amountMsats = amountSats * 1000; // Convert sats to msats
+      } catch (error) {
+        console.error("Exchange rate validation failed:", error);
+        return NextResponse.json(
+          { error: "Invalid exchange rate. Please try again later." },
+          { status: 503 },
+        );
+      }
       // No onramp data needed - backend will generate invoice directly
     }
 
