@@ -179,7 +179,7 @@ export function LightningAddressCard({
 
     const fullAddress = existingAddress.address.includes("@")
       ? existingAddress.address
-      : `${existingAddress.address}@${existingAddress.domain || "bitsacco.com"}`;
+      : `${existingAddress.address}@bitsacco.com`;
 
     navigator.clipboard.writeText(fullAddress);
     setCopied(true);
@@ -266,7 +266,7 @@ export function LightningAddressCard({
 
     const fullAddress = existingAddress.address.includes("@")
       ? existingAddress.address
-      : `${existingAddress.address}@${existingAddress.domain || "bitsacco.com"}`;
+      : `${existingAddress.address}@bitsacco.com`;
 
     if (!qrDataUrl) {
       try {
@@ -292,7 +292,7 @@ export function LightningAddressCard({
 
     const fullAddress = existingAddress.address.includes("@")
       ? existingAddress.address
-      : `${existingAddress.address}@${existingAddress.domain || "bitsacco.com"}`;
+      : `${existingAddress.address}@bitsacco.com`;
 
     if (navigator.share) {
       try {
@@ -336,7 +336,7 @@ export function LightningAddressCard({
   if (existingAddress) {
     const displayAddress = existingAddress.address.includes("@")
       ? existingAddress.address
-      : `${existingAddress.address}@${existingAddress.domain || "bitsacco.com"}`;
+      : `${existingAddress.address}@bitsacco.com`;
 
     return (
       <div className="bg-gradient-to-r from-orange-500/10 to-yellow-500/10 border border-orange-500/20 rounded-xl p-6">

@@ -1,6 +1,7 @@
 import { AuthApiClient } from "./auth-client";
 import { ChamaApiClient } from "./chama-client";
 import { FxApiClient } from "./fx-client";
+import { LightningAddressApiClient } from "./lightning-address-client";
 import { MembershipApiClient } from "./membership-client";
 import { PersonalApiClient } from "./personal-client";
 import { WalletApiClient } from "./wallet-client";
@@ -18,6 +19,7 @@ export interface ApiClientConfig {
 export class ApiClient {
   public auth: AuthApiClient;
   public chamas: ChamaApiClient;
+  public lightningAddress: LightningAddressApiClient;
   public membership: MembershipApiClient;
   public personal: PersonalApiClient;
   public wallet: WalletApiClient;
@@ -27,6 +29,7 @@ export class ApiClient {
     // Initialize all service clients with the same configuration
     this.auth = new AuthApiClient(config);
     this.chamas = new ChamaApiClient(config);
+    this.lightningAddress = new LightningAddressApiClient(config);
     this.membership = new MembershipApiClient(config);
     this.personal = new PersonalApiClient(config);
     this.wallet = new WalletApiClient(config);
@@ -40,6 +43,7 @@ export class ApiClient {
   setAuthService(authService: AuthService): void {
     this.auth.setAuthService(authService);
     this.chamas.setAuthService(authService);
+    this.lightningAddress.setAuthService(authService);
     this.membership.setAuthService(authService);
     this.personal.setAuthService(authService);
     this.wallet.setAuthService(authService);
