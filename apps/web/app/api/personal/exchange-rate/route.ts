@@ -6,10 +6,17 @@ export async function GET() {
   try {
     const exchangeRateService = getExchangeRateService();
 
-    // Get current exchange rate with metadata
-    const { rate, quote, isFromCache } =
-      await exchangeRateService.getExchangeRate();
-    const cacheStatus = exchangeRateService.getCacheStatus();
+    // Get current exchange rate
+    const result = await exchangeRateService.getExchangeRate();
+
+    if (!result) {
+      return NextResponse.json(
+        { error: "Exchange rate service unavailable" },
+        { status: 503 },
+      );
+    }
+
+    const { rate, quote } = result;
 
     return NextResponse.json({
       rate,
@@ -22,12 +29,6 @@ export async function GET() {
         expiry: quote.expiry,
       },
       metadata: {
-        isFromCache,
-        cacheStatus: {
-          hasCachedQuote: cacheStatus.hasCachedQuote,
-          isExpired: cacheStatus.isExpired,
-          expiresAt: cacheStatus.expiresAt,
-        },
         lastUpdated: new Date().toISOString(),
       },
     });
@@ -43,20 +44,25 @@ export async function GET() {
   }
 }
 
-// POST /api/personal/exchange-rate/refresh - Force refresh the exchange rate cache
+// POST /api/personal/exchange-rate/refresh - Get fresh exchange rate (no caching)
 export async function POST() {
   try {
     const exchangeRateService = getExchangeRateService();
 
-    // Clear cache to force a fresh fetch
-    exchangeRateService.clearCache();
-
     // Get fresh exchange rate
-    const { rate, quote, isFromCache } =
-      await exchangeRateService.getExchangeRate();
+    const result = await exchangeRateService.getExchangeRate();
+
+    if (!result) {
+      return NextResponse.json(
+        { error: "Exchange rate service unavailable" },
+        { status: 503 },
+      );
+    }
+
+    const { rate, quote } = result;
 
     return NextResponse.json({
-      message: "Exchange rate cache refreshed",
+      message: "Fresh exchange rate retrieved",
       rate,
       currency: "KES",
       quote: {
@@ -67,15 +73,14 @@ export async function POST() {
         expiry: quote.expiry,
       },
       metadata: {
-        isFromCache,
         refreshedAt: new Date().toISOString(),
       },
     });
   } catch (error) {
-    console.error("Error refreshing exchange rate:", error);
+    console.error("Error fetching exchange rate:", error);
     return NextResponse.json(
       {
-        error: "Failed to refresh exchange rate",
+        error: "Failed to fetch exchange rate",
         details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 },

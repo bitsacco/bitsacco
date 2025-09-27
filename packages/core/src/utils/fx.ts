@@ -67,6 +67,14 @@ export function btcToFiat({
  * Convert KES to sats
  */
 export function kesToSats(kesAmount: number, btcToKesRate: number): number {
+  if (isNaN(btcToKesRate) || btcToKesRate <= 0) {
+    throw new Error("Exchange rate must be a positive number");
+  }
+
+  if (kesAmount < 0) {
+    throw new Error("KES amount must be non-negative");
+  }
+
   const btcAmount = kesAmount / btcToKesRate;
   return Math.floor(btcAmount * SATS_PER_BTC);
 }
@@ -75,6 +83,14 @@ export function kesToSats(kesAmount: number, btcToKesRate: number): number {
  * Convert sats to KES
  */
 export function satsToKes(satsAmount: number, btcToKesRate: number): number {
+  if (isNaN(btcToKesRate) || btcToKesRate <= 0) {
+    throw new Error("Exchange rate must be a positive number");
+  }
+
+  if (satsAmount < 0) {
+    throw new Error("Sats amount must be non-negative");
+  }
+
   const btcAmount = satsAmount / SATS_PER_BTC;
   return btcAmount * btcToKesRate;
 }
