@@ -187,6 +187,7 @@ export const authConfig: NextAuthConfig = {
             // Return user with tokens attached for JWT callback to process
             const authUser: User = {
               ...response.data.user,
+              roles: response.data.user?.roles || [],
               accessToken: response.data.accessToken || "",
               refreshToken: response.data.refreshToken || "",
             };
@@ -221,6 +222,7 @@ export const authConfig: NextAuthConfig = {
             // Return user with tokens attached for JWT callback to process
             const authUser: User = {
               ...response.data.user,
+              roles: response.data.user?.roles || [],
               accessToken: response.data.accessToken || "",
               refreshToken: response.data.refreshToken || "",
             };

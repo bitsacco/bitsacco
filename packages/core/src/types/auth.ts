@@ -2,32 +2,33 @@ export enum Role {
   Member = 0,
   Admin = 1,
   SuperAdmin = 3,
+  UNRECOGNIZED = -1,
 }
 
 export interface LoginUserRequest {
   pin: string;
-  phone?: string;
-  npub?: string;
+  phone?: string | undefined;
+  npub?: string | undefined;
 }
 
 export interface RegisterUserRequest {
   pin: string;
-  phone?: string;
-  npub?: string;
+  phone?: string | undefined;
+  npub?: string | undefined;
   roles: Role[];
 }
 
 export interface VerifyUserRequest {
-  phone?: string;
-  npub?: string;
-  otp?: string;
+  phone?: string | undefined;
+  npub?: string | undefined;
+  otp?: string | undefined;
 }
 
 export interface RecoverUserRequest {
   pin: string;
-  phone?: string;
-  npub?: string;
-  otp?: string;
+  phone?: string | undefined;
+  npub?: string | undefined;
+  otp?: string | undefined;
 }
 
 export interface AuthRequest {
@@ -35,9 +36,9 @@ export interface AuthRequest {
 }
 
 export interface AuthResponse {
-  user: User;
-  accessToken?: string;
-  refreshToken?: string;
+  user: User | undefined;
+  accessToken?: string | undefined;
+  refreshToken?: string | undefined;
 }
 
 export interface RefreshTokenRequest {
@@ -59,9 +60,9 @@ export interface RevokeTokenResponse {
 
 export interface User {
   id: string;
-  phone?: Phone;
-  nostr?: Nostr;
-  profile?: Profile;
+  phone?: Phone | undefined;
+  nostr?: Nostr | undefined;
+  profile?: Profile | undefined;
   roles: Role[];
 }
 
@@ -76,31 +77,42 @@ export interface Nostr {
 }
 
 export interface Profile {
-  name?: string;
-  avatarUrl?: string;
+  /** Users name or nym */
+  name?: string | undefined;
+  /** Users avatar url */
+  avatarUrl?: string | undefined;
 }
 
 export interface UpdateUserRequest {
   userId: string;
-  updates: UserUpdates;
+  updates: UserUpdates | undefined;
 }
 
 export interface UserUpdates {
-  phone?: Phone;
-  nostr?: Nostr;
-  profile?: Profile;
+  phone?: Phone | undefined;
+  nostr?: Nostr | undefined;
+  profile?: Profile | undefined;
   roles: Role[];
 }
 
 export interface AuthTokenPayload {
   user: User;
-  expires: Date;
+  iat: number; // Issued at
+  nbf: number; // Not before
+  iss: string; // Issuer
+  aud: string; // Audience
+  jti: string; // JWT ID
+  exp?: number; // Optional as it will be added by JWT service
 }
 
 export interface RefreshTokenPayload {
   userId: string;
   tokenId: string;
-  expires: Date;
+  iat: number; // Issued at
+  jti: string; // JWT ID
+  iss: string; // Issuer
+  sub: string; // Subject
+  exp?: number; // Optional as it will be added by JWT service
 }
 
 export interface TokenResponse {

@@ -29,11 +29,18 @@ async function proxyHandler(
 
     // Add authentication header if user is authenticated
     if (session?.user) {
-      // In a real implementation, you'd get the token from session
-      // For now, we forward any existing auth header
-      const authHeader = req.headers.get("authorization");
-      if (authHeader) {
-        headers.set("authorization", authHeader);
+      // Use the access token from the session
+      const sessionWithToken = session as typeof session & {
+        accessToken?: string;
+      };
+      if (sessionWithToken.accessToken) {
+        headers.set("Authorization", `Bearer ${sessionWithToken.accessToken}`);
+      } else {
+        // Fallback to forwarding the client's auth header if no session token
+        const authHeader = req.headers.get("authorization");
+        if (authHeader) {
+          headers.set("Authorization", authHeader);
+        }
       }
     }
 

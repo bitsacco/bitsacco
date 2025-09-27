@@ -104,7 +104,12 @@ export class AuthService {
       if (this.isValidAuthPayload(payload)) {
         return {
           user: payload.user,
-          expires: new Date(payload.exp! * 1000),
+          iat: payload.iat!,
+          nbf: payload.nbf!,
+          iss: payload.iss!,
+          aud: payload.aud as string,
+          jti: payload.jti!,
+          exp: payload.exp,
         };
       }
 
@@ -118,7 +123,7 @@ export class AuthService {
    * Check if token is expired
    */
   isTokenExpired(payload: AuthTokenPayload): boolean {
-    return payload.expires.getTime() <= Date.now();
+    return payload.exp ? payload.exp * 1000 <= Date.now() : true;
   }
 
   /**

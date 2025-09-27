@@ -45,7 +45,7 @@ export const PERSONAL_DEPOSIT_LIMITS = {
 };
 
 export const PERSONAL_WITHDRAW_LIMITS = {
-  MIN_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MIN_WITHDRAW_KES || "100"),
+  MIN_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MIN_WITHDRAW_KES || "10"),
   MAX_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MAX_WITHDRAW_KES || "100_000"),
 };
 
@@ -56,6 +56,32 @@ export const LIGHTNING_DEPOSIT_LIMITS = {
   ),
   MAX_AMOUNT_KES: Number(
     process.env.NEXT_PUBLIC_MAX_LIGHTNING_DEPOSIT_KES || "100_000_000",
+  ),
+};
+
+export const LIGHTNING_WITHDRAW_LIMITS = {
+  MIN_AMOUNT_KES: Number(
+    process.env.NEXT_PUBLIC_MIN_LIGHTNING_WITHDRAW_KES || "1",
+  ),
+  MAX_AMOUNT_KES: Number(
+    process.env.NEXT_PUBLIC_MAX_LIGHTNING_WITHDRAW_KES || "10_000_000",
+  ),
+};
+
+// Chama transaction limits
+export const CHAMA_DEPOSIT_LIMITS = {
+  MIN_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MIN_CHAMA_DEPOSIT_KES || "1"),
+  MAX_AMOUNT_KES: Number(
+    process.env.NEXT_PUBLIC_MAX_CHAMA_DEPOSIT_KES || "100_000",
+  ),
+};
+
+export const CHAMA_WITHDRAW_LIMITS = {
+  MIN_AMOUNT_KES: Number(
+    process.env.NEXT_PUBLIC_MIN_CHAMA_WITHDRAW_KES || "10",
+  ),
+  MAX_AMOUNT_KES: Number(
+    process.env.NEXT_PUBLIC_MAX_CHAMA_WITHDRAW_KES || "100_000",
   ),
 };
 

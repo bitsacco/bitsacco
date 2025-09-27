@@ -2,11 +2,18 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Button } from "@bitsacco/ui";
 import { useChamaDetails } from "@/hooks/chama";
 import { DepositModal } from "@/components/chama/DepositModal";
 import { InviteMembersModal } from "@/components/chama/InviteMembersModal";
 import { ChamaActions } from "@/components/chama/ChamaActions";
+import { TransactionModal } from "@/components/transactions/TransactionModal";
+import {
+  TransactionProvider,
+  usePendingApprovals,
+} from "@/lib/transactions/unified/TransactionProvider";
+import { ApprovalWorkflow } from "@/components/transactions/ApprovalWorkflow";
 import { BaseCard } from "@/components/ui/base-card";
 import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -36,6 +43,47 @@ import {
 } from "@bitsacco/core";
 import { useHideBalances } from "@/hooks/use-hide-balances";
 
+// Component to handle pending approval workflows
+function PendingApprovalsSection({ chamaId }: { chamaId: string }) {
+  const { data: session } = useSession();
+  const { transactions } = usePendingApprovals();
+  const currentUserId = session?.user?.id || "";
+
+  // Filter for this chama's pending withdrawals
+  const chamaWithdrawals = transactions.filter(
+    (tx) =>
+      tx.context === "chama" &&
+      tx.type === "withdrawal" &&
+      tx.metadata.chamaId === chamaId &&
+      tx.status === "pending_approval",
+  );
+
+  if (chamaWithdrawals.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="mt-6 space-y-4">
+      <h3 className="text-lg font-semibold text-gray-100 mb-4">
+        Pending Withdrawal Approvals
+      </h3>
+      {chamaWithdrawals.map((transaction) => (
+        <ApprovalWorkflow
+          key={transaction.id}
+          transaction={transaction}
+          currentUserId={currentUserId}
+          isAdmin={true} // TODO: Check actual admin status from chama membership
+          onUpdate={() => {
+            // Refresh pending approvals
+            window.location.reload();
+          }}
+          className="mb-4"
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function ChamaDetailsPage() {
   const params = useParams();
   const router = useRouter();
@@ -46,6 +94,12 @@ export default function ChamaDetailsPage() {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { hideBalances } = useHideBalances();
+
+  // Unified Transaction Modal state
+  const [showUnifiedModal, setShowUnifiedModal] = useState(false);
+  const [unifiedTransactionType, setUnifiedTransactionType] = useState<
+    "deposit" | "withdrawal"
+  >("deposit");
 
   const { chama, transactions, memberProfiles, metadata, loading, error } =
     useChamaDetails({
@@ -271,7 +325,10 @@ export default function ChamaDetailsPage() {
             <Button
               variant="tealPrimary"
               size="lg"
-              onClick={() => setShowDepositModal(true)}
+              onClick={() => {
+                setUnifiedTransactionType("deposit");
+                setShowUnifiedModal(true);
+              }}
               className="shadow-lg shadow-teal-500/20 flex items-center justify-center gap-2"
             >
               <PlusIcon size={20} weight="bold" />
@@ -280,6 +337,10 @@ export default function ChamaDetailsPage() {
             <Button
               variant="outline"
               size="lg"
+              onClick={() => {
+                setUnifiedTransactionType("withdrawal");
+                setShowUnifiedModal(true);
+              }}
               className="!bg-slate-700/50 !text-gray-300 !border-slate-600 hover:!bg-slate-700 hover:!border-slate-500 flex items-center justify-center gap-2"
             >
               <ArrowDownIcon size={20} weight="bold" />
@@ -597,7 +658,7 @@ export default function ChamaDetailsPage() {
         </div>
       </BaseCard>
 
-      {/* Modals */}
+      {/* Legacy Deposit Modal - kept for backward compatibility */}
       {showDepositModal && chama && (
         <DepositModal
           isOpen={showDepositModal}
@@ -613,6 +674,30 @@ export default function ChamaDetailsPage() {
           chamaId={chama.id}
           chamaName={chama.name}
         />
+      )}
+
+      {/* Unified Transaction Modal with Approval Workflow */}
+      {chama && (
+        <TransactionProvider
+          apiClient={apiClient}
+          initialFilter={{ contexts: ["chama"], targetId: chama.id }}
+        >
+          <TransactionModal
+            isOpen={showUnifiedModal}
+            onClose={() => setShowUnifiedModal(false)}
+            context="chama"
+            type={unifiedTransactionType}
+            targetId={chama.id}
+            targetName={chama.name}
+            onSuccess={() => {
+              setShowUnifiedModal(false);
+              // Refresh chama data
+            }}
+          />
+
+          {/* Show approval workflow for pending withdrawals */}
+          <PendingApprovalsSection chamaId={chama.id} />
+        </TransactionProvider>
       )}
     </div>
   );

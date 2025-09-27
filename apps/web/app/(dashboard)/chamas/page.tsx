@@ -9,6 +9,8 @@ import { ChamaCard } from "@/components/chama/ChamaCard";
 import { ChamaActions } from "@/components/chama/ChamaActions";
 import { CreateChamaModal } from "@/components/chama/CreateChamaModal";
 import { DepositModal } from "@/components/chama/DepositModal";
+import { TransactionModal } from "@/components/transactions/TransactionModal";
+import { TransactionProvider } from "@/lib/transactions/unified/TransactionProvider";
 import {
   LoadingSkeleton,
   CardSkeleton,
@@ -32,6 +34,14 @@ export default function ChamasPage() {
   const [depositChama, setDepositChama] = useState<Chama | null>(null);
   const { chamas, loading, getChamaBalances } = useChamas();
   const { hideBalances } = useHideBalances();
+
+  // Unified Transaction Modal state
+  const [showUnifiedModal, setShowUnifiedModal] = useState(false);
+  const [selectedChamaForTransaction, setSelectedChamaForTransaction] =
+    useState<Chama | null>(null);
+  const [unifiedTransactionType, setUnifiedTransactionType] = useState<
+    "deposit" | "withdrawal"
+  >("deposit");
 
   // Exchange rate for KES conversion
   const {
@@ -378,7 +388,11 @@ export default function ChamasPage() {
                       balance={getChamaBalances(chama.id) || undefined}
                       hideBalances={hideBalances}
                       exchangeRate={quote || undefined}
-                      onDeposit={() => setDepositChama(chama)}
+                      onDeposit={() => {
+                        setSelectedChamaForTransaction(chama);
+                        setUnifiedTransactionType("deposit");
+                        setShowUnifiedModal(true);
+                      }}
                     />
                   </div>
                 ))}
@@ -431,12 +445,38 @@ export default function ChamasPage() {
         onClose={() => setShowCreateModal(false)}
       />
 
+      {/* Legacy Deposit Modal - kept for backward compatibility */}
       {depositChama && (
         <DepositModal
           isOpen={!!depositChama}
           onClose={() => setDepositChama(null)}
           chama={depositChama}
         />
+      )}
+
+      {/* Unified Transaction Modal */}
+      {selectedChamaForTransaction && (
+        <TransactionProvider
+          apiClient={apiClient}
+          initialFilter={{ contexts: ["chama"] }}
+        >
+          <TransactionModal
+            isOpen={showUnifiedModal}
+            onClose={() => {
+              setShowUnifiedModal(false);
+              setSelectedChamaForTransaction(null);
+            }}
+            context="chama"
+            type={unifiedTransactionType}
+            targetId={selectedChamaForTransaction.id}
+            targetName={selectedChamaForTransaction.name}
+            onSuccess={() => {
+              setShowUnifiedModal(false);
+              setSelectedChamaForTransaction(null);
+              // Optionally refresh chama data here
+            }}
+          />
+        </TransactionProvider>
       )}
     </div>
   );

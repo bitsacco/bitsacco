@@ -3,8 +3,6 @@
 export enum PaymentMethod {
   MPESA = "mpesa",
   LIGHTNING = "lightning",
-  BANK_TRANSFER = "bank_transfer",
-  CARD = "card",
 }
 
 export enum PaymentStatus {
