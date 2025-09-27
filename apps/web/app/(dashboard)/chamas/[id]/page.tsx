@@ -14,6 +14,7 @@ import {
   usePendingApprovals,
 } from "@/lib/transactions/unified/TransactionProvider";
 import { ApprovalWorkflow } from "@/components/transactions/ApprovalWorkflow";
+import { TransactionDashboard } from "@/components/transactions/TransactionDashboard";
 import { BaseCard } from "@/components/ui/base-card";
 import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -27,10 +28,8 @@ import {
   UsersThreeIcon,
   PlusIcon,
   ArrowDownIcon,
-  ArrowUpIcon,
   CaretDownIcon,
   WarningIcon,
-  ReceiptIcon,
   UserIcon,
   CrownIcon,
   CopyIcon,
@@ -38,8 +37,6 @@ import {
 } from "@phosphor-icons/react";
 import {
   ChamaMemberRole,
-  ChamaTxStatus,
-  ChamaTransactionType,
 } from "@bitsacco/core";
 import { useHideBalances } from "@/hooks/use-hide-balances";
 
@@ -88,6 +85,7 @@ export default function ChamaDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const chamaId = params.id as string;
+  const { data: session } = useSession();
 
   const [showMembers, setShowMembers] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -95,13 +93,15 @@ export default function ChamaDetailsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const { hideBalances } = useHideBalances();
 
+  const currentUserId = session?.user?.id || "";
+
   // Unified Transaction Modal state
   const [showUnifiedModal, setShowUnifiedModal] = useState(false);
   const [unifiedTransactionType, setUnifiedTransactionType] = useState<
     "deposit" | "withdrawal"
   >("deposit");
 
-  const { chama, transactions, memberProfiles, metadata, loading, error } =
+  const { chama, memberProfiles, metadata, loading, error } =
     useChamaDetails({
       chamaId,
     });
@@ -535,129 +535,6 @@ export default function ChamaDetailsPage() {
         </div>
       )}
 
-      {/* Transactions History - Simplified */}
-      <BaseCard>
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-teal-500/20 rounded-xl flex items-center justify-center">
-            <ReceiptIcon size={20} className="text-teal-400" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-100">
-              Recent Transactions
-            </h3>
-            <p className="text-sm text-gray-400">
-              Latest activity in this chama
-            </p>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          {loading ? (
-            /* Transaction loading shimmer */
-            [...Array(3)].map((_, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-4 bg-slate-700/20 rounded-xl border border-slate-600/30"
-              >
-                <div className="flex items-center gap-3">
-                  <LoadingSkeleton className="w-16 h-6 rounded-full" />
-                  <LoadingSkeleton className="w-20 h-6 rounded-full" />
-                </div>
-                <div className="text-right space-y-1">
-                  <LoadingSkeleton className="h-6 w-24 ml-auto" />
-                  <LoadingSkeleton className="h-4 w-16 ml-auto" />
-                </div>
-              </div>
-            ))
-          ) : transactions?.ledger?.transactions &&
-            transactions.ledger.transactions.length > 0 ? (
-            /* Display actual transactions */
-            transactions.ledger.transactions.slice(0, 5).map((tx) => {
-              // Debug: Log transaction type to understand what's coming from API
-              console.log(
-                "Transaction type from API:",
-                tx.type,
-                "Expected DEPOSIT:",
-                ChamaTransactionType.DEPOSIT,
-                "Expected WITHDRAWAL:",
-                ChamaTransactionType.WITHDRAWAL,
-              );
-
-              const isDeposit = tx.type === ChamaTransactionType.DEPOSIT;
-              const getStatusText = (status: ChamaTxStatus): string => {
-                switch (status) {
-                  case ChamaTxStatus.PENDING:
-                    return "pending";
-                  case ChamaTxStatus.PROCESSING:
-                    return "processing";
-                  case ChamaTxStatus.FAILED:
-                    return "failed";
-                  case ChamaTxStatus.COMPLETE:
-                    return "complete";
-                  case ChamaTxStatus.APPROVED:
-                    return "approved";
-                  case ChamaTxStatus.REJECTED:
-                    return "rejected";
-                  default:
-                    return "unknown";
-                }
-              };
-
-              return (
-                <div
-                  key={tx.id}
-                  className="flex items-center justify-between p-4 bg-slate-700/20 rounded-xl border border-slate-600/30 hover:bg-slate-700/30 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        isDeposit ? "bg-teal-500/20" : "bg-orange-500/20"
-                      }`}
-                    >
-                      {isDeposit ? (
-                        <ArrowDownIcon size={16} className="text-teal-400" />
-                      ) : (
-                        <ArrowUpIcon size={16} className="text-orange-400" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-200">
-                        {isDeposit ? "Deposit" : "Withdrawal"}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {new Date(tx.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p
-                      className={`text-sm font-semibold ${
-                        isDeposit ? "text-teal-300" : "text-orange-300"
-                      }`}
-                    >
-                      {hideBalances
-                        ? "•••••"
-                        : `${Math.floor(tx.amountMsats / 1000)} sats`}
-                    </p>
-                    <p className="text-xs text-gray-400 capitalize">
-                      {getStatusText(tx.status)}
-                    </p>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            /* No transactions message */
-            <div className="text-center py-8">
-              <p className="text-gray-400 mb-2">No transactions yet</p>
-              <p className="text-sm text-gray-500">
-                Start by making your first deposit to this chama
-              </p>
-            </div>
-          )}
-        </div>
-      </BaseCard>
-
       {/* Legacy Deposit Modal - kept for backward compatibility */}
       {showDepositModal && chama && (
         <DepositModal
@@ -676,12 +553,24 @@ export default function ChamaDetailsPage() {
         />
       )}
 
-      {/* Unified Transaction Modal with Approval Workflow */}
+      {/* Transaction Dashboard and Modals with Unified Provider */}
       {chama && (
         <TransactionProvider
           apiClient={apiClient}
           initialFilter={{ contexts: ["chama"], targetId: chama.id }}
         >
+          {/* Transaction Dashboard */}
+          <TransactionDashboard
+            chamaId={chama.id}
+            chamaName={chama.name}
+            currentUserId={currentUserId}
+            isAdmin={chama.members.some(
+              (member) =>
+                member.userId === currentUserId &&
+                member.roles.includes(ChamaMemberRole.Admin)
+            )}
+          />
+
           <TransactionModal
             isOpen={showUnifiedModal}
             onClose={() => setShowUnifiedModal(false)}

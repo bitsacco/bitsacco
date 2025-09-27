@@ -43,8 +43,6 @@ export {
   TransactionProvider,
   useTransactions,
   useChamaTransactions,
-  usePersonalTransactions,
-  useMembershipTransactions,
   usePendingApprovals,
 } from "@/lib/transactions/unified/TransactionProvider";
 
@@ -55,8 +53,6 @@ export {
 
 // Adapters
 export { ChamaTransactionAdapter } from "@/lib/transactions/unified/adapters/chama-adapter";
-export { PersonalTransactionAdapter } from "@/lib/transactions/unified/adapters/personal-adapter";
-export { MembershipTransactionAdapter } from "@/lib/transactions/unified/adapters/membership-adapter";
 
 // Utility Functions
 export {
@@ -66,8 +62,6 @@ export {
   isDepositTransaction,
   isWithdrawalTransaction,
   isChamaTransaction,
-  isPersonalTransaction,
-  isMembershipTransaction,
   requiresApproval,
   canExecute,
   isCompleted,

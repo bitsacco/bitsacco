@@ -20,7 +20,7 @@ export type TransactionType =
   | "withdrawal"
   | "subscription"
   | "transfer";
-export type TransactionContext = "personal" | "chama" | "membership";
+export type TransactionContext = "chama";
 
 export type TransactionStatus =
   | "pending"
@@ -212,13 +212,6 @@ export function isChamaTransaction(tx: UnifiedTransaction): boolean {
   return tx.context === "chama";
 }
 
-export function isPersonalTransaction(tx: UnifiedTransaction): boolean {
-  return tx.context === "personal";
-}
-
-export function isMembershipTransaction(tx: UnifiedTransaction): boolean {
-  return tx.context === "membership";
-}
 
 export function requiresApproval(tx: UnifiedTransaction): boolean {
   return tx.status === "pending_approval";

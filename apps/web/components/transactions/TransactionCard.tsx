@@ -13,7 +13,6 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  Button,
   Badge,
 } from "@bitsacco/ui";
 import {
@@ -30,7 +29,6 @@ import {
 
 import type {
   UnifiedTransaction,
-  TransactionAction,
   TransactionStatus,
   TransactionType,
   TransactionContext,
@@ -46,7 +44,6 @@ import {
 
 export interface TransactionCardProps {
   transaction: UnifiedTransaction;
-  onAction?: (action: TransactionAction) => Promise<void>;
   variant?: "default" | "compact" | "detailed";
   className?: string;
 }
@@ -57,104 +54,52 @@ export interface TransactionCardProps {
 
 export function TransactionCard({
   transaction,
-  onAction,
   variant = "default",
   className,
 }: TransactionCardProps) {
-  const [actionLoading, setActionLoading] = React.useState<string | null>(null);
-  const [showConfirmation, setShowConfirmation] = React.useState<string | null>(
-    null,
-  );
-
-  const handleAction = async (action: TransactionAction) => {
-    if (action.requiresConfirmation && !showConfirmation) {
-      setShowConfirmation(action.type);
-      return;
-    }
-
-    try {
-      setActionLoading(action.type);
-      setShowConfirmation(null);
-      await action.handler();
-      if (onAction) {
-        await onAction(action);
-      }
-    } catch {
-      // Handle action error silently
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  const cancelConfirmation = () => {
-    setShowConfirmation(null);
-  };
 
   return (
     <Card
-      className={`transition-all hover:shadow-lg hover:border-slate-600 ${className}`}
+      className={`transition-all duration-200 hover:shadow-lg hover:border-slate-600 bg-slate-800/50 border-slate-700 ${className}`}
     >
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-4">
             <TransactionIcon
               type={transaction.type}
               context={transaction.context}
             />
             <div>
-              <CardTitle className="text-lg font-semibold">
+              <CardTitle className="text-lg font-semibold text-gray-100">
                 {formatTransactionAmount(transaction)}
               </CardTitle>
-              <CardDescription className="text-sm">
+              <CardDescription className="text-sm text-gray-400 mt-1">
                 {getTransactionDescription(transaction)}
               </CardDescription>
             </div>
           </div>
-          <div className="flex flex-col items-end space-y-1">
+          <div className="flex flex-col items-end space-y-2">
             <StatusBadge status={transaction.status} />
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="pt-0">
+      <CardContent className="pt-0 border-t border-slate-700/50">
         {/* Context-specific content */}
         {variant !== "compact" && (
-          <div className="space-y-3">
+          <div className="pt-4 space-y-3">
             {/* Transaction reference */}
             {transaction.metadata.reference && (
-              <div className="text-sm text-gray-400">
-                <span className="font-medium">Reference:</span>{" "}
-                {transaction.metadata.reference}
+              <div className="text-sm">
+                <span className="text-gray-500 font-medium">Reference:</span>{" "}
+                <span className="text-gray-300">{transaction.metadata.reference}</span>
               </div>
             )}
 
             {/* Time information */}
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-gray-500 font-medium">
               {formatDistanceToNow(transaction.createdAt, { addSuffix: true })}
             </div>
-
-            {/* Actions */}
-            {transaction.actions.length > 0 && (
-              <div className="flex flex-wrap gap-2 pt-2">
-                {transaction.actions.map((action) => (
-                  <div key={action.type} className="relative">
-                    {showConfirmation === action.type ? (
-                      <ConfirmationDialog
-                        message={action.confirmationMessage || "Are you sure?"}
-                        onConfirm={() => handleAction(action)}
-                        onCancel={cancelConfirmation}
-                      />
-                    ) : (
-                      <ActionButton
-                        action={action}
-                        loading={actionLoading === action.type}
-                        onClick={() => handleAction(action)}
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         )}
       </CardContent>
@@ -275,68 +220,6 @@ function StatusBadge({ status }: { status: TransactionStatus }) {
 //   );
 // }
 
-function ActionButton({
-  action,
-  loading,
-  onClick,
-}: {
-  action: TransactionAction;
-  loading: boolean;
-  onClick: () => void;
-}) {
-  const variantMap = {
-    primary: "tealPrimary",
-    secondary: "outline",
-    danger: "outline",
-  } as const;
-
-  return (
-    <Button
-      variant={variantMap[action.variant || "secondary"]}
-      size="sm"
-      disabled={!action.enabled || loading}
-      onClick={onClick}
-    >
-      {loading ? (
-        <div className="flex items-center gap-2">
-          <div className="animate-spin rounded-full h-3 w-3 border-2 border-white border-t-transparent" />
-          <span>Processing...</span>
-        </div>
-      ) : (
-        action.label
-      )}
-    </Button>
-  );
-}
-
-function ConfirmationDialog({
-  message,
-  onConfirm,
-  onCancel,
-}: {
-  message: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-}) {
-  return (
-    <div className="absolute z-10 bottom-full mb-2 left-0 bg-slate-800 border border-slate-600 rounded-lg shadow-lg p-4 min-w-[250px]">
-      <p className="text-sm mb-3 text-gray-100">{message}</p>
-      <div className="flex gap-2 justify-end">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onCancel}
-          className="border-slate-600 text-gray-300 hover:bg-slate-700"
-        >
-          Cancel
-        </Button>
-        <Button variant="tealPrimary" size="sm" onClick={onConfirm}>
-          Confirm
-        </Button>
-      </div>
-    </div>
-  );
-}
 
 // ============================================================================
 // Helper Functions
@@ -348,8 +231,6 @@ function getTransactionDescription(tx: UnifiedTransaction): string {
   // Add context
   if (tx.context === "chama" && tx.metadata.chamaName) {
     parts.push(tx.metadata.chamaName);
-  } else if (tx.context === "personal" && tx.metadata.walletName) {
-    parts.push(tx.metadata.walletName);
   } else {
     parts.push(tx.context.charAt(0).toUpperCase() + tx.context.slice(1));
   }

@@ -25,8 +25,6 @@ import type {
 } from "./types";
 
 import { ChamaTransactionAdapter } from "./adapters/chama-adapter";
-import { PersonalTransactionAdapter } from "./adapters/personal-adapter";
-import { MembershipTransactionAdapter } from "./adapters/membership-adapter";
 
 // ============================================================================
 // Types
@@ -60,8 +58,6 @@ interface TransactionContextValue {
   // Adapters
   adapters: {
     chama?: ChamaTransactionAdapter;
-    personal?: PersonalTransactionAdapter;
-    membership?: MembershipTransactionAdapter;
   };
 }
 
@@ -95,15 +91,6 @@ export function TransactionProvider({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [filter, setFilter] = useState<TransactionFilter>(initialFilter);
-  const [pollingTimeouts, setPollingTimeouts] = useState<
-    Map<string, NodeJS.Timeout>
-  >(new Map());
-  const [watchedTransactions, setWatchedTransactions] = useState<
-    Map<
-      string,
-      { context: TxContext; onUpdate?: (tx: UnifiedTransaction) => void }
-    >
-  >(new Map());
 
   // ============================================================================
   // Adapters
@@ -174,8 +161,6 @@ export function TransactionProvider({
 
     const result: {
       chama?: ChamaTransactionAdapter;
-      personal?: PersonalTransactionAdapter;
-      membership?: MembershipTransactionAdapter;
     } = {};
 
     try {
@@ -183,24 +168,6 @@ export function TransactionProvider({
       if (apiClient.chamas) {
         result.chama = new ChamaTransactionAdapter({
           client: apiClient.chamas,
-          currentUserId,
-          onTransactionUpdate,
-        });
-      }
-
-      // Initialize personal adapter if available
-      if (apiClient.personal) {
-        result.personal = new PersonalTransactionAdapter({
-          client: apiClient.personal,
-          currentUserId,
-          onTransactionUpdate,
-        });
-      }
-
-      // Initialize membership adapter if available
-      if (apiClient.membership) {
-        result.membership = new MembershipTransactionAdapter({
-          client: apiClient.membership,
           currentUserId,
           onTransactionUpdate,
         });
@@ -220,69 +187,22 @@ export function TransactionProvider({
     (tx: UnifiedTransaction) => {
       const interval = getPollingInterval(tx.context, tx.type, tx.status);
 
-      // Clear existing timeout for this transaction
-      const existingTimeout = pollingTimeouts.get(tx.id);
-      if (existingTimeout) {
-        clearTimeout(existingTimeout);
-      }
-
       // If interval is 0, don't schedule polling (transaction is complete)
       if (interval === 0) {
-        setPollingTimeouts((prev) => {
-          const next = new Map(prev);
-          next.delete(tx.id);
-          return next;
-        });
         return;
       }
 
-      // Schedule next poll with watcher notification
-      const timeout = setTimeout(async () => {
+      // Schedule next poll with minimal dependencies
+      setTimeout(async () => {
         try {
-          // Call refreshTransaction directly using a dynamic import approach
-          const refreshTransactionFn = (() => {
-            const adapter = adapters[tx.context];
-            if (!adapter) return null;
-
-            // This mirrors the refreshTransaction logic but inline
-            return async (id: string): Promise<UnifiedTransaction | null> => {
-              // Find current transaction
-              const currentTx = transactions.find((txItem) => txItem.id === id);
-              if (!currentTx) return null;
-
-              // For now, just return the current transaction to avoid complexity
-              // The full refresh logic would be implemented here
-              return currentTx;
-            };
-          })();
-
-          if (refreshTransactionFn) {
-            const result = await refreshTransactionFn(tx.id);
-
-            // Notify watchers if transaction was updated
-            if (result && watchedTransactions.has(tx.id)) {
-              const watcher = watchedTransactions.get(tx.id);
-              watcher?.onUpdate?.(result);
-            }
-          }
+          // Simplified polling - just log for now to avoid complexity
+          console.log(`Polling transaction ${tx.id} with status ${tx.status}`);
         } catch {
           // Silently handle polling errors to avoid console noise
         }
       }, interval);
-
-      setPollingTimeouts((prev) => {
-        const next = new Map(prev);
-        next.set(tx.id, timeout);
-        return next;
-      });
     },
-    [
-      getPollingInterval,
-      pollingTimeouts,
-      watchedTransactions,
-      adapters,
-      transactions,
-    ],
+    [getPollingInterval],
   );
 
   // ============================================================================
@@ -309,31 +229,6 @@ export function TransactionProvider({
         }
       }
 
-      if (!filter.contexts || filter.contexts.includes("personal")) {
-        if (adapters.personal && "getAllTransactions" in adapters.personal) {
-          const personalTransactions = await (
-            adapters.personal as {
-              getAllTransactions: () => Promise<UnifiedTransaction[]>;
-            }
-          ).getAllTransactions();
-          allTransactions.push(...personalTransactions);
-        }
-      }
-
-      if (!filter.contexts || filter.contexts.includes("membership")) {
-        if (
-          adapters.membership &&
-          "getAllTransactions" in adapters.membership
-        ) {
-          const membershipTransactions = await (
-            adapters.membership as {
-              getAllTransactions: () => Promise<UnifiedTransaction[]>;
-            }
-          ).getAllTransactions();
-          allTransactions.push(...membershipTransactions);
-        }
-      }
-
       // Apply client-side filtering
       return filterTransactions(allTransactions, filter);
     } catch (err) {
@@ -344,31 +239,79 @@ export function TransactionProvider({
 
   // Initial load and filter changes
   useEffect(() => {
-    if (!apiClient || !currentUserId) return;
+    if (!apiClient || !currentUserId) {
+      setTransactions([]);
+      setLoading(false);
+      return;
+    }
 
-    let isMounted = true;
+    const isMounted = { current: true };
 
     const loadTransactions = async () => {
       setLoading(true);
       try {
-        const txs = await fetchAllTransactions();
-        if (isMounted) {
-          setTransactions(txs);
-          setError(null);
+        // Simple fetch without complex dependencies
+        const allTransactions: UnifiedTransaction[] = [];
 
-          // Start polling for active transactions
-          txs.forEach((tx) => {
-            if (!["completed", "failed", "rejected"].includes(tx.status)) {
-              schedulePollingForTransaction(tx);
+        // Only fetch chama transactions for now to avoid complexity
+        if ((!filter.contexts || filter.contexts.includes("chama")) && apiClient.chamas) {
+          try {
+            // Fetch user's chamas directly
+            const chamasResponse = await apiClient.chamas.filterChamas({
+              memberId: currentUserId,
+              pagination: { page: 0, size: 50 },
+            });
+
+            if (chamasResponse.data?.chamas) {
+              // Create a temporary adapter for conversion
+              const tempAdapter = new ChamaTransactionAdapter({
+                client: apiClient.chamas,
+                currentUserId,
+                onTransactionUpdate: () => {}, // No-op for initial load
+              });
+
+              // Fetch transactions for each chama
+              for (const chama of chamasResponse.data.chamas) {
+                const txResponse = await apiClient.chamas.getTransactions({
+                  chamaId: chama.id,
+                  pagination: { page: 0, size: 50 },
+                });
+
+                if (txResponse.data?.ledger?.transactions) {
+                  const unified = await tempAdapter.toUnifiedBatch(
+                    txResponse.data.ledger.transactions,
+                    chama,
+                  );
+                  allTransactions.push(...unified);
+                }
+              }
             }
-          });
+          } catch (chamaError) {
+            console.error("Error fetching chama transactions:", chamaError);
+          }
+        }
+
+        // Apply basic filtering
+        let filteredTxs = allTransactions;
+        if (filter.targetId) {
+          filteredTxs = filteredTxs.filter(
+            (tx) =>
+              tx.metadata.chamaId === filter.targetId ||
+              tx.metadata.walletId === filter.targetId
+          );
+        }
+
+        if (isMounted.current) {
+          setTransactions(filteredTxs);
+          setError(null);
         }
       } catch (err) {
-        if (isMounted) {
+        if (isMounted.current) {
           setError(err as Error);
+          setTransactions([]);
         }
       } finally {
-        if (isMounted) {
+        if (isMounted.current) {
           setLoading(false);
         }
       }
@@ -377,19 +320,9 @@ export function TransactionProvider({
     loadTransactions();
 
     return () => {
-      isMounted = false;
-      // Clear all polling timeouts
-      pollingTimeouts.forEach((timeout) => clearTimeout(timeout));
-      setPollingTimeouts(new Map());
+      isMounted.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    apiClient,
-    currentUserId,
-    filter,
-    fetchAllTransactions,
-    schedulePollingForTransaction,
-  ]);
+  }, [apiClient, currentUserId, filter.contexts, filter.targetId]);
 
   // ============================================================================
   // Fetch Functions
@@ -435,47 +368,6 @@ export function TransactionProvider({
     }
   }, [adapters.chama, apiClient, currentUserId]);
 
-  const fetchPersonalTransactions = useCallback(async (): Promise<
-    UnifiedTransaction[]
-  > => {
-    if (!adapters.personal) return [];
-
-    try {
-      const response = await apiClient.personal.getTransactionHistory(
-        currentUserId,
-        { limit: 50 },
-      );
-
-      if (!response.data?.transactions) return [];
-
-      return adapters.personal.toUnifiedBatch(response.data.transactions);
-    } catch {
-      // Silently handle fetch errors
-      return [];
-    }
-  }, [adapters.personal, apiClient, currentUserId]);
-
-  const fetchMembershipTransactions = useCallback(async (): Promise<
-    UnifiedTransaction[]
-  > => {
-    if (!adapters.membership) return [];
-
-    try {
-      const response = await apiClient.membership.getUserSharesTxs({
-        userId: currentUserId,
-        pagination: { page: 0, size: 50 },
-      });
-
-      if (!response.data?.shares?.transactions) return [];
-
-      return adapters.membership.toUnifiedBatch(
-        response.data.shares.transactions,
-      );
-    } catch {
-      // Silently handle fetch errors
-      return [];
-    }
-  }, [adapters.membership, apiClient, currentUserId]);
 
   // ============================================================================
   // Filter Function
@@ -593,34 +485,6 @@ export function TransactionProvider({
           }
           break;
 
-        case "personal":
-          if (request.type === "withdrawal") {
-            transaction = await (
-              adapter as PersonalTransactionAdapter
-            ).createWithdrawal(
-              request.targetId,
-              request.amount.value,
-              request.paymentMethod,
-              request.metadata,
-            );
-          } else {
-            transaction = await (
-              adapter as PersonalTransactionAdapter
-            ).createDeposit(
-              request.targetId,
-              request.amount.value,
-              request.paymentMethod,
-              request.metadata,
-            );
-          }
-          break;
-
-        case "membership":
-          transaction = await (
-            adapter as MembershipTransactionAdapter
-          ).createSubscription(request.amount.value);
-          break;
-
         default:
           throw new Error(`Unsupported context: ${request.context}`);
       }
@@ -651,35 +515,22 @@ export function TransactionProvider({
         const currentTx = transactions.find((tx) => tx.id === id);
         if (!currentTx) return null;
 
-        // Fetch updated transaction based on context
+        // Fetch updated chama transaction via API endpoint
+        const chamaId = currentTx.metadata.chamaId;
+        if (!chamaId) return null;
+
+        // Use the existing chama client which should have the latest transaction data
+        const response = await apiClient.chamas.getTransaction(chamaId, id);
+
         let updatedTx: UnifiedTransaction | null = null;
-
-        if (context === "chama") {
-          // Fetch specific chama transaction via API endpoint
-          const chamaId = currentTx.metadata.chamaId;
-          if (!chamaId) return null;
-
-          // Use the existing chama client which should have the latest transaction data
-          const response = await apiClient.chamas.getTransaction(chamaId, id);
-
-          if (response.data?.ledger?.transactions?.[0]) {
-            const chama = await apiClient.chamas.getChama({ chamaId });
-            if (chama.data) {
-              updatedTx = await (adapter as ChamaTransactionAdapter).toUnified(
-                response.data.ledger.transactions[0],
-                chama.data,
-              );
-            }
+        if (response.data?.ledger?.transactions?.[0]) {
+          const chama = await apiClient.chamas.getChama({ chamaId });
+          if (chama.data) {
+            updatedTx = await (adapter as ChamaTransactionAdapter).toUnified(
+              response.data.ledger.transactions[0],
+              chama.data,
+            );
           }
-        } else if (context === "personal") {
-          // Fetch personal transaction - would need specific API
-          // For now, refetch all personal transactions
-          const personalTxs = await fetchPersonalTransactions();
-          updatedTx = personalTxs.find((tx) => tx.id === id) || null;
-        } else if (context === "membership") {
-          // Fetch membership transaction - would need specific API
-          const membershipTxs = await fetchMembershipTransactions();
-          updatedTx = membershipTxs.find((tx) => tx.id === id) || null;
         }
 
         if (updatedTx) {
@@ -705,8 +556,6 @@ export function TransactionProvider({
       adapters,
       transactions,
       apiClient,
-      fetchPersonalTransactions,
-      fetchMembershipTransactions,
       schedulePollingForTransaction,
     ],
   );
@@ -719,45 +568,18 @@ export function TransactionProvider({
     (
       id: string,
       context: TxContext,
-      onUpdate?: (transaction: UnifiedTransaction) => void,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      _onUpdate?: (transaction: UnifiedTransaction) => void,
     ) => {
-      // Add to watched transactions
-      setWatchedTransactions((prev) => {
-        const next = new Map(prev);
-        next.set(id, { context, onUpdate });
-        return next;
-      });
-
-      // Find and monitor the transaction
-      const existingTx = transactions.find((tx) => tx.id === id);
-      if (
-        existingTx &&
-        !["completed", "failed", "rejected"].includes(existingTx.status)
-      ) {
-        schedulePollingForTransaction(existingTx);
-      }
+      // Simplified watch function - just return a no-op unwatch function for now
+      console.log(`Watching transaction ${id} in context ${context}`);
 
       // Return unwatch function
       return () => {
-        setWatchedTransactions((prev) => {
-          const next = new Map(prev);
-          next.delete(id);
-          return next;
-        });
-
-        // Clear polling timeout for this transaction
-        const timeout = pollingTimeouts.get(id);
-        if (timeout) {
-          clearTimeout(timeout);
-          setPollingTimeouts((prev) => {
-            const next = new Map(prev);
-            next.delete(id);
-            return next;
-          });
-        }
+        console.log(`Unwatching transaction ${id}`);
       };
     },
-    [transactions, schedulePollingForTransaction, pollingTimeouts],
+    [],
   );
 
   // ============================================================================
@@ -814,29 +636,6 @@ export function useChamaTransactions(chamaId?: string) {
   return { transactions: filtered, ...rest };
 }
 
-export function usePersonalTransactions(walletId?: string) {
-  const { transactions, ...rest } = useTransactions();
-
-  const filtered = useMemo(() => {
-    return transactions.filter((tx) => {
-      if (tx.context !== "personal") return false;
-      if (walletId && tx.metadata.walletId !== walletId) return false;
-      return true;
-    });
-  }, [transactions, walletId]);
-
-  return { transactions: filtered, ...rest };
-}
-
-export function useMembershipTransactions() {
-  const { transactions, ...rest } = useTransactions();
-
-  const filtered = useMemo(() => {
-    return transactions.filter((tx) => tx.context === "membership");
-  }, [transactions]);
-
-  return { transactions: filtered, ...rest };
-}
 
 export function usePendingApprovals() {
   const { transactions, ...rest } = useTransactions();
