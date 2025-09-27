@@ -86,6 +86,16 @@ export type {
   FindTxRequest,
 } from "./lib";
 
+// Lightning Address types
+export type {
+  LightningAddress,
+  CreateLightningAddressDto,
+  UpdateLightningAddressDto,
+  LightningAddressMetadata,
+  LightningAddressSettings,
+  ValidateLightningAddressResponse,
+} from "./lightning-address";
+
 // Re-export core enums
 export { TransactionStatus, TransactionType, Currency } from "./lib";
 
@@ -232,3 +242,4 @@ export {
   TransactionType as PersonalTransactionType,
   TransactionStatus as PersonalTransactionStatus,
 } from "./personal";
+export { AddressType } from "./lightning-address";

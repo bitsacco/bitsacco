@@ -1,111 +1,98 @@
-export interface LightningAddressMetadata {
-  description: string;
-  minSendable: number;
-  maxSendable: number;
-  commentAllowed: number;
-}
+// Re-export types from core package
+export type {
+  LightningAddress,
+  CreateLightningAddressDto as CreateLightningAddressRequest,
+  UpdateLightningAddressDto as UpdateLightningAddressRequest,
+  LightningAddressMetadata,
+  LightningAddressSettings,
+  ValidateLightningAddressResponse,
+} from "@bitsacco/core";
+export { AddressType } from "@bitsacco/core";
 
-export interface LightningAddressSettings {
-  enabled: boolean;
-  allowComments: boolean;
-  notifyOnPayment: boolean;
-}
+// Import the types for use in function signatures
+import type {
+  LightningAddress,
+  CreateLightningAddressDto as CreateLightningAddressRequest,
+  UpdateLightningAddressDto as UpdateLightningAddressRequest,
+  ValidateLightningAddressResponse,
+} from "@bitsacco/core";
 
-export enum AddressType {
-  PERSONAL = "PERSONAL",
-  CHAMA = "CHAMA",
-}
-
-export interface LightningAddress {
-  _id: string;
-  address: string;
-  domain?: string;
-  type: AddressType;
-  metadata: LightningAddressMetadata;
-  settings: LightningAddressSettings;
-  ownerId: string;
-  stats?: {
-    totalReceived: number;
-    paymentCount: number;
-    lastPaymentAt?: Date;
-  };
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateLightningAddressRequest {
-  address: string;
-  type?: AddressType;
-  metadata?: Partial<LightningAddressMetadata>;
-  settings?: Partial<LightningAddressSettings>;
-}
-
-export interface UpdateLightningAddressRequest {
-  metadata?: Partial<LightningAddressMetadata>;
-  settings?: Partial<LightningAddressSettings>;
-}
-
-export interface ValidateLightningAddressResponse {
-  valid: boolean;
-  message?: string;
-}
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api";
-
+// Service functions that make API calls to our Next.js routes
 export async function getUserLightningAddresses(): Promise<LightningAddress[]> {
-  const response = await fetch(`${API_BASE}/lnaddr/my-addresses`, {
-    credentials: "include",
-  });
+  try {
+    const response = await fetch("/api/lnaddr/my-addresses", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch lightning addresses");
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to fetch lightning addresses");
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("Failed to fetch lightning addresses:", error);
+    throw error;
   }
-
-  return response.json();
 }
 
 export async function createLightningAddress(
   data: CreateLightningAddressRequest,
 ): Promise<LightningAddress> {
-  const response = await fetch(`${API_BASE}/lnaddr`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-    body: JSON.stringify(data),
-  });
+  try {
+    const response = await fetch("/api/lnaddr", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(data),
+    });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Failed to create lightning address");
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to create lightning address");
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("Failed to create lightning address:", error);
+    throw error;
   }
-
-  return response.json();
 }
 
 export async function updateLightningAddress(
   addressId: string,
   data: UpdateLightningAddressRequest,
 ): Promise<LightningAddress> {
-  const response = await fetch(`${API_BASE}/lnaddr/${addressId}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-    body: JSON.stringify(data),
-  });
+  try {
+    const response = await fetch(`/api/lnaddr/${addressId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(data),
+    });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Failed to update lightning address");
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to update lightning address");
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("Failed to update lightning address:", error);
+    throw error;
   }
-
-  return response.json();
 }
 
 // Validate lightning address using well-known endpoint
+// This function makes a direct external request, not through our API
 export async function validateLightningAddress(
   address: string,
 ): Promise<ValidateLightningAddressResponse> {
@@ -140,7 +127,7 @@ export async function validateLightningAddress(
 
     const metadata = await response.json();
     if (metadata && metadata.tag === "payRequest") {
-      return { valid: true };
+      return { valid: true, metadata };
     } else {
       return {
         valid: false,

@@ -1,6 +1,7 @@
 export { BaseApiClient } from "./base-client";
 export { AuthApiClient } from "./auth-client";
 export { ChamaApiClient } from "./chama-client";
+export { LightningAddressApiClient } from "./lightning-address-client";
 export { MembershipApiClient } from "./membership-client";
 export { PersonalApiClient } from "./personal-client";
 export { WalletApiClient } from "./wallet-client";
