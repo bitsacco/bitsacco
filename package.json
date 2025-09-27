@@ -29,6 +29,7 @@
     "clean:docker": "docker compose -p bitsacco down --volumes --remove-orphans && docker system prune -f",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint -- --fix",
+    "lint:mobile": "turbo run lint --filter=@bitsacco/mobile...",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",

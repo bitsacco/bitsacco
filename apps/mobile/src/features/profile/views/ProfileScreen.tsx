@@ -85,7 +85,7 @@ const ProfileScreen: React.FC = () => {
 
         {/* App Version */}
         <View style={styles.versionInfo}>
-          <Text style={styles.versionText}>Version 1.0.0</Text>
+          <Text style={styles.versionText}>Version 1.0.1</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
