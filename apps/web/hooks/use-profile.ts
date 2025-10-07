@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import type { User as CoreUser, UpdateUserRequest } from "@bitsacco/core";
 import { apiClient } from "../lib/auth";
+import { getLightningAddressDomain } from "../lib/membership-config";
 
 export interface ProfileData {
   name: string;
@@ -101,8 +102,9 @@ export function useProfile(): UseProfileReturn {
       });
 
       // Generate a lightning address based on user ID (temporary solution)
+      const lightningDomain = getLightningAddressDomain();
       setLightningAddress({
-        address: `${user.id.slice(0, 12).toLowerCase()}@bitsacco.com`,
+        address: `${user.id.slice(0, 12).toLowerCase()}@${lightningDomain}`,
         verified: true,
         createdAt: new Date().toISOString(),
       });
@@ -233,7 +235,8 @@ export function useProfile(): UseProfileReturn {
     try {
       const user = session.user as CoreUser;
       // TODO: Implement lightning address generation API call
-      const newAddress = `${user.id.slice(0, 12).toLowerCase()}@bitsacco.com`;
+      const lightningDomain = getLightningAddressDomain();
+      const newAddress = `${user.id.slice(0, 12).toLowerCase()}@${lightningDomain}`;
 
       setLightningAddress({
         address: newAddress,

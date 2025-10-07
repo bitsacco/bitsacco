@@ -13,11 +13,11 @@ export const FEATURES = {
 export const APP_NAME = "Bitsacco";
 export const APP_DESCRIPTION = "Save and grow with Bitcoin";
 export const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
+  process.env.NEXT_PUBLIC_APP_URL || "";
 
 // Share configuration - matching webapp exactly
 export const SHARE_VALUE_KES = Number(
-  process.env.NEXT_PUBLIC_SHARE_VALUE_KES || "1000",
+  process.env.NEXT_PUBLIC_SHARE_VALUE_KES || "",
 );
 
 // Chama configuration for share purchases - critical IDs from webapp
@@ -33,55 +33,55 @@ export const INTERNAL_USER_ID =
 export const BS_API_URL = process.env.NEXT_PUBLIC_BS_API_URL || "";
 
 // Environment variables matching webapp
-export const BS_ENV = process.env.NEXT_PUBLIC_BS_ENV || "development";
+export const APP_ENV = process.env.NEXT_PUBLIC_APP_ENV || "";
 
 // Feature flags configuration
 export const FEATURES_JSON_URL = "/features.json";
 
 // Deposit/Withdrawal limits configuration
 export const PERSONAL_DEPOSIT_LIMITS = {
-  MIN_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MIN_DEPOSIT_KES || "1"),
-  MAX_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MAX_DEPOSIT_KES || "100_000"),
+  MIN_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MIN_DEPOSIT_KES || ""),
+  MAX_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MAX_DEPOSIT_KES || ""),
 };
 
 export const PERSONAL_WITHDRAW_LIMITS = {
-  MIN_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MIN_WITHDRAW_KES || "10"),
-  MAX_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MAX_WITHDRAW_KES || "100_000"),
+  MIN_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MIN_WITHDRAW_KES || ""),
+  MAX_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MAX_WITHDRAW_KES || ""),
 };
 
 // Lightning specific limits (higher max for Lightning)
 export const LIGHTNING_DEPOSIT_LIMITS = {
   MIN_AMOUNT_KES: Number(
-    process.env.NEXT_PUBLIC_MIN_LIGHTNING_DEPOSIT_KES || "1",
+    process.env.NEXT_PUBLIC_MIN_LIGHTNING_DEPOSIT_KES || "",
   ),
   MAX_AMOUNT_KES: Number(
-    process.env.NEXT_PUBLIC_MAX_LIGHTNING_DEPOSIT_KES || "100_000_000",
+    process.env.NEXT_PUBLIC_MAX_LIGHTNING_DEPOSIT_KES || "",
   ),
 };
 
 export const LIGHTNING_WITHDRAW_LIMITS = {
   MIN_AMOUNT_KES: Number(
-    process.env.NEXT_PUBLIC_MIN_LIGHTNING_WITHDRAW_KES || "1",
+    process.env.NEXT_PUBLIC_MIN_LIGHTNING_WITHDRAW_KES || "",
   ),
   MAX_AMOUNT_KES: Number(
-    process.env.NEXT_PUBLIC_MAX_LIGHTNING_WITHDRAW_KES || "10_000_000",
+    process.env.NEXT_PUBLIC_MAX_LIGHTNING_WITHDRAW_KES || "",
   ),
 };
 
 // Chama transaction limits
 export const CHAMA_DEPOSIT_LIMITS = {
-  MIN_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MIN_CHAMA_DEPOSIT_KES || "1"),
+  MIN_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MIN_CHAMA_DEPOSIT_KES || ""),
   MAX_AMOUNT_KES: Number(
-    process.env.NEXT_PUBLIC_MAX_CHAMA_DEPOSIT_KES || "100_000",
+    process.env.NEXT_PUBLIC_MAX_CHAMA_DEPOSIT_KES || "",
   ),
 };
 
 export const CHAMA_WITHDRAW_LIMITS = {
   MIN_AMOUNT_KES: Number(
-    process.env.NEXT_PUBLIC_MIN_CHAMA_WITHDRAW_KES || "10",
+    process.env.NEXT_PUBLIC_MIN_CHAMA_WITHDRAW_KES || "",
   ),
   MAX_AMOUNT_KES: Number(
-    process.env.NEXT_PUBLIC_MAX_CHAMA_WITHDRAW_KES || "100_000",
+    process.env.NEXT_PUBLIC_MAX_CHAMA_WITHDRAW_KES || "",
   ),
 };
 

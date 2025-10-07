@@ -30,7 +30,7 @@ export async function getUserLightningAddresses(): Promise<LightningAddress[]> {
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || "Failed to fetch lightning addresses");
+      throw new Error(errorData.error || "");
     }
 
     return response.json();

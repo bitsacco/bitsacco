@@ -1,18 +1,13 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import Image from "next/image";
 import { Button } from "@bitsacco/ui";
 import {
   LightningIcon,
   CopyIcon,
   CheckIcon,
-  QrCodeIcon,
-  ShareIcon,
   PencilIcon,
-  XCircleIcon,
 } from "@phosphor-icons/react";
-import QRCode from "qrcode";
 import {
   createLightningAddress,
   getUserLightningAddresses,
@@ -22,6 +17,7 @@ import {
   LightningAddress,
   DEFAULT_LIGHTNING_ADDRESS_DESCRIPTION,
 } from "../../lib/services/lightning-address";
+import { getLightningAddressDomain } from "../../lib/membership-config";
 
 interface LightningAddressCardProps {
   userId?: string;
@@ -49,8 +45,9 @@ export function LightningAddressCard({
   const [editDescriptionError, setEditDescriptionError] = useState("");
 
   const [copied, setCopied] = useState(false);
-  const [showQR, setShowQR] = useState(false);
-  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+
+  // Get environment-aware Lightning address domain
+  const lightningDomain = getLightningAddressDomain();
 
   // Fetch existing lightning addresses on mount
   useEffect(() => {
@@ -118,7 +115,7 @@ export function LightningAddressCard({
     const timer = setTimeout(async () => {
       setIsCheckingAvailability(true);
       try {
-        const fullAddress = `${address}@bitsacco.com`;
+        const fullAddress = `${address}@${lightningDomain}`;
         const result = await validateLightningAddress(fullAddress);
         setIsAvailable(!result.valid);
       } catch {
@@ -129,14 +126,14 @@ export function LightningAddressCard({
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [address, addressError, existingAddress]);
+  }, [address, addressError, existingAddress, lightningDomain]);
 
   const handleClaimAddress = useCallback(async () => {
     if (!address || addressError) return;
 
     try {
       setIsLoading(true);
-      const fullAddress = `${address}@bitsacco.com`;
+      const fullAddress = `${address}@${lightningDomain}`;
 
       const created = await createLightningAddress({
         address: address,
@@ -172,14 +169,14 @@ export function LightningAddressCard({
     } finally {
       setIsLoading(false);
     }
-  }, [address, addressError, onToast]);
+  }, [address, addressError, onToast, lightningDomain]);
 
   const copyAddress = useCallback(() => {
     if (!existingAddress) return;
 
     const fullAddress = existingAddress.address.includes("@")
       ? existingAddress.address
-      : `${existingAddress.address}@bitsacco.com`;
+      : `${existingAddress.address}@${lightningDomain}`;
 
     navigator.clipboard.writeText(fullAddress);
     setCopied(true);
@@ -189,7 +186,7 @@ export function LightningAddressCard({
       description: "Lightning address copied to clipboard",
       type: "success",
     });
-  }, [existingAddress, onToast]);
+  }, [existingAddress, onToast, lightningDomain]);
 
   const handleEditClick = useCallback(() => {
     if (existingAddress) {
@@ -261,60 +258,11 @@ export function LightningAddressCard({
     }
   }, [existingAddress, editDescription, validateDescription, onToast]);
 
-  const handleShowQR = async () => {
-    if (!existingAddress) return;
-
-    const fullAddress = existingAddress.address.includes("@")
-      ? existingAddress.address
-      : `${existingAddress.address}@bitsacco.com`;
-
-    if (!qrDataUrl) {
-      try {
-        const qrUrl = await QRCode.toDataURL(`lightning:${fullAddress}`, {
-          width: 300,
-          margin: 2,
-          color: {
-            dark: "#000000",
-            light: "#FFFFFF",
-          },
-        });
-        setQrDataUrl(qrUrl);
-      } catch (error) {
-        console.error("Failed to generate QR code:", error);
-        return;
-      }
-    }
-    setShowQR(!showQR);
-  };
-
-  const handleShare = async () => {
-    if (!existingAddress) return;
-
-    const fullAddress = existingAddress.address.includes("@")
-      ? existingAddress.address
-      : `${existingAddress.address}@bitsacco.com`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: "My Lightning Address",
-          text: `Send me Bitcoin via Lightning: ${fullAddress}`,
-          url: `lightning:${fullAddress}`,
-        });
-      } catch (error) {
-        console.error("Share failed:", error);
-        copyAddress();
-      }
-    } else {
-      copyAddress();
-    }
-  };
-
   if (isFetching) {
     return (
-      <div className="bg-gradient-to-r from-orange-500/10 to-yellow-500/10 border border-orange-500/20 rounded-xl p-6">
-        <div className="flex items-center">
-          <div className="p-2 bg-orange-500/20 rounded-lg mr-3">
+      <div className="bg-slate-800/40 border border-slate-700 rounded-lg p-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-orange-500/20 rounded-lg">
             <LightningIcon
               size={24}
               weight="fill"
@@ -336,100 +284,85 @@ export function LightningAddressCard({
   if (existingAddress) {
     const displayAddress = existingAddress.address.includes("@")
       ? existingAddress.address
-      : `${existingAddress.address}@bitsacco.com`;
+      : `${existingAddress.address}@${lightningDomain}`;
 
     return (
-      <div className="bg-gradient-to-r from-orange-500/10 to-yellow-500/10 border border-orange-500/20 rounded-xl p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <div className="p-2 bg-orange-500/20 rounded-lg mr-3">
-              <LightningIcon
-                size={24}
-                weight="fill"
-                className="text-orange-400"
-              />
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold text-white">
-                Lightning Address
-              </h4>
-              <p className="text-sm text-gray-400">
-                Your personal Lightning address for receiving payments
-              </p>
-            </div>
+      <div className="bg-slate-800/40 border border-slate-700 rounded-lg p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 bg-orange-500/20 rounded-lg">
+            <LightningIcon
+              size={24}
+              weight="fill"
+              className="text-orange-400"
+            />
+          </div>
+          <div>
+            <h4 className="text-lg font-semibold text-white">
+              Lightning Address
+            </h4>
+            <p className="text-sm text-gray-400">
+              Your personal Lightning address for receiving payments
+            </p>
           </div>
         </div>
 
         <div className="space-y-4">
-          <div className="bg-slate-800/60 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-2">
-                <p className="font-mono text-orange-300 text-lg break-all">
-                  {displayAddress}
-                </p>
-                {existingAddress.settings.enabled ? (
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-500/20 text-green-400">
-                    <CheckIcon size={12} weight="fill" className="mr-1" />
-                    Active
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-500/20 text-gray-400">
-                    <XCircleIcon size={12} weight="fill" className="mr-1" />
-                    Inactive
-                  </span>
-                )}
-              </div>
-              <div className="flex space-x-2 ml-4">
+          <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700">
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-mono text-orange-300 text-base break-all">
+                {displayAddress}
+              </p>
+              <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleEditClick}
                   disabled={isEditMode}
-                  className="!border-orange-500/50 !text-orange-300 hover:!bg-orange-500/20 !px-3"
+                  className="!border-orange-500/50 !text-orange-300 hover:!bg-orange-500/20"
                 >
-                  <PencilIcon size={16} />
+                  <PencilIcon size={16} className="mr-1" />
+                  Edit
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={copyAddress}
-                  className="!border-orange-500/50 !text-orange-300 hover:!bg-orange-500/20 !px-3"
+                  className="!border-orange-500/50 !text-orange-300 hover:!bg-orange-500/20"
                 >
-                  {copied ? <CheckIcon size={16} /> : <CopyIcon size={16} />}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleShowQR}
-                  className="!border-orange-500/50 !text-orange-300 hover:!bg-orange-500/20 !px-3"
-                >
-                  <QrCodeIcon size={16} />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleShare}
-                  className="!border-orange-500/50 !text-orange-300 hover:!bg-orange-500/20 !px-3"
-                >
-                  <ShareIcon size={16} />
+                  {copied ? (
+                    <>
+                      <CheckIcon size={16} className="mr-1" />
+                      Copied
+                    </>
+                  ) : (
+                    <>
+                      <CopyIcon size={16} className="mr-1" />
+                      Copy
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
+            {existingAddress.settings.enabled && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-green-500/20 text-green-400 mt-2">
+                Active
+              </span>
+            )}
 
             {/* Edit Description Form */}
-            {isEditMode ? (
-              <div className="mt-4">
+            {isEditMode && (
+              <div className="mt-4 pt-4 border-t border-slate-700">
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Lightning Address Description
+                  Description
                 </label>
                 <input
                   type="text"
                   value={editDescription}
                   onChange={(e) => validateDescription(e.target.value)}
-                  placeholder="Enter a description for your lightning address"
+                  placeholder="Enter a description"
                   maxLength={100}
                   autoFocus
-                  className="w-full bg-slate-900/50 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full bg-slate-900/50 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
                 <div className="flex items-center justify-between mt-2">
                   <span className="text-xs text-gray-400">
@@ -441,7 +374,7 @@ export function LightningAddressCard({
                     </span>
                   )}
                 </div>
-                <div className="flex space-x-2 mt-3">
+                <div className="flex gap-2 mt-3">
                   <Button
                     variant="primary"
                     size="sm"
@@ -463,33 +396,17 @@ export function LightningAddressCard({
                   </Button>
                 </div>
               </div>
-            ) : (
-              <div className="mt-2">
-                <p className="text-sm text-gray-300">
-                  <span className="font-medium">Description:</span>{" "}
+            )}
+
+            {!isEditMode && (
+              <div className="mt-3 pt-3 border-t border-slate-700">
+                <p className="text-sm text-gray-400">
                   {existingAddress.metadata.description ||
                     DEFAULT_LIGHTNING_ADDRESS_DESCRIPTION}
                 </p>
               </div>
             )}
           </div>
-
-          {showQR && qrDataUrl && (
-            <div className="bg-slate-800/60 rounded-lg p-6 text-center">
-              <div className="bg-white rounded-lg p-4 inline-block mb-4">
-                <Image
-                  src={qrDataUrl}
-                  alt="Lightning Address QR Code"
-                  width={256}
-                  height={256}
-                  className="rounded-lg"
-                />
-              </div>
-              <p className="text-sm text-gray-300">
-                Scan this QR code to send Bitcoin via Lightning Network
-              </p>
-            </div>
-          )}
         </div>
       </div>
     );
@@ -497,38 +414,24 @@ export function LightningAddressCard({
 
   // If no address exists, show the claim form
   return (
-    <div className="bg-gradient-to-r from-orange-500/10 to-yellow-500/10 border border-orange-500/20 rounded-xl p-6">
-      <div className="flex items-center mb-6">
-        <div className="p-2 bg-orange-500/20 rounded-lg mr-3">
+    <div className="bg-slate-800/40 border border-slate-700 rounded-lg p-6">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2 bg-orange-500/20 rounded-lg">
           <LightningIcon size={24} weight="fill" className="text-orange-400" />
         </div>
         <div>
           <h4 className="text-lg font-semibold text-white">
             Claim your Lightning Address
           </h4>
-          {/* <p className="text-sm text-gray-400">
-            Bitsacco Lightning address lets anyone send you Bitcoin instantly,
-            just like an email address!
-          </p>
           <p className="text-sm text-gray-400">
-            The Bitcoin will be deposited directly to your Personal Savings
-            wallet
-          </p> */}
+            Receive Bitcoin instantly, just like an email address
+          </p>
         </div>
       </div>
 
       <div className="space-y-4">
         <div>
-          <p className="text-sm text-gray-300 mb-3">
-            Bitsacco Lightning address lets anyone send you Bitcoin instantly,
-            just like an email address!
-          </p>
-          <p className="text-sm text-gray-300 mb-3">
-            The Bitcoin will be deposited directly to your Personal Savings
-            wallet
-          </p>
-
-          <div className="flex items-center bg-slate-800/60 rounded-lg">
+          <div className="flex items-center bg-slate-900/50 rounded-lg border border-slate-700">
             <input
               type="text"
               value={address}
@@ -536,7 +439,9 @@ export function LightningAddressCard({
               placeholder="username"
               className="flex-1 bg-transparent border-none px-4 py-3 text-white placeholder-gray-400 focus:outline-none"
             />
-            <span className="px-4 py-3 text-gray-400">@bitsacco.com</span>
+            <span className="px-4 py-3 text-gray-400 font-mono">
+              @{lightningDomain}
+            </span>
           </div>
 
           {addressError && (
@@ -544,7 +449,7 @@ export function LightningAddressCard({
           )}
 
           {!addressError && address && isCheckingAvailability && (
-            <div className="flex items-center space-x-2 mt-2">
+            <div className="flex items-center gap-2 mt-2">
               <div className="w-4 h-4 border-2 border-orange-400 border-t-transparent rounded-full animate-spin"></div>
               <p className="text-sm text-gray-400">Checking availability...</p>
             </div>
@@ -555,7 +460,7 @@ export function LightningAddressCard({
             !isCheckingAvailability &&
             isAvailable === true && (
               <p className="text-green-400 text-sm mt-2">
-                ✓ {address}@bitsacco.com is available!
+                ✓ {address}@{lightningDomain} is available!
               </p>
             )}
 
@@ -582,7 +487,6 @@ export function LightningAddressCard({
           }
           className="w-full !bg-orange-500 hover:!bg-orange-600 !text-white"
         >
-          <LightningIcon size={20} weight="fill" className="mr-2" />
           Claim Lightning Address
         </Button>
       </div>
