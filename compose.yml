@@ -64,6 +64,7 @@ services:
   nestapi:
     container_name: nestapi
     image: bitsacco/api:main
+    platform: linux/amd64
     env_file:
       - ./.env.nestapi
     depends_on:
@@ -75,6 +76,7 @@ services:
 
   mongodb:
     image: mongo:7.0-jammy
+    platform: linux/amd64
     container_name: mongodb
     environment:
       - MONGO_INITDB_ROOT_USERNAME=bs
@@ -87,6 +89,7 @@ services:
 
   fmcd:
     image: okjodom/fmcd:latest
+    platform: linux/amd64
     container_name: fmcd
     environment:
       - FMCD_DATA_DIR=/data
