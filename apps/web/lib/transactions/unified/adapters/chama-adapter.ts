@@ -8,22 +8,18 @@ import type {
   ChamaWalletTx,
   Chama,
   ChamaMember,
+  UnifiedTransaction,
+  TransactionAction,
+  UnifiedTransactionStatus,
+  UnifiedTransactionMetadata,
 } from "@bitsacco/core";
-
 import {
   ChamaTxStatus,
   Review,
   ChamaMemberRole,
-  ChamaTransactionType,
-} from "@bitsacco/core";
-
-import type {
-  UnifiedTransaction,
-  TransactionAction,
-  TransactionStatus,
   TransactionType,
-  TransactionMetadata,
-} from "../types";
+  Currency,
+} from "@bitsacco/core";
 
 export interface ChamaAdapterOptions {
   client: ChamaApiClient;
@@ -60,7 +56,7 @@ export class ChamaTransactionAdapter {
     const profiles = profilesResponse.data?.members || [];
     const memberProfile = profiles.find((p) => p.userId === tx.memberId);
 
-    const metadata: TransactionMetadata = {
+    const metadata: UnifiedTransactionMetadata = {
       chamaId: chama.id,
       chamaName: chama.name,
       memberId: tx.memberId,
@@ -72,7 +68,7 @@ export class ChamaTransactionAdapter {
 
     // Track review information for withdrawals (informational only)
     // The backend handles approval logic - frontend just displays status
-    if (tx.type === ChamaTransactionType.WITHDRAWAL) {
+    if (tx.type === TransactionType.WITHDRAW) {
       // Store review information for UI display
       // Note: Backend sets status to APPROVED when ANY admin approves
       // There's no threshold requirement - it's a simple binary approval
@@ -95,7 +91,7 @@ export class ChamaTransactionAdapter {
       status: this.mapStatus(tx.status, tx.type),
       amount: {
         value: tx.amountFiat || 0,
-        currency: "KES",
+        currency: Currency.KES,
       },
       createdAt: new Date(tx.createdAt),
       updatedAt: tx.updatedAt ? new Date(tx.updatedAt) : undefined,
@@ -117,20 +113,19 @@ export class ChamaTransactionAdapter {
   }
 
   /**
-   * Map chama transaction type to unified type
+   * Map core transaction type enum to string literal
    */
   private mapTransactionType(
-    type: ChamaTransactionType | string,
-  ): TransactionType {
-    // Handle both string values and enum values from API
-    // ChamaTransactionType enum uses string values in core
-    if (type === ChamaTransactionType.DEPOSIT || type === "deposit")
-      return "deposit";
-    if (type === ChamaTransactionType.WITHDRAWAL || type === "withdrawal")
-      return "withdrawal";
-    if (type === ChamaTransactionType.TRANSFER || type === "transfer")
-      return "transfer";
-    return "deposit"; // Default fallback
+    type: TransactionType,
+  ): "deposit" | "withdrawal" | "transfer" {
+    switch (type) {
+      case TransactionType.DEPOSIT:
+        return "deposit";
+      case TransactionType.WITHDRAW:
+        return "withdrawal";
+      default:
+        return "deposit"; // Default fallback
+    }
   }
 
   /**
@@ -141,13 +136,13 @@ export class ChamaTransactionAdapter {
    */
   private mapStatus(
     status: ChamaTxStatus,
-    txType: ChamaTransactionType | string,
-  ): TransactionStatus {
+    txType: TransactionType | string,
+  ): UnifiedTransactionStatus {
     // Determine if this is a deposit or withdrawal
     const isDeposit =
-      txType === ChamaTransactionType.DEPOSIT || txType === "deposit";
+      txType === TransactionType.DEPOSIT || txType === "deposit";
     const isWithdrawal =
-      txType === ChamaTransactionType.WITHDRAWAL || txType === "withdrawal";
+      txType === TransactionType.WITHDRAW || txType === "withdrawal";
 
     // For deposits: simpler flow without approval
     if (isDeposit) {
@@ -239,7 +234,7 @@ export class ChamaTransactionAdapter {
     });
 
     // Withdrawal-specific actions
-    if (tx.type === ChamaTransactionType.WITHDRAWAL) {
+    if (tx.type === TransactionType.WITHDRAW) {
       // Admin approval actions
       if (tx.status === ChamaTxStatus.PENDING && isAdmin) {
         // Check if admin has already reviewed

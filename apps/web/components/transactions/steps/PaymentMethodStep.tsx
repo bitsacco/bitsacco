@@ -17,10 +17,10 @@ import {
 
 import type {
   TransactionContext,
-  TransactionType,
+  UnifiedTransactionType as TransactionType,
   Money,
   PaymentMethodType,
-} from "@/lib/transactions/unified/types";
+} from "@bitsacco/core";
 import { formatCurrency } from "@/lib/utils/format";
 
 // ============================================================================

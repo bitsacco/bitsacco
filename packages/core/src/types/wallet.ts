@@ -1,8 +1,4 @@
-// Import backend types to avoid conflicts (prefixed with _ to indicate they're for reference only)
-import type {
-  TransactionStatus as _BackendTransactionStatus,
-  TransactionType as _BackendTransactionType,
-} from "./lib";
+import type { TransactionStatus, TransactionType } from "./lib";
 
 // Transaction metadata specific to wallet operations
 export interface TransactionMetadata {
@@ -34,24 +30,6 @@ export interface Transaction {
   metadata?: TransactionMetadata;
   createdAt: Date;
   updatedAt: Date;
-}
-
-// Frontend-specific transaction types (extending backend types)
-export enum TransactionType {
-  Deposit = "deposit",
-  Withdraw = "withdraw",
-  SharePurchase = "share_purchase",
-  ShareTransfer = "share_transfer",
-  ChamaContribution = "chama_contribution",
-  ChamaWithdrawal = "chama_withdrawal",
-}
-
-// Frontend-specific transaction status (extending backend types)
-export enum TransactionStatus {
-  Pending = "pending",
-  Confirmed = "confirmed",
-  Failed = "failed",
-  Cancelled = "cancelled",
 }
 
 export interface CreateTransactionRequest {

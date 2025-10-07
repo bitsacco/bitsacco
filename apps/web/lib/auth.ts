@@ -5,13 +5,10 @@
 import NextAuth from "next-auth";
 import type { NextAuthConfig } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { ApiClient } from "@bitsacco/core/client";
-import { AuthService } from "@bitsacco/core/auth";
-import {
-  WebStorageAdapter,
-  type StorageAdapter,
-} from "@bitsacco/core/adapters";
-import type { LoginUserRequest, User as CoreUser } from "@bitsacco/core/types";
+import { ApiClient } from "@bitsacco/core";
+import { AuthService } from "@bitsacco/core";
+import { WebStorageAdapter, type StorageAdapter } from "@bitsacco/core";
+import type { LoginUserRequest, User as CoreUser } from "@bitsacco/core";
 import { Routes } from "./routes";
 
 // Type augmentations for NextAuth

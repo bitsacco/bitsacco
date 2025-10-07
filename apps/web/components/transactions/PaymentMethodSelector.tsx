@@ -17,10 +17,10 @@ import {
 
 import type {
   PaymentMethodType,
-  TransactionType,
+  UnifiedTransactionType as TransactionType,
   TransactionContext,
   Money,
-} from "@/lib/transactions/unified/types";
+} from "@bitsacco/core";
 import { getTransactionLimits } from "@/lib/transactions/unified/limits";
 
 // ============================================================================
@@ -125,7 +125,7 @@ function getPaymentMethodInfo(
       max: limits.maxAmount,
       dailyLimit: limits.dailyLimit,
       monthlyLimit: limits.monthlyLimit,
-      currency: limits.currency,
+      currency: limits.currency || "KES",
     },
   };
 }

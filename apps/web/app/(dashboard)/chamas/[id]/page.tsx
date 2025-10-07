@@ -35,9 +35,7 @@ import {
   CopyIcon,
   PhoneIcon,
 } from "@phosphor-icons/react";
-import {
-  ChamaMemberRole,
-} from "@bitsacco/core";
+import { ChamaMemberRole } from "@bitsacco/core";
 import { useHideBalances } from "@/hooks/use-hide-balances";
 
 // Component to handle pending approval workflows
@@ -101,10 +99,9 @@ export default function ChamaDetailsPage() {
     "deposit" | "withdrawal"
   >("deposit");
 
-  const { chama, memberProfiles, metadata, loading, error } =
-    useChamaDetails({
-      chamaId,
-    });
+  const { chama, memberProfiles, metadata, loading, error } = useChamaDetails({
+    chamaId,
+  });
 
   // Exchange rate for KES conversion - matching gallery page
   const {
@@ -567,7 +564,7 @@ export default function ChamaDetailsPage() {
             isAdmin={chama.members.some(
               (member) =>
                 member.userId === currentUserId &&
-                member.roles.includes(ChamaMemberRole.Admin)
+                member.roles.includes(ChamaMemberRole.Admin),
             )}
           />
 

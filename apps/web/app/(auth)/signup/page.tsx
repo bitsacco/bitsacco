@@ -10,7 +10,7 @@ import {
   PhoneInput,
   PhoneRegionCode,
 } from "@bitsacco/ui";
-import { Role } from "@bitsacco/core/types";
+import { Role } from "@bitsacco/core";
 import { PinInput } from "@/components/pin-input";
 import { Routes } from "@/lib/routes";
 

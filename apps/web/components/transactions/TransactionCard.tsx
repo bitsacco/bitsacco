@@ -29,14 +29,11 @@ import {
 
 import type {
   UnifiedTransaction,
-  TransactionStatus,
-  TransactionType,
+  UnifiedTransactionStatus as TransactionStatus,
+  UnifiedTransactionType as TransactionType,
   TransactionContext,
-} from "@/lib/transactions/unified/types";
-import {
-  formatTransactionAmount,
-  getStatusLabel,
-} from "@/lib/transactions/unified/types";
+} from "@bitsacco/core";
+import { formatTransactionAmount, getStatusLabel } from "@bitsacco/core";
 
 // ============================================================================
 // Types
@@ -57,7 +54,6 @@ export function TransactionCard({
   variant = "default",
   className,
 }: TransactionCardProps) {
-
   return (
     <Card
       className={`transition-all duration-200 hover:shadow-lg hover:border-slate-600 bg-slate-800/50 border-slate-700 ${className}`}
@@ -92,7 +88,9 @@ export function TransactionCard({
             {transaction.metadata.reference && (
               <div className="text-sm">
                 <span className="text-gray-500 font-medium">Reference:</span>{" "}
-                <span className="text-gray-300">{transaction.metadata.reference}</span>
+                <span className="text-gray-300">
+                  {transaction.metadata.reference}
+                </span>
               </div>
             )}
 
@@ -219,7 +217,6 @@ function StatusBadge({ status }: { status: TransactionStatus }) {
 //     </div>
 //   );
 // }
-
 
 // ============================================================================
 // Helper Functions

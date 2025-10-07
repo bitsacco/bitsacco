@@ -12,10 +12,10 @@ import {
 
 import type {
   TransactionContext,
-  TransactionType,
+  UnifiedTransactionType as TransactionType,
   PaymentMethodType,
   TransactionLimits,
-} from "./types";
+} from "@bitsacco/core";
 
 export interface LimitConfig {
   MIN_AMOUNT_KES: number;
@@ -51,7 +51,7 @@ function getLimitConfig(
 ): LimitConfig {
   // Lightning has its own limits regardless of context
   if (paymentMethod === "lightning") {
-    return type === "deposit" || type === "subscription"
+    return type === "deposit"
       ? LIGHTNING_DEPOSIT_LIMITS
       : LIGHTNING_WITHDRAW_LIMITS;
   }

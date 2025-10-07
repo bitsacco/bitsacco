@@ -1,7 +1,7 @@
 /**
  * Helper functions for API routes to properly handle authentication
  */
-import { ApiClient } from "@bitsacco/core/client";
+import { ApiClient } from "@bitsacco/core";
 import { auth } from "./auth";
 import type { Session } from "next-auth";
 

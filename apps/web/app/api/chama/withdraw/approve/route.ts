@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAuthenticatedApiClient } from "@/lib/api-helper";
-import { type ChamaTxUpdates, ChamaTransactionType } from "@bitsacco/core";
+import { type ChamaTxUpdates, TransactionType } from "@bitsacco/core";
 
 /**
  * POST /api/chama/withdraw/approve
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
     const transaction = txResponse.data.ledger.transactions[0];
 
     // Verify transaction is a withdrawal and pending approval
-    if (transaction.type !== ChamaTransactionType.WITHDRAWAL) {
+    if (transaction.type !== TransactionType.WITHDRAW) {
       return NextResponse.json(
         { error: "Transaction is not a withdrawal request" },
         { status: 400 },

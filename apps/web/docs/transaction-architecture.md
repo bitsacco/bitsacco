@@ -285,7 +285,7 @@ export class ChamaTransactionAdapter implements ContextAdapter {
     const actions: TransactionAction[] = [];
 
     // Withdrawal approval actions (admin only)
-    if (tx.type === TransactionType.WITHDRAWAL && tx.status === ChamaTxStatus.PENDING) {
+    if (tx.type === TransactionType.WITHDRAW && tx.status === ChamaTxStatus.PENDING) {
       if (isAdmin && !isOwnTransaction) {
         actions.push({
           type: 'approve',
@@ -309,7 +309,7 @@ export class ChamaTransactionAdapter implements ContextAdapter {
 
     // Withdrawal execution (member only, when server marks as APPROVED)
     // Server handles all approval threshold logic - frontend just checks status
-    if (tx.type === TransactionType.WITHDRAWAL && 
+    if (tx.type === TransactionType.WITHDRAW && 
         tx.status === ChamaTxStatus.APPROVED && 
         isOwnTransaction) {
       actions.push({

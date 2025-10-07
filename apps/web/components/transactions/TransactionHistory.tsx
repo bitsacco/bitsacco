@@ -32,9 +32,9 @@ import {
 
 import type {
   TransactionContext,
-  TransactionType,
-  TransactionStatus,
-} from "@/lib/transactions/unified/types";
+  UnifiedTransactionType as TransactionType,
+  UnifiedTransactionStatus as TransactionStatus,
+} from "@bitsacco/core";
 
 import { TransactionCard } from "./TransactionCard";
 import { ApprovalWorkflow } from "./ApprovalWorkflow";
@@ -143,7 +143,6 @@ export function TransactionHistory({
     });
   }, [getHighPriorityTransactions, context]);
 
-
   // Get unique values for filters
   const availableStatuses = useMemo(() => {
     const statusSet = new Set(transactions.map((tx) => tx.status));
@@ -207,10 +206,7 @@ export function TransactionHistory({
                       }}
                     />
                   ) : (
-                    <TransactionCard
-                      transaction={tx}
-                      variant="compact"
-                    />
+                    <TransactionCard transaction={tx} variant="compact" />
                   )}
                 </div>
               ))}

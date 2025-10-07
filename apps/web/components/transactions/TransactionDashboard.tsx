@@ -14,13 +14,9 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import {
-  BellIcon,
-} from "@phosphor-icons/react";
+import { BellIcon } from "@phosphor-icons/react";
 
-import type {
-  UnifiedTransaction,
-} from "@/lib/transactions/unified/types";
+import type { UnifiedTransaction } from "@bitsacco/core";
 
 import { TransactionList } from "./TransactionList";
 import { ApprovalWorkflow } from "./ApprovalWorkflow";
@@ -83,8 +79,7 @@ export function TransactionDashboard({
   isAdmin = false,
   className = "",
 }: TransactionDashboardProps) {
-  const { transactions, loading, error, fetchTransactions } =
-    useTransactions();
+  const { transactions, loading, error, fetchTransactions } = useTransactions();
 
   // Use chama configuration (TODO: make this dynamic based on context prop)
   const config = CHAMA_CONFIG;
@@ -95,7 +90,8 @@ export function TransactionDashboard({
 
   // Filter transactions for this specific chama
   const chamaTransactions = transactions.filter(
-    (tx) => tx.context === config.filterContext && tx.metadata.chamaId === chamaId,
+    (tx) =>
+      tx.context === config.filterContext && tx.metadata.chamaId === chamaId,
   );
 
   // Paginated transactions
@@ -106,7 +102,9 @@ export function TransactionDashboard({
   }, [chamaTransactions, currentPage]);
 
   // Calculate total pages
-  const totalPages = Math.ceil(chamaTransactions.length / TRANSACTIONS_PER_PAGE);
+  const totalPages = Math.ceil(
+    chamaTransactions.length / TRANSACTIONS_PER_PAGE,
+  );
 
   // Get pending approvals for admins (only show if config allows it)
   const pendingApprovals = config.showApprovalWorkflow
@@ -114,8 +112,6 @@ export function TransactionDashboard({
         (tx) => tx.status === "pending_approval" && isAdmin,
       )
     : [];
-
-
 
   return (
     <div className={`space-y-6 ${className}`}>
@@ -136,49 +132,50 @@ export function TransactionDashboard({
         </div>
       </div>
 
-
       {/* Pending Approvals (Admin Only) */}
-      {config.showApprovalWorkflow && isAdmin && pendingApprovals.length > 0 && (
-        <div className="bg-slate-800 border border-orange-500/30 rounded-xl p-4 lg:p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
-              <BellIcon size={16} className="text-orange-400" />
+      {config.showApprovalWorkflow &&
+        isAdmin &&
+        pendingApprovals.length > 0 && (
+          <div className="bg-slate-800 border border-orange-500/30 rounded-xl p-4 lg:p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                <BellIcon size={16} className="text-orange-400" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-100">
+                  Pending Approvals ({pendingApprovals.length})
+                </h2>
+                <p className="text-sm text-gray-400">
+                  Withdrawal requests awaiting your review
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-lg font-semibold text-gray-100">
-                Pending Approvals ({pendingApprovals.length})
-              </h2>
-              <p className="text-sm text-gray-400">
-                Withdrawal requests awaiting your review
-              </p>
+
+            <div className="space-y-4">
+              {pendingApprovals.slice(0, 3).map((transaction) => (
+                <div
+                  key={transaction.id}
+                  className="bg-slate-700/30 rounded-lg overflow-hidden"
+                >
+                  <ApprovalWorkflow
+                    transaction={transaction}
+                    currentUserId={currentUserId}
+                    isAdmin={isAdmin}
+                    onUpdate={fetchTransactions}
+                  />
+                </div>
+              ))}
+
+              {pendingApprovals.length > 3 && (
+                <div className="text-center">
+                  <Button variant="outline" size="sm">
+                    View All {pendingApprovals.length} Requests
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
-
-          <div className="space-y-4">
-            {pendingApprovals.slice(0, 3).map((transaction) => (
-              <div
-                key={transaction.id}
-                className="bg-slate-700/30 rounded-lg overflow-hidden"
-              >
-                <ApprovalWorkflow
-                  transaction={transaction}
-                  currentUserId={currentUserId}
-                  isAdmin={isAdmin}
-                  onUpdate={fetchTransactions}
-                />
-              </div>
-            ))}
-
-            {pendingApprovals.length > 3 && (
-              <div className="text-center">
-                <Button variant="outline" size="sm">
-                  View All {pendingApprovals.length} Requests
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+        )}
 
       {/* Recent Activity */}
       <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 lg:p-6">
@@ -199,12 +196,15 @@ export function TransactionDashboard({
           <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-700/50">
             <div className="text-sm text-gray-400">
               Showing {(currentPage - 1) * TRANSACTIONS_PER_PAGE + 1} to{" "}
-              {Math.min(currentPage * TRANSACTIONS_PER_PAGE, chamaTransactions.length)} of{" "}
-              {chamaTransactions.length} transactions
+              {Math.min(
+                currentPage * TRANSACTIONS_PER_PAGE,
+                chamaTransactions.length,
+              )}{" "}
+              of {chamaTransactions.length} transactions
             </div>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
                 className="px-3 py-1 text-sm bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-md text-gray-300 transition-colors"
               >
@@ -214,7 +214,9 @@ export function TransactionDashboard({
                 Page {currentPage} of {totalPages}
               </span>
               <button
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
                 disabled={currentPage === totalPages}
                 className="px-3 py-1 text-sm bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-md text-gray-300 transition-colors"
               >
@@ -224,11 +226,9 @@ export function TransactionDashboard({
           </div>
         )}
       </div>
-
     </div>
   );
 }
-
 
 // ============================================================================
 // Mobile-specific Components
@@ -246,7 +246,7 @@ export function MobileChamaTransactionSummary({
   chamaName?: string;
 }) {
   // Filter for completed chama transactions
-  const chamaTransactions = transactions.filter(tx => tx.context === "chama");
+  const chamaTransactions = transactions.filter((tx) => tx.context === "chama");
 
   const totalDeposits = chamaTransactions
     .filter((tx) => tx.type === "deposit" && tx.status === "completed")

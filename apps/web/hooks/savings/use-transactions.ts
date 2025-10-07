@@ -6,7 +6,7 @@ import type {
   UserTxsResponse,
   SolowalletTx,
 } from "@bitsacco/core";
-import { PersonalTransactionStatus } from "@bitsacco/core";
+import { TransactionStatus } from "@bitsacco/core";
 import { Routes } from "@/lib/routes";
 
 // Define simple types inline
@@ -294,8 +294,8 @@ export function useTransactions(
     const interval = setInterval(() => {
       const hasPendingTransactions = transactions.some(
         (tx) =>
-          tx.status === PersonalTransactionStatus.PENDING ||
-          tx.status === PersonalTransactionStatus.PROCESSING,
+          tx.status === TransactionStatus.PENDING ||
+          tx.status === TransactionStatus.PROCESSING,
       );
 
       if (hasPendingTransactions) {

@@ -17,9 +17,9 @@ import { Info as InformationCircleIcon } from "@phosphor-icons/react";
 
 import type {
   TransactionContext,
-  TransactionType,
+  UnifiedTransactionType as TransactionType,
   Money,
-} from "@/lib/transactions/unified/types";
+} from "@bitsacco/core";
 import { formatCurrency } from "@/lib/utils/format";
 
 // ============================================================================
