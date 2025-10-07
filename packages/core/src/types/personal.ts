@@ -1,3 +1,5 @@
+import type { FmLightning, TransactionStatus, TransactionType } from "./lib";
+
 // Types copied from backend for consistency - DO NOT modify without updating backend
 export enum WalletType {
   STANDARD = "STANDARD", // Regular savings wallet (default)
@@ -11,22 +13,6 @@ export enum LockPeriod {
   SIX_MONTHS = "SIX_MONTHS",
   ONE_YEAR = "ONE_YEAR",
   CUSTOM = "CUSTOM",
-}
-
-export enum TransactionType {
-  DEPOSIT = 0,
-  WITHDRAW = 1,
-  WALLET_CREATION = 2,
-  UNRECOGNIZED = -1,
-}
-
-export enum TransactionStatus {
-  PENDING = 0,
-  PROCESSING = 1,
-  FAILED = 2,
-  COMPLETE = 3,
-  MANUAL_REVIEW = 4,
-  UNRECOGNIZED = -1,
 }
 
 // Wallet configuration interfaces
@@ -275,9 +261,6 @@ export interface WalletQueryDto {
   limit?: number;
 }
 
-// Import FmLightning from lib types
-import type { FmLightning } from "./lib";
-
 // Core transaction types from backend
 export interface SolowalletTx {
   id: string;
@@ -314,35 +297,4 @@ export interface UserTxsResponse {
   ledger: PaginatedSolowalletTxsResponse | undefined;
   meta?: WalletMeta;
   userId: string;
-}
-
-// Utility functions for type conversion
-export function mapTransactionTypeToFrontend(
-  backendType: TransactionType,
-): "deposit" | "withdraw" {
-  switch (backendType) {
-    case TransactionType.DEPOSIT:
-      return "deposit";
-    case TransactionType.WITHDRAW:
-    case TransactionType.WALLET_CREATION:
-    default:
-      return "withdraw";
-  }
-}
-
-export function mapTransactionStatusToFrontend(
-  backendStatus: TransactionStatus,
-): "pending" | "processing" | "completed" | "failed" {
-  switch (backendStatus) {
-    case TransactionStatus.PENDING:
-      return "pending";
-    case TransactionStatus.PROCESSING:
-      return "processing";
-    case TransactionStatus.COMPLETE:
-      return "completed";
-    case TransactionStatus.FAILED:
-    case TransactionStatus.MANUAL_REVIEW:
-    default:
-      return "failed";
-  }
 }

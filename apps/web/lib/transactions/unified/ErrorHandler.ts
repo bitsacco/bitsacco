@@ -3,7 +3,10 @@
  * Centralized error handling for transaction operations with user-friendly messages
  */
 
-import type { TransactionContext, TransactionType } from "./types";
+import type {
+  TransactionContext,
+  UnifiedTransactionType,
+} from "@bitsacco/core";
 
 // ============================================================================
 // Error Types
@@ -52,7 +55,7 @@ export interface TransactionError {
   message: string;
   details?: Record<string, unknown>;
   context?: TransactionContext;
-  type?: TransactionType;
+  type?: UnifiedTransactionType;
   timestamp: Date;
   recoverable: boolean;
   retryAfter?: number; // seconds
@@ -132,12 +135,12 @@ export class TransactionErrorHandler {
   static parseError(
     error: unknown,
     context?: TransactionContext,
-    type?: TransactionType,
+    type?: UnifiedTransactionType,
   ): TransactionError {
     const timestamp = new Date();
 
     // Handle API response errors
-    if (error && typeof error === 'object' && 'response' in error) {
+    if (error && typeof error === "object" && "response" in error) {
       const errorWithResponse = error as { response?: { data?: unknown } };
       if (errorWithResponse.response?.data) {
         const apiError = errorWithResponse.response.data;
@@ -146,10 +149,15 @@ export class TransactionErrorHandler {
     }
 
     // Handle network errors
-    const errorObj = error as { code?: string; message?: string; details?: unknown };
+    const errorObj = error as {
+      code?: string;
+      message?: string;
+      details?: unknown;
+    };
     if (
       errorObj?.code === "NETWORK_ERROR" ||
-      (typeof errorObj?.message === 'string' && errorObj.message.includes("Network"))
+      (typeof errorObj?.message === "string" &&
+        errorObj.message.includes("Network"))
     ) {
       return {
         code: TransactionErrorCode.NETWORK_ERROR,
@@ -163,7 +171,11 @@ export class TransactionErrorHandler {
     }
 
     // Handle timeout errors
-    if (errorObj?.code === "TIMEOUT" || (typeof errorObj?.message === 'string' && errorObj.message.includes("timeout"))) {
+    if (
+      errorObj?.code === "TIMEOUT" ||
+      (typeof errorObj?.message === "string" &&
+        errorObj.message.includes("timeout"))
+    ) {
       return {
         code: TransactionErrorCode.TIMEOUT_ERROR,
         message: ERROR_MESSAGES[TransactionErrorCode.TIMEOUT_ERROR],
@@ -178,12 +190,20 @@ export class TransactionErrorHandler {
     // Handle known error codes
     if (
       errorObj?.code &&
-      Object.values(TransactionErrorCode).includes(errorObj.code as TransactionErrorCode)
+      Object.values(TransactionErrorCode).includes(
+        errorObj.code as TransactionErrorCode,
+      )
     ) {
       return {
         code: errorObj.code as TransactionErrorCode,
-        message: ERROR_MESSAGES[errorObj.code as TransactionErrorCode] || errorObj.message || '',
-        details: typeof errorObj.details === 'object' && errorObj.details !== null ? errorObj.details as Record<string, unknown> : undefined,
+        message:
+          ERROR_MESSAGES[errorObj.code as TransactionErrorCode] ||
+          errorObj.message ||
+          "",
+        details:
+          typeof errorObj.details === "object" && errorObj.details !== null
+            ? (errorObj.details as Record<string, unknown>)
+            : undefined,
         context,
         type,
         timestamp,
@@ -196,8 +216,16 @@ export class TransactionErrorHandler {
     return {
       code: TransactionErrorCode.UNKNOWN_ERROR,
       message:
-        (typeof error === 'object' && error !== null && 'message' in error && typeof (error as { message?: unknown }).message === 'string' ? (error as { message: string }).message : null) || ERROR_MESSAGES[TransactionErrorCode.UNKNOWN_ERROR],
-      details: typeof error === 'object' && error !== null ? error as Record<string, unknown> : undefined,
+        (typeof error === "object" &&
+        error !== null &&
+        "message" in error &&
+        typeof (error as { message?: unknown }).message === "string"
+          ? (error as { message: string }).message
+          : null) || ERROR_MESSAGES[TransactionErrorCode.UNKNOWN_ERROR],
+      details:
+        typeof error === "object" && error !== null
+          ? (error as Record<string, unknown>)
+          : undefined,
       context,
       type,
       timestamp,
@@ -212,7 +240,7 @@ export class TransactionErrorHandler {
   private static handleApiError(
     apiError: unknown,
     context?: TransactionContext,
-    type?: TransactionType,
+    type?: UnifiedTransactionType,
     timestamp: Date = new Date(),
   ): TransactionError {
     // Map common API error patterns
@@ -251,7 +279,12 @@ export class TransactionErrorHandler {
       },
     ];
 
-    const apiErrorObj = apiError as { message?: string; error?: string; status?: number; statusCode?: number };
+    const apiErrorObj = apiError as {
+      message?: string;
+      error?: string;
+      status?: number;
+      statusCode?: number;
+    };
     const errorMessage = apiErrorObj.message || apiErrorObj.error || "";
 
     for (const { pattern, code } of errorPatterns) {
@@ -259,7 +292,10 @@ export class TransactionErrorHandler {
         return {
           code,
           message: ERROR_MESSAGES[code],
-          details: typeof apiError === 'object' && apiError !== null ? apiError as Record<string, unknown> : undefined,
+          details:
+            typeof apiError === "object" && apiError !== null
+              ? (apiError as Record<string, unknown>)
+              : undefined,
           context,
           type,
           timestamp,
@@ -276,7 +312,10 @@ export class TransactionErrorHandler {
       return {
         code,
         message: ERROR_MESSAGES[code],
-        details: typeof apiError === 'object' && apiError !== null ? apiError as Record<string, unknown> : undefined,
+        details:
+          typeof apiError === "object" && apiError !== null
+            ? (apiError as Record<string, unknown>)
+            : undefined,
         context,
         type,
         timestamp,
@@ -289,7 +328,10 @@ export class TransactionErrorHandler {
     return {
       code: TransactionErrorCode.API_ERROR,
       message: errorMessage || ERROR_MESSAGES[TransactionErrorCode.API_ERROR],
-      details: typeof apiError === 'object' && apiError !== null ? apiError as Record<string, unknown> : undefined,
+      details:
+        typeof apiError === "object" && apiError !== null
+          ? (apiError as Record<string, unknown>)
+          : undefined,
       context,
       type,
       timestamp,
@@ -439,7 +481,7 @@ export interface UseTransactionErrorResult {
   setError: (
     error: unknown,
     context?: TransactionContext,
-    type?: TransactionType,
+    type?: UnifiedTransactionType,
   ) => void;
   clearError: () => void;
   retry: () => void;
@@ -451,7 +493,11 @@ export function useTransactionError(): UseTransactionErrorResult {
   const [retryCallback, setRetryCallback] = useState<(() => void) | null>(null);
 
   const setError = useCallback(
-    (error: unknown, context?: TransactionContext, type?: TransactionType) => {
+    (
+      error: unknown,
+      context?: TransactionContext,
+      type?: UnifiedTransactionType,
+    ) => {
       const parsedError = TransactionErrorHandler.parseError(
         error,
         context,

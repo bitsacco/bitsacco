@@ -7,9 +7,7 @@
 
 import React from "react";
 
-import type {
-  UnifiedTransaction,
-} from "@/lib/transactions/unified/types";
+import type { UnifiedTransaction } from "@bitsacco/core";
 
 import { TransactionCard } from "./TransactionCard";
 
@@ -34,7 +32,6 @@ export function TransactionList({
   error = null,
   className = "",
 }: TransactionListProps) {
-
   if (error) {
     return (
       <div className={`text-center py-12 ${className}`}>

@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import type { Session } from "next-auth";
 import { Button, Logo } from "@bitsacco/ui";
-import type { User as CoreUser } from "@bitsacco/core/types";
+import type { User as CoreUser } from "@bitsacco/core";
 import {
   ListIcon,
   XIcon,

@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { Button, PhoneInput, PhoneRegionCode } from "@bitsacco/ui";
 import { CurrencyCircleDollarIcon } from "@phosphor-icons/react";
 import type { WalletResponseDto } from "@bitsacco/core";
-import { PersonalTransactionStatus } from "@bitsacco/core";
+import { TransactionStatus } from "@bitsacco/core";
 import { MpesaPaymentModal } from "@/components/mpesa-payment-modal";
 
 interface DepositRequest {
@@ -70,10 +70,10 @@ export function MpesaDepositForm({
   // Monitor payment status updates from the polling hook
   useEffect(() => {
     if (paymentStatus?.transactionId === transactionId && transactionId) {
-      if (paymentStatus.status === PersonalTransactionStatus.COMPLETE) {
+      if (paymentStatus.status === TransactionStatus.COMPLETE) {
         // Don't call onSuccess immediately - let modal show success state first
         // Modal will handle calling onSuccess when user clicks "Done"
-      } else if (paymentStatus.status === PersonalTransactionStatus.FAILED) {
+      } else if (paymentStatus.status === TransactionStatus.FAILED) {
         // Keep modal open but show failed state
       }
     }
@@ -179,14 +179,14 @@ export function MpesaDepositForm({
     }
 
     switch (paymentStatus.status) {
-      case PersonalTransactionStatus.PENDING:
+      case TransactionStatus.PENDING:
         return "pending";
-      case PersonalTransactionStatus.PROCESSING:
+      case TransactionStatus.PROCESSING:
         return "processing";
-      case PersonalTransactionStatus.COMPLETE:
+      case TransactionStatus.COMPLETE:
         return "completed";
-      case PersonalTransactionStatus.FAILED:
-      case PersonalTransactionStatus.MANUAL_REVIEW:
+      case TransactionStatus.FAILED:
+      case TransactionStatus.MANUAL_REVIEW:
       default:
         return "failed";
     }

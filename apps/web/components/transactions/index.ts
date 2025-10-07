@@ -32,11 +32,11 @@ export type {
   TransactionContext,
   Money,
   PaymentMethodType,
-  TransactionMetadata,
+  UnifiedTransactionMetadata as TransactionMetadata,
   TransactionFilter,
-  CreateTransactionRequest,
+  UnifiedCreateTransactionRequest as CreateTransactionRequest,
   TransactionLimits,
-} from "@/lib/transactions/unified/types";
+} from "@bitsacco/core";
 
 // Hooks and Providers
 export {
@@ -68,4 +68,4 @@ export {
   isFailed,
   canRetry,
   getTransactionLabel,
-} from "@/lib/transactions/unified/types";
+} from "@bitsacco/core";

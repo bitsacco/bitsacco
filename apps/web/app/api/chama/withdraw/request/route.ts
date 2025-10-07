@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { type ChamaWithdrawRequest, TransactionType } from "@bitsacco/core";
 import { createAuthenticatedApiClient } from "@/lib/api-helper";
-import {
-  type ChamaWithdrawRequest,
-  ChamaTransactionType,
-} from "@bitsacco/core";
 
 /**
  * POST /api/chama/withdraw/request
@@ -167,7 +164,7 @@ export async function GET(req: NextRequest) {
 
     // Filter for withdrawal transactions
     let withdrawals = txResponse.data.ledger.transactions.filter(
-      (tx) => tx.type === ChamaTransactionType.WITHDRAWAL,
+      (tx) => tx.type === TransactionType.WITHDRAW,
     );
 
     // Apply status filter if provided

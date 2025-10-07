@@ -2,10 +2,7 @@
 
 import { useState, useCallback } from "react";
 import type { WalletTransaction } from "@bitsacco/core";
-import {
-  PersonalTransactionType,
-  PersonalTransactionStatus,
-} from "@bitsacco/core";
+import { TransactionType, TransactionStatus } from "@bitsacco/core";
 
 export interface PaymentStatus {
   transactionId: string;
@@ -48,7 +45,7 @@ export function usePayment(
       setIsPolling(true);
       setPaymentStatus({
         transactionId,
-        status: PersonalTransactionStatus.PENDING,
+        status: TransactionStatus.PENDING,
         message: "Waiting for payment confirmation...",
       });
 
@@ -80,12 +77,12 @@ export function usePayment(
 
           // Stop polling if transaction is completed or failed
           if (
-            transaction.status === PersonalTransactionStatus.COMPLETE ||
-            transaction.status === PersonalTransactionStatus.FAILED
+            transaction.status === TransactionStatus.COMPLETE ||
+            transaction.status === TransactionStatus.FAILED
           ) {
             // Call refresh callback when transaction completes
             if (
-              transaction.status === PersonalTransactionStatus.COMPLETE &&
+              transaction.status === TransactionStatus.COMPLETE &&
               onTransactionComplete
             ) {
               onTransactionComplete();
@@ -100,7 +97,7 @@ export function usePayment(
           if (attempts >= maxAttempts) {
             setPaymentStatus({
               transactionId,
-              status: PersonalTransactionStatus.PENDING,
+              status: TransactionStatus.PENDING,
               message:
                 "Transaction is taking longer than expected. Please check back later.",
             });
@@ -115,7 +112,7 @@ export function usePayment(
           console.error("Error polling transaction status:", error);
           setPaymentStatus({
             transactionId,
-            status: PersonalTransactionStatus.FAILED,
+            status: TransactionStatus.FAILED,
             message: "Failed to check payment status. Please try again.",
           });
           stopPolling();
@@ -143,34 +140,34 @@ export function usePayment(
 }
 
 function getStatusMessage(
-  status: PersonalTransactionStatus,
-  type: PersonalTransactionType,
+  status: TransactionStatus,
+  type: TransactionType,
 ): string {
   const action =
-    type === PersonalTransactionType.DEPOSIT
+    type === TransactionType.DEPOSIT
       ? "deposit"
-      : type === PersonalTransactionType.WITHDRAW
+      : type === TransactionType.WITHDRAW
         ? "withdrawal"
-        : type === PersonalTransactionType.WALLET_CREATION
+        : type === TransactionType.WALLET_CREATION
           ? "wallet creation"
           : "transaction";
 
   switch (status) {
-    case PersonalTransactionStatus.PENDING:
-      return type === PersonalTransactionType.DEPOSIT
+    case TransactionStatus.PENDING:
+      return type === TransactionType.DEPOSIT
         ? "Waiting for payment confirmation..."
-        : type === PersonalTransactionType.WITHDRAW
+        : type === TransactionType.WITHDRAW
           ? "Withdrawal request submitted..."
           : "Transaction pending...";
-    case PersonalTransactionStatus.PROCESSING:
+    case TransactionStatus.PROCESSING:
       return `Processing ${action}...`;
-    case PersonalTransactionStatus.COMPLETE:
+    case TransactionStatus.COMPLETE:
       return `${action.charAt(0).toUpperCase() + action.slice(1)} completed successfully!`;
-    case PersonalTransactionStatus.FAILED:
+    case TransactionStatus.FAILED:
       return `${action.charAt(0).toUpperCase() + action.slice(1)} failed. Please try again.`;
-    case PersonalTransactionStatus.MANUAL_REVIEW:
+    case TransactionStatus.MANUAL_REVIEW:
       return `${action.charAt(0).toUpperCase() + action.slice(1)} is under manual review...`;
-    case PersonalTransactionStatus.UNRECOGNIZED:
+    case TransactionStatus.UNRECOGNIZED:
     default:
       return `${action.charAt(0).toUpperCase() + action.slice(1)} status unknown`;
   }

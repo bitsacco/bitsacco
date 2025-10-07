@@ -14,9 +14,10 @@ import {
 
 import type {
   TransactionContext,
-  TransactionType,
+  UnifiedTransactionType as TransactionType,
   Money,
-} from "@/lib/transactions/unified/types";
+} from "@bitsacco/core";
+import { Currency } from "@bitsacco/core";
 import { formatCurrency } from "@/lib/utils/format";
 
 // ============================================================================
@@ -76,7 +77,7 @@ export function AmountStep({
     onNext(
       {
         value: numericAmount,
-        currency: "KES",
+        currency: Currency.KES,
       },
       finalReference,
     );
@@ -175,10 +176,6 @@ function generateDefaultReference(
     } else {
       return `Withdraw ${formattedAmount}`;
     }
-  }
-
-  if (type === "subscription") {
-    return `Purchase ${formattedAmount} shares`;
   }
 
   if (type === "transfer") {

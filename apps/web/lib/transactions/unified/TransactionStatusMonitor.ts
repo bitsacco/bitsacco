@@ -6,8 +6,8 @@
 import type {
   UnifiedTransaction,
   TransactionContext,
-  TransactionStatus,
-} from "./types";
+  UnifiedTransactionStatus as TransactionStatus,
+} from "@bitsacco/core";
 
 export interface TransactionStatusMonitorOptions {
   pollingInterval?: number;
@@ -41,7 +41,8 @@ export class TransactionStatusMonitor {
       maxRetries: options.maxRetries || 12, // 1 minute total
       onStatusChange: options.onStatusChange || (() => {}),
       onError: options.onError || (() => {}),
-      fetchTransactionStatus: options.fetchTransactionStatus || (async () => null),
+      fetchTransactionStatus:
+        options.fetchTransactionStatus || (async () => null),
     };
   }
 
@@ -83,7 +84,7 @@ export class TransactionStatusMonitor {
    * Stop monitoring all transactions
    */
   stopAll(): void {
-    Array.from(this.monitoredTransactions.keys()).forEach(transactionId => {
+    Array.from(this.monitoredTransactions.keys()).forEach((transactionId) => {
       this.stopMonitoring(transactionId);
     });
   }

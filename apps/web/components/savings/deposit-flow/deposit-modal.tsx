@@ -13,7 +13,7 @@ import {
 } from "@phosphor-icons/react";
 import { formatCurrency, formatSats } from "@/lib/utils/format";
 import type { WalletResponseDto } from "@bitsacco/core";
-import { PersonalTransactionStatus } from "@bitsacco/core";
+import { TransactionStatus } from "@bitsacco/core";
 
 type PaymentMethod = "mpesa" | "lightning";
 
@@ -391,7 +391,7 @@ export function DepositModal({
                 )}
                 <div>
                   <div className="text-sm font-medium text-blue-300">
-                    {paymentStatus.status === PersonalTransactionStatus.COMPLETE
+                    {paymentStatus.status === TransactionStatus.COMPLETE
                       ? "Success!"
                       : "Processing Payment"}
                   </div>

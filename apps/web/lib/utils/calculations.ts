@@ -2,10 +2,7 @@
  * Utility functions for calculations in the Personal Savings feature
  */
 
-import {
-  PersonalTransactionType,
-  PersonalTransactionStatus,
-} from "@bitsacco/core";
+import { TransactionType, TransactionStatus } from "@bitsacco/core";
 
 /**
  * Convert satoshis to KES using current exchange rate
@@ -163,10 +160,10 @@ export function calculateTotalSavings(
  */
 export function calculateAverageMonthlyDeposits(
   transactions: Array<{
-    type: PersonalTransactionType;
+    type: TransactionType;
     amountMsats: number;
     createdAt: Date;
-    status: PersonalTransactionStatus;
+    status: TransactionStatus;
   }>,
 ): number {
   const now = new Date();
@@ -175,9 +172,9 @@ export function calculateAverageMonthlyDeposits(
 
   const recentDeposits = transactions.filter(
     (tx) =>
-      (tx.type === PersonalTransactionType.DEPOSIT ||
-        tx.type === PersonalTransactionType.WALLET_CREATION) &&
-      tx.status === PersonalTransactionStatus.COMPLETE &&
+      (tx.type === TransactionType.DEPOSIT ||
+        tx.type === TransactionType.WALLET_CREATION) &&
+      tx.status === TransactionStatus.COMPLETE &&
       tx.createdAt >= sixMonthsAgo,
   );
 

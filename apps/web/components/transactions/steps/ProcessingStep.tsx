@@ -13,7 +13,7 @@ import {
   Copy,
 } from "@phosphor-icons/react";
 
-import type { UnifiedTransaction } from "@/lib/transactions/unified/types";
+import type { UnifiedTransaction } from "@bitsacco/core";
 import { LightningQRCode } from "@/components/lightning-qr-code";
 import { useTransactions } from "@/lib/transactions/unified/TransactionProvider";
 

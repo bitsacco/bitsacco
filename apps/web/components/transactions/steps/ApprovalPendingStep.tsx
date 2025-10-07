@@ -9,7 +9,7 @@ import React from "react";
 import { Alert, AlertDescription } from "@bitsacco/ui";
 import { Info as InformationCircleIcon } from "@phosphor-icons/react";
 
-import type { UnifiedTransaction } from "@/lib/transactions/unified/types";
+import type { UnifiedTransaction } from "@bitsacco/core";
 
 // ============================================================================
 // Types

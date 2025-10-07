@@ -19,7 +19,7 @@ import {
 } from "@phosphor-icons/react";
 
 import { Review } from "@bitsacco/core";
-import type { UnifiedTransaction } from "@/lib/transactions/unified/types";
+import type { UnifiedTransaction } from "@bitsacco/core";
 import { formatCurrency } from "@/lib/utils/format";
 import { formatDistanceToNow, format } from "date-fns";
 

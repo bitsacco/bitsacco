@@ -19,9 +19,9 @@ import {
 
 import type {
   UnifiedTransaction,
-  TransactionStatus,
+  UnifiedTransactionStatus as TransactionStatus,
   TransactionContext,
-} from "@/lib/transactions/unified/types";
+} from "@bitsacco/core";
 import { formatDistanceToNow } from "date-fns";
 import { formatCurrency } from "@/lib/utils/format";
 import { Review } from "@bitsacco/core";
@@ -696,8 +696,6 @@ function getTransactionTitle(transaction: UnifiedTransaction): string {
     return `Deposit to ${target}`;
   } else if (type === "withdrawal") {
     return `Withdrawal from ${target}`;
-  } else if (type === "subscription") {
-    return `Share Purchase`;
   } else if (type === "transfer") {
     return `Transfer to ${target}`;
   }

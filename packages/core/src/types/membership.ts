@@ -1,4 +1,5 @@
 import type { PaymentMethod, PaymentStatus } from "./payments";
+import type { ValidationError, ValidationWarning } from "./lib";
 
 // Match backend SharesTxStatus exactly from /os/src/common/types/shares.ts
 export enum SharesTxStatus {
@@ -166,18 +167,6 @@ export interface SharePurchaseValidation {
   errors: ValidationError[];
   warnings: ValidationWarning[];
   eligibility: UserEligibility;
-}
-
-export interface ValidationError {
-  code: string;
-  message: string;
-  field?: string;
-}
-
-export interface ValidationWarning {
-  code: string;
-  message: string;
-  canProceed: boolean;
 }
 
 export interface UserEligibility {

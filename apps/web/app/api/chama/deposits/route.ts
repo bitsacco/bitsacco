@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import type { OnrampSwapSource } from "@bitsacco/core";
+import { Currency, type ChamaDepositRequest } from "@bitsacco/core";
 import { createAuthenticatedApiClient } from "@/lib/api-helper";
 import { INTERNAL_USER_ID } from "@/lib/config";
-import type { ChamaDepositRequest } from "@bitsacco/core";
-import type { OnrampSwapSource } from "@bitsacco/core";
 
 // Helper function to format phone for M-Pesa (from webapp)
 function digitizePhone({
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
       }
 
       onramp = {
-        currency: "KES",
+        currency: Currency.KES,
         origin: {
           phone: digitizePhone({ phone, noplus: true, nospace: true }),
         },

@@ -7,7 +7,7 @@
 
 import React, { createContext, useContext, useMemo } from "react";
 import { useSession } from "next-auth/react";
-import { ApiClient } from "@bitsacco/core/client";
+import { ApiClient } from "@bitsacco/core";
 
 // ============================================================================
 // Types

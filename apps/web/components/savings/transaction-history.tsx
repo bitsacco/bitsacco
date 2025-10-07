@@ -12,10 +12,7 @@ import {
   MagnifyingGlassIcon,
 } from "@phosphor-icons/react";
 import type { WalletResponseDto, WalletTransaction } from "@bitsacco/core";
-import {
-  PersonalTransactionType,
-  PersonalTransactionStatus,
-} from "@bitsacco/core";
+import { TransactionType, TransactionStatus } from "@bitsacco/core";
 
 // No need for local type definitions - using enums from core
 
@@ -32,8 +29,8 @@ import {
 
 interface FilterOptions {
   walletId: string;
-  type: string; // Will be "all" or string representation of PersonalTransactionType enum
-  status: string; // Will be "all" or string representation of PersonalTransactionStatus enum
+  type: string; // Will be "all" or string representation of TransactionType enum
+  status: string; // Will be "all" or string representation of TransactionStatus enum
   search: string;
 }
 
@@ -101,8 +98,8 @@ export function TransactionHistory({
     const iconWeight = "duotone" as const;
 
     switch (tx.type) {
-      case PersonalTransactionType.DEPOSIT:
-      case PersonalTransactionType.WALLET_CREATION:
+      case TransactionType.DEPOSIT:
+      case TransactionType.WALLET_CREATION:
         return (
           <ArrowUpIcon
             size={iconSize}
@@ -110,7 +107,7 @@ export function TransactionHistory({
             className="text-green-500"
           />
         );
-      case PersonalTransactionType.WITHDRAW:
+      case TransactionType.WITHDRAW:
         return (
           <ArrowDownIcon
             size={iconSize}
@@ -118,7 +115,7 @@ export function TransactionHistory({
             className="text-blue-500"
           />
         );
-      case PersonalTransactionType.UNRECOGNIZED:
+      case TransactionType.UNRECOGNIZED:
       default:
         return (
           <MagnifyingGlassIcon
@@ -130,18 +127,18 @@ export function TransactionHistory({
     }
   };
 
-  const getStatusIcon = (status: PersonalTransactionStatus) => {
+  const getStatusIcon = (status: TransactionStatus) => {
     switch (status) {
-      case PersonalTransactionStatus.COMPLETE:
+      case TransactionStatus.COMPLETE:
         return <CheckCircleIcon size={16} className="text-green-500" />;
-      case PersonalTransactionStatus.FAILED:
+      case TransactionStatus.FAILED:
         return <XCircleIcon size={16} className="text-red-500" />;
-      case PersonalTransactionStatus.PENDING:
-      case PersonalTransactionStatus.PROCESSING:
+      case TransactionStatus.PENDING:
+      case TransactionStatus.PROCESSING:
         return <ClockIcon size={16} className="text-amber-500" />;
-      case PersonalTransactionStatus.MANUAL_REVIEW:
+      case TransactionStatus.MANUAL_REVIEW:
         return <ClockIcon size={16} className="text-yellow-500" />;
-      case PersonalTransactionStatus.UNRECOGNIZED:
+      case TransactionStatus.UNRECOGNIZED:
       default:
         return <ClockIcon size={16} className="text-gray-500" />;
     }
@@ -273,16 +270,12 @@ export function TransactionHistory({
               className="w-full px-3 py-2 bg-slate-900/50 border border-slate-700 rounded-lg text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
             >
               <option value="all">All Types</option>
-              <option value={PersonalTransactionType.DEPOSIT}>Deposits</option>
-              <option value={PersonalTransactionType.WITHDRAW}>
-                Withdrawals
-              </option>
-              <option value={PersonalTransactionType.WALLET_CREATION}>
+              <option value={TransactionType.DEPOSIT}>Deposits</option>
+              <option value={TransactionType.WITHDRAW}>Withdrawals</option>
+              <option value={TransactionType.WALLET_CREATION}>
                 Wallet Creation
               </option>
-              <option value={PersonalTransactionType.UNRECOGNIZED}>
-                Unrecognized
-              </option>
+              <option value={TransactionType.UNRECOGNIZED}>Unrecognized</option>
             </select>
 
             {/* Status Filter */}
@@ -297,18 +290,14 @@ export function TransactionHistory({
               className="w-full px-3 py-2 bg-slate-900/50 border border-slate-700 rounded-lg text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
             >
               <option value="all">All Statuses</option>
-              <option value={PersonalTransactionStatus.COMPLETE}>
-                Completed
-              </option>
-              <option value={PersonalTransactionStatus.PENDING}>Pending</option>
-              <option value={PersonalTransactionStatus.PROCESSING}>
-                Processing
-              </option>
-              <option value={PersonalTransactionStatus.FAILED}>Failed</option>
-              <option value={PersonalTransactionStatus.MANUAL_REVIEW}>
+              <option value={TransactionStatus.COMPLETE}>Completed</option>
+              <option value={TransactionStatus.PENDING}>Pending</option>
+              <option value={TransactionStatus.PROCESSING}>Processing</option>
+              <option value={TransactionStatus.FAILED}>Failed</option>
+              <option value={TransactionStatus.MANUAL_REVIEW}>
                 Manual Review
               </option>
-              <option value={PersonalTransactionStatus.UNRECOGNIZED}>
+              <option value={TransactionStatus.UNRECOGNIZED}>
                 Unrecognized
               </option>
             </select>
@@ -371,13 +360,12 @@ export function TransactionHistory({
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
                         <h4 className="font-medium text-gray-100 text-sm sm:text-base leading-tight">
-                          {transaction.type === PersonalTransactionType.DEPOSIT
+                          {transaction.type === TransactionType.DEPOSIT
                             ? "Deposit to"
                             : transaction.type ===
-                                PersonalTransactionType.WALLET_CREATION
+                                TransactionType.WALLET_CREATION
                               ? "Wallet creation for"
-                              : transaction.type ===
-                                  PersonalTransactionType.WITHDRAW
+                              : transaction.type === TransactionType.WITHDRAW
                                 ? "Withdraw from"
                                 : "Transaction in"}{" "}
                           <span className="hidden sm:inline">
@@ -387,7 +375,7 @@ export function TransactionHistory({
                             {getWalletName(transaction).split(" ")[0]}
                           </span>
                           {transaction.type ===
-                            PersonalTransactionType.UNRECOGNIZED && (
+                            TransactionType.UNRECOGNIZED && (
                             <span className="text-xs text-amber-500 ml-2">
                               (Unrecognized)
                             </span>
@@ -403,8 +391,7 @@ export function TransactionHistory({
                             {getStatusIcon(transaction.status)}
                           </div>
                         </div>
-                        {transaction.status ===
-                          PersonalTransactionStatus.FAILED &&
+                        {transaction.status === TransactionStatus.FAILED &&
                           transaction.failureReason && (
                             <div className="text-xs text-red-400 mt-1 line-clamp-1">
                               {transaction.failureReason}
@@ -416,24 +403,18 @@ export function TransactionHistory({
                       <div className="text-right flex-shrink-0">
                         <div
                           className={`text-sm sm:text-base font-bold leading-tight ${
-                            transaction.type ===
-                              PersonalTransactionType.DEPOSIT ||
-                            transaction.type ===
-                              PersonalTransactionType.WALLET_CREATION
+                            transaction.type === TransactionType.DEPOSIT ||
+                            transaction.type === TransactionType.WALLET_CREATION
                               ? "text-green-400"
-                              : transaction.type ===
-                                  PersonalTransactionType.WITHDRAW
+                              : transaction.type === TransactionType.WITHDRAW
                                 ? "text-blue-400"
                                 : "text-amber-400"
                           }`}
                         >
-                          {transaction.type ===
-                            PersonalTransactionType.DEPOSIT ||
-                          transaction.type ===
-                            PersonalTransactionType.WALLET_CREATION
+                          {transaction.type === TransactionType.DEPOSIT ||
+                          transaction.type === TransactionType.WALLET_CREATION
                             ? "+"
-                            : transaction.type ===
-                                PersonalTransactionType.WITHDRAW
+                            : transaction.type === TransactionType.WITHDRAW
                               ? "-"
                               : ""}
                           {formatSats(

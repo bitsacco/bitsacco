@@ -8,10 +8,7 @@
 import React from "react";
 import { Button } from "@bitsacco/ui";
 
-import type {
-  Money,
-  PaymentMethodType,
-} from "@/lib/transactions/unified/types";
+import type { Money, PaymentMethodType } from "@bitsacco/core";
 
 // ============================================================================
 // Types

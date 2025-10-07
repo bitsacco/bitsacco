@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { Button } from "@bitsacco/ui";
-import type { User as CoreUser } from "@bitsacco/core/types";
+import type { User as CoreUser } from "@bitsacco/core";
 import {
   UserIcon,
   PencilIcon,

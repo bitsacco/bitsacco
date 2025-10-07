@@ -2,7 +2,7 @@
  * Utility functions for formatting values in the Personal Savings feature
  */
 
-import { WalletType, PersonalTransactionStatus } from "@bitsacco/core";
+import { WalletType, TransactionStatus } from "@bitsacco/core";
 
 /**
  * Format currency amount in KES
@@ -128,21 +128,19 @@ export function formatAmountInput(value: string): string {
 /**
  * Format transaction status for display
  */
-export function formatTransactionStatus(
-  status: PersonalTransactionStatus,
-): string {
+export function formatTransactionStatus(status: TransactionStatus): string {
   switch (status) {
-    case PersonalTransactionStatus.PENDING:
+    case TransactionStatus.PENDING:
       return "Pending";
-    case PersonalTransactionStatus.PROCESSING:
+    case TransactionStatus.PROCESSING:
       return "Processing";
-    case PersonalTransactionStatus.COMPLETE:
+    case TransactionStatus.COMPLETE:
       return "Completed";
-    case PersonalTransactionStatus.FAILED:
+    case TransactionStatus.FAILED:
       return "Failed";
-    case PersonalTransactionStatus.MANUAL_REVIEW:
+    case TransactionStatus.MANUAL_REVIEW:
       return "Manual Review";
-    case PersonalTransactionStatus.UNRECOGNIZED:
+    case TransactionStatus.UNRECOGNIZED:
     default:
       return "Unknown";
   }

@@ -14,15 +14,14 @@ import React, {
   useEffect,
 } from "react";
 import { useSession } from "next-auth/react";
-import type { ApiClient } from "@bitsacco/core";
-
 import type {
+  ApiClient,
   UnifiedTransaction,
-  TransactionContext as TxContext,
+  TransactionContext,
   TransactionFilter,
   PaginatedTransactionQuery,
-  CreateTransactionRequest,
-} from "./types";
+  UnifiedCreateTransactionRequest,
+} from "@bitsacco/core";
 
 import { ChamaTransactionAdapter } from "./adapters/chama-adapter";
 
@@ -43,15 +42,15 @@ interface TransactionContextValue {
   // Operations
   fetchTransactions: (query?: PaginatedTransactionQuery) => Promise<void>;
   createTransaction: (
-    request: CreateTransactionRequest,
+    request: UnifiedCreateTransactionRequest,
   ) => Promise<UnifiedTransaction>;
   refreshTransaction: (
     id: string,
-    context: TxContext,
+    context: TransactionContext,
   ) => Promise<UnifiedTransaction | null>;
   watchTransaction: (
     id: string,
-    context: TxContext,
+    context: TransactionContext,
     onUpdate?: (transaction: UnifiedTransaction) => void,
   ) => () => void; // Returns unwatch function
 
@@ -183,27 +182,30 @@ export function TransactionProvider({
   // Polling Management
   // ============================================================================
 
-  const schedulePollingForTransaction: (tx: UnifiedTransaction) => void = useCallback(
-    (tx: UnifiedTransaction) => {
-      const interval = getPollingInterval(tx.context, tx.type, tx.status);
+  const schedulePollingForTransaction: (tx: UnifiedTransaction) => void =
+    useCallback(
+      (tx: UnifiedTransaction) => {
+        const interval = getPollingInterval(tx.context, tx.type, tx.status);
 
-      // If interval is 0, don't schedule polling (transaction is complete)
-      if (interval === 0) {
-        return;
-      }
-
-      // Schedule next poll with minimal dependencies
-      setTimeout(async () => {
-        try {
-          // Simplified polling - just log for now to avoid complexity
-          console.log(`Polling transaction ${tx.id} with status ${tx.status}`);
-        } catch {
-          // Silently handle polling errors to avoid console noise
+        // If interval is 0, don't schedule polling (transaction is complete)
+        if (interval === 0) {
+          return;
         }
-      }, interval);
-    },
-    [getPollingInterval],
-  );
+
+        // Schedule next poll with minimal dependencies
+        setTimeout(async () => {
+          try {
+            // Simplified polling - just log for now to avoid complexity
+            console.log(
+              `Polling transaction ${tx.id} with status ${tx.status}`,
+            );
+          } catch {
+            // Silently handle polling errors to avoid console noise
+          }
+        }, interval);
+      },
+      [getPollingInterval],
+    );
 
   // ============================================================================
   // Data Fetching
@@ -254,7 +256,10 @@ export function TransactionProvider({
         const allTransactions: UnifiedTransaction[] = [];
 
         // Only fetch chama transactions for now to avoid complexity
-        if ((!filter.contexts || filter.contexts.includes("chama")) && apiClient.chamas) {
+        if (
+          (!filter.contexts || filter.contexts.includes("chama")) &&
+          apiClient.chamas
+        ) {
           try {
             // Fetch user's chamas directly
             const chamasResponse = await apiClient.chamas.filterChamas({
@@ -297,7 +302,7 @@ export function TransactionProvider({
           filteredTxs = filteredTxs.filter(
             (tx) =>
               tx.metadata.chamaId === filter.targetId ||
-              tx.metadata.walletId === filter.targetId
+              tx.metadata.walletId === filter.targetId,
           );
         }
 
@@ -327,47 +332,6 @@ export function TransactionProvider({
   // ============================================================================
   // Fetch Functions
   // ============================================================================
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const fetchChamaTransactions = useCallback(async (): Promise<
-    UnifiedTransaction[]
-  > => {
-    if (!adapters.chama) return [];
-
-    try {
-      // Fetch user's chamas
-      const chamasResponse = await apiClient.chamas.filterChamas({
-        memberId: currentUserId,
-        pagination: { page: 0, size: 50 },
-      });
-
-      if (!chamasResponse.data?.chamas) return [];
-
-      const allTransactions: UnifiedTransaction[] = [];
-
-      // Fetch transactions for each chama
-      for (const chama of chamasResponse.data.chamas) {
-        const txResponse = await apiClient.chamas.getTransactions({
-          chamaId: chama.id,
-          pagination: { page: 0, size: 50 },
-        });
-
-        if (txResponse.data?.ledger?.transactions) {
-          const unified = await adapters.chama.toUnifiedBatch(
-            txResponse.data.ledger.transactions,
-            chama,
-          );
-          allTransactions.push(...unified);
-        }
-      }
-
-      return allTransactions;
-    } catch {
-      // Silently handle fetch errors
-      return [];
-    }
-  }, [adapters.chama, apiClient, currentUserId]);
-
 
   // ============================================================================
   // Filter Function
@@ -442,7 +406,9 @@ export function TransactionProvider({
   }, [fetchAllTransactions, schedulePollingForTransaction]);
 
   const createTransaction = useCallback(
-    async (request: CreateTransactionRequest): Promise<UnifiedTransaction> => {
+    async (
+      request: UnifiedCreateTransactionRequest,
+    ): Promise<UnifiedTransaction> => {
       // Check if API client is available
       if (!apiClient) {
         throw new Error(
@@ -455,10 +421,17 @@ export function TransactionProvider({
         throw new Error("User not authenticated. Please log in to continue.");
       }
 
-      const adapter = adapters[request.context];
+      // Only chama context is supported at this time
+      if (request.context !== "chama") {
+        throw new Error(
+          `Context "${request.context}" is not supported. Only "chama" context is currently available.`,
+        );
+      }
+
+      const adapter = adapters.chama;
       if (!adapter) {
         throw new Error(
-          `No adapter available for context: ${request.context}. This may indicate the API client is not fully initialized.`,
+          `Chama adapter not available. This may indicate the API client is not fully initialized.`,
         );
       }
 
@@ -502,12 +475,23 @@ export function TransactionProvider({
     [adapters, currentUserId, apiClient, schedulePollingForTransaction],
   );
 
-  const refreshTransaction: (id: string, context: TxContext) => Promise<UnifiedTransaction | null> = useCallback(
+  const refreshTransaction: (
+    id: string,
+    context: TransactionContext,
+  ) => Promise<UnifiedTransaction | null> = useCallback(
     async (
       id: string,
-      context: TxContext,
+      context: TransactionContext,
     ): Promise<UnifiedTransaction | null> => {
-      const adapter = adapters[context];
+      // Only chama context is supported at this time
+      if (context !== "chama") {
+        console.warn(
+          `Context "${context}" is not supported for refresh operations.`,
+        );
+        return null;
+      }
+
+      const adapter = adapters.chama;
       if (!adapter) return null;
 
       try {
@@ -552,12 +536,7 @@ export function TransactionProvider({
         return null;
       }
     },
-    [
-      adapters,
-      transactions,
-      apiClient,
-      schedulePollingForTransaction,
-    ],
+    [adapters, transactions, apiClient, schedulePollingForTransaction],
   );
 
   // ============================================================================
@@ -567,7 +546,7 @@ export function TransactionProvider({
   const watchTransaction = useCallback(
     (
       id: string,
-      context: TxContext,
+      context: TransactionContext,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       _onUpdate?: (transaction: UnifiedTransaction) => void,
     ) => {
@@ -635,7 +614,6 @@ export function useChamaTransactions(chamaId?: string) {
 
   return { transactions: filtered, ...rest };
 }
-
 
 export function usePendingApprovals() {
   const { transactions, ...rest } = useTransactions();

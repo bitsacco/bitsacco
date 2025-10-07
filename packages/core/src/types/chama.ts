@@ -1,4 +1,9 @@
-import type { PaginatedRequest, FmLightning } from "./lib";
+import type {
+  PaginatedRequest,
+  FmLightning,
+  OnrampSwapSource,
+  TransactionType,
+} from "./lib";
 
 export enum ChamaMemberRole {
   Member = 0,
@@ -111,34 +116,6 @@ export enum Review {
   REJECT = 0,
   APPROVE = 1,
   UNRECOGNIZED = -1,
-}
-
-export enum TransactionType {
-  DEPOSIT = "deposit",
-  WITHDRAWAL = "withdrawal",
-  TRANSFER = "transfer",
-  UNRECOGNIZED = "unrecognized",
-}
-
-export interface OnrampSwapSource {
-  currency: string;
-  origin: {
-    phone?: string;
-  };
-}
-
-export interface OfframpSwapTarget {
-  currency: string;
-  destination: {
-    phone?: string;
-    bankAccount?: string;
-  };
-}
-
-export interface Bolt11 {
-  paymentRequest: string;
-  description?: string;
-  amountMsats?: number;
 }
 
 export interface ChamaTxContext {
@@ -303,37 +280,4 @@ export interface ActiveTx {
   type: TransactionType;
   lightning?: FmLightning;
   state: ChamaTxStatus;
-}
-
-// Type guards
-export function isCreateMpesaDepositTx(
-  context: CreateTxContext,
-): context is CreateMpesaDepositTx {
-  return "phone" in context;
-}
-
-export function isCreateLightningDepositTx(
-  context: CreateTxContext,
-): context is CreateLightningDepositTx {
-  return !("phone" in context) && context.path === "lightning";
-}
-
-// Transaction state mapping
-export function ChamaToTransactionState(status: ChamaTxStatus): ChamaTxStatus {
-  switch (status) {
-    case ChamaTxStatus.PENDING:
-      return ChamaTxStatus.PENDING;
-    case ChamaTxStatus.PROCESSING:
-      return ChamaTxStatus.PROCESSING;
-    case ChamaTxStatus.APPROVED:
-      return ChamaTxStatus.APPROVED;
-    case ChamaTxStatus.COMPLETE:
-      return ChamaTxStatus.COMPLETE;
-    case ChamaTxStatus.FAILED:
-      return ChamaTxStatus.FAILED;
-    case ChamaTxStatus.REJECTED:
-      return ChamaTxStatus.REJECTED;
-    default:
-      return ChamaTxStatus.UNRECOGNIZED;
-  }
 }

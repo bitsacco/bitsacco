@@ -3,7 +3,7 @@
  * Manages the multi-step withdrawal workflow with approval requirements
  */
 
-import type { Money, PaymentMethodType } from "./types";
+import type { Money, PaymentMethodType } from "@bitsacco/core";
 
 export enum WithdrawalState {
   // Initial state when member creates request

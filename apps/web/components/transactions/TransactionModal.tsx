@@ -20,14 +20,15 @@ import {
 } from "@phosphor-icons/react";
 
 import type {
-  TransactionType,
+  UnifiedTransactionType as TransactionType,
   TransactionContext,
   Money,
   PaymentMethodType,
   UnifiedTransaction,
-  CreateTransactionRequest,
+  UnifiedCreateTransactionRequest as CreateTransactionRequest,
   TransactionLimits,
-} from "@/lib/transactions/unified/types";
+} from "@bitsacco/core";
+import { Currency } from "@bitsacco/core";
 import { useTransactions } from "@/lib/transactions/unified/TransactionProvider";
 
 import { PaymentMethodSelector } from "./PaymentMethodSelector";
@@ -89,7 +90,7 @@ export function TransactionModal({
   const [currentStep, setCurrentStep] = useState<TransactionStep>("amount");
   const [stepData, setStepData] = useState<StepData>({
     amount: initialAmount
-      ? { value: initialAmount, currency: "KES" }
+      ? { value: initialAmount, currency: Currency.KES }
       : undefined,
   });
   const [loading, setLoading] = useState(false);
@@ -101,16 +102,10 @@ export function TransactionModal({
   const workflowSteps: TransactionStep[] = useMemo(() => {
     const isWithdrawal = type === "withdrawal";
     const isChamaWithdrawal = context === "chama" && isWithdrawal;
-    const isSubscription = type === "subscription";
 
     if (isChamaWithdrawal) {
       // Chama withdrawals: amount → review → submit (no reason step)
       return ["amount", "review", "approval_pending"] as const;
-    }
-
-    if (isSubscription) {
-      // All other transactions: amount → payment → confirm
-      return ["amount", "payment", "confirmation", "processing"] as const;
     }
 
     // All other transactions: amount → payment → confirm
@@ -205,7 +200,7 @@ export function TransactionModal({
       setCurrentStep("amount");
       setStepData({
         amount: initialAmount
-          ? { value: initialAmount, currency: "KES" }
+          ? { value: initialAmount, currency: Currency.KES }
           : undefined,
       });
       setError(null);
@@ -230,10 +225,10 @@ export function TransactionModal({
         return `Deposit to ${contextName}`;
       case "withdrawal":
         return `Withdraw from ${contextName}`;
-      case "subscription":
-        return `Join ${contextName}`;
-      default:
+      case "transfer":
         return `Transfer to ${contextName}`;
+      default:
+        return `Transaction to ${contextName}`;
     }
   };
 
@@ -321,7 +316,9 @@ export function TransactionModal({
                                     ? "Wait"
                                     : step === "processing"
                                       ? "Proc"
-                                      : (step as string).charAt(0).toUpperCase()}
+                                      : (step as string)
+                                          .charAt(0)
+                                          .toUpperCase()}
                         </span>
                       </div>
                     </div>

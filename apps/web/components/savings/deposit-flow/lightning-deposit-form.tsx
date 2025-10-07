@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@bitsacco/ui";
 import { LightningIcon, CurrencyCircleDollarIcon } from "@phosphor-icons/react";
 import type { WalletResponseDto, SolowalletTx } from "@bitsacco/core";
-import { PersonalTransactionStatus } from "@bitsacco/core";
+import { TransactionStatus } from "@bitsacco/core";
 
 // Define simple types inline
 type PaymentMethod = "mpesa" | "lightning";
@@ -55,10 +55,10 @@ export function LightningDepositForm({
   // Monitor payment status updates from the polling hook
   useEffect(() => {
     if (paymentStatus?.transactionId === transactionId) {
-      if (paymentStatus.status === PersonalTransactionStatus.COMPLETE) {
+      if (paymentStatus.status === TransactionStatus.COMPLETE) {
         // Don't call onSuccess immediately - let modal show success state first
         // Modal will handle calling onSuccess when user clicks "Done"
-      } else if (paymentStatus.status === PersonalTransactionStatus.FAILED) {
+      } else if (paymentStatus.status === TransactionStatus.FAILED) {
         // Keep modal open but show failed state
       }
     }
@@ -170,14 +170,14 @@ export function LightningDepositForm({
     }
 
     switch (paymentStatus.status) {
-      case PersonalTransactionStatus.PENDING:
+      case TransactionStatus.PENDING:
         return "pending";
-      case PersonalTransactionStatus.PROCESSING:
+      case TransactionStatus.PROCESSING:
         return "processing";
-      case PersonalTransactionStatus.COMPLETE:
+      case TransactionStatus.COMPLETE:
         return "completed";
-      case PersonalTransactionStatus.FAILED:
-      case PersonalTransactionStatus.MANUAL_REVIEW:
+      case TransactionStatus.FAILED:
+      case TransactionStatus.MANUAL_REVIEW:
       default:
         return "failed";
     }

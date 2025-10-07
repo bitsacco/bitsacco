@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import type { User as CoreUser, UpdateUserRequest } from "@bitsacco/core/types";
+import type { User as CoreUser, UpdateUserRequest } from "@bitsacco/core";
 import { apiClient } from "../lib/auth";
 
 export interface ProfileData {
