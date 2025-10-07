@@ -13,6 +13,7 @@ import {
 } from "@bitsacco/ui";
 import { PinInput } from "@/components/pin-input";
 import { Routes } from "@/lib/routes";
+import { authService } from "@/lib/auth";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -40,6 +41,9 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
+      // Clear any stale session data before attempting login
+      await authService.logout();
+
       const result = await signIn("phone-pin", {
         phone: formData.phone,
         pin: formData.pin,

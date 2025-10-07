@@ -244,6 +244,11 @@ export const authConfig: NextAuthConfig = {
           await apiClient.auth.logout(params.token.refreshToken);
         }
       }
+
+      // Clear client-side storage
+      if (typeof window !== "undefined") {
+        await authService.logout();
+      }
     },
   },
 };
