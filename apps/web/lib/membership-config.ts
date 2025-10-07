@@ -1,15 +1,34 @@
-// Configuration matching the working webapp implementation
-// Reference: /home/okj/bitsacco/webapp/src/configs.ts
+export const APP_ENV = process.env.NEXT_PUBLIC_APP_ENV || "";
 
-export const BS_ENV = process.env.NEXT_PUBLIC_BS_ENV || "development";
+/**
+ * Get the Lightning address domain based on the current environment
+ * - production (NODE_ENV): bitsacco.com
+ * - staging (NEXT_PUBLIC_APP_ENV): staging.bitsacco.com
+ * - development: dev.bitsacco.com
+ */
+export function getLightningAddressDomain(): string {
+  // Use NEXT_PUBLIC_APP_ENV for staging detection, fall back to NODE_ENV
+  const appEnv = process.env.NEXT_PUBLIC_APP_ENV;
+  const nodeEnv = process.env.NODE_ENV;
 
-export const BS_DOMAIN =
-  process.env.NEXT_PUBLIC_BS_APP_DOMAIN || "bitsacco.com";
+  // Check app env first (can be "staging")
+  if (appEnv === "staging") {
+    return "staging.bitsacco.com";
+  }
+
+  // Then check NODE_ENV
+  if (nodeEnv === "production") {
+    return "bitsacco.com";
+  }
+
+  // Default to development domain
+  return "dev.bitsacco.com";
+}
 
 export const BS_API_URL = process.env.NEXT_PUBLIC_BS_API_URL || "";
 
 export const BS_SHARE_VALUE_KES = Number(
-  process.env.NEXT_PUBLIC_BS_SHARE_VALUE_KES || "1000",
+  process.env.NEXT_PUBLIC_BS_SHARE_VALUE_KES || "",
 );
 
 // Critical IDs from webapp - these enable chama deposit integration
@@ -42,7 +61,7 @@ export enum PhoneRegionCode {
 }
 
 // Lightning Address constants
-export const DEFAULT_LIGHTNING_ADDRESS_DESCRIPTION = "save with bitsacco.com";
+export const DEFAULT_LIGHTNING_ADDRESS_DESCRIPTION = `save with ${getLightningAddressDomain()}`;
 
 // Membership-specific configuration
 export const MEMBERSHIP_CONFIG = {
