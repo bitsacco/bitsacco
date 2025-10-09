@@ -126,7 +126,7 @@ export const authConfig: NextAuthConfig = {
       }
       return true;
     },
-    jwt({ token, user, account }) {
+    jwt({ token, user, account }: {token: JWT; user: User | unknown; account: unknown}) {
       // Store auth data in token on initial sign in
       if (account && user) {
         // Cast user to our extended User type which includes tokens
@@ -180,13 +180,14 @@ export const authConfig: NextAuthConfig = {
           };
           const response = await apiClient.auth.login(loginRequest);
 
-          if (response.data) {
+          if (response.data?.user?.id && response.data.accessToken && response.data.refreshToken) {
             // Return user with tokens attached for JWT callback to process
             const authUser: User = {
               ...response.data.user,
-              roles: response.data.user?.roles || [],
-              accessToken: response.data.accessToken || "",
-              refreshToken: response.data.refreshToken || "",
+              id: response.data.user.id,
+              roles: response.data.user.roles || [],
+              accessToken: response.data.accessToken,
+              refreshToken: response.data.refreshToken,
             };
             return authUser;
           }
@@ -215,13 +216,14 @@ export const authConfig: NextAuthConfig = {
           };
           const response = await apiClient.auth.login(loginRequest);
 
-          if (response.data) {
+          if (response.data?.user?.id && response.data.accessToken && response.data.refreshToken) {
             // Return user with tokens attached for JWT callback to process
             const authUser: User = {
               ...response.data.user,
-              roles: response.data.user?.roles || [],
-              accessToken: response.data.accessToken || "",
-              refreshToken: response.data.refreshToken || "",
+              id: response.data.user.id,
+              roles: response.data.user.roles || [],
+              accessToken: response.data.accessToken,
+              refreshToken: response.data.refreshToken,
             };
             return authUser;
           }
