@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Button,
   Logo,
@@ -15,7 +15,7 @@ import { PinInput } from "@/components/pin-input";
 import { Routes } from "@/lib/routes";
 import { authService } from "@/lib/auth";
 
-export default function LoginPage() {
+function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     phone: "",
@@ -26,6 +26,8 @@ export default function LoginPage() {
   );
   const [error, setError] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +55,8 @@ export default function LoginPage() {
       if (result?.error) {
         setError("Invalid credentials. Please try again.");
       } else {
-        router.push(Routes.MEMBERSHIP);
+        // Redirect to callback URL if present, otherwise go to membership
+        router.push(callbackUrl || Routes.MEMBERSHIP);
       }
     } catch {
       setError("An error occurred. Please try again.");
@@ -151,5 +154,17 @@ export default function LoginPage() {
         </div>
       </Container>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <div className="text-gray-400">Loading...</div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }

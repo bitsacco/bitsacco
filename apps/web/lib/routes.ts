@@ -20,6 +20,7 @@ export const Routes = {
 
   // Dynamic routes (use as functions)
   CHAMA_DETAILS: (id: string) => `/chamas/${id}`,
+  JOIN_CHAMA: (id: string) => `/chamas/join/${id}`,
 
   // API routes
   API: {
@@ -47,6 +48,7 @@ export const Routes = {
       DETAILS: "/api/chama/details",
       DEPOSITS: "/api/chama/deposits",
       INVITE: "/api/chama/invite",
+      JOIN: "/api/chama/join",
       MEMBERS: "/api/chama/members",
       META: "/api/chama/meta",
       TRANSACTIONS: {

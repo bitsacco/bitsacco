@@ -119,7 +119,7 @@ export function useChamas({
 
       // Find the current user's member balance
       const currentUserMemberMeta = chamaMeta.memberMeta?.find(
-        (m) => m.memberId === session.user.id,
+        (m) => m.memberId === session.user?.id,
       );
       const memberBalance =
         currentUserMemberMeta?.memberMeta?.memberBalance || 0;
