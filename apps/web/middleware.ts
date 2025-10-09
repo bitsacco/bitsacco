@@ -42,7 +42,10 @@ export default auth((req: NextAuthRequest) => {
 
   // Protect dashboard routes
   if (isDashboardRoute && !isLoggedIn) {
-    return Response.redirect(new URL(Routes.LOGIN, nextUrl));
+    // Preserve the original URL as callback for redirect after login
+    const loginUrl = new URL(Routes.LOGIN, nextUrl);
+    loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);
+    return Response.redirect(loginUrl);
   }
 
   return NextResponse.next();

@@ -14,6 +14,7 @@ import {
 interface CreateChamaModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 interface Invite {
@@ -22,7 +23,7 @@ interface Invite {
   countryCode: string;
 }
 
-export function CreateChamaModal({ isOpen, onClose }: CreateChamaModalProps) {
+export function CreateChamaModal({ isOpen, onClose, onSuccess }: CreateChamaModalProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [invites, setInvites] = useState<Invite[]>([]);
@@ -69,6 +70,7 @@ export function CreateChamaModal({ isOpen, onClose }: CreateChamaModalProps) {
           roles: [0], // Member role
         })),
       });
+      onSuccess?.(); // Trigger refetch of chama list
       onClose();
     } catch (error) {
       console.error("Failed to create chama:", error);

@@ -7,6 +7,7 @@ import { Button } from "@bitsacco/ui";
 import { useChamaDetails } from "@/hooks/chama";
 import { DepositModal } from "@/components/chama/DepositModal";
 import { InviteMembersModal } from "@/components/chama/InviteMembersModal";
+import { ShareChamaButton } from "@/components/chama/ShareChamaButton";
 import { ChamaActions } from "@/components/chama/ChamaActions";
 import { TransactionModal } from "@/components/transactions/TransactionModal";
 import {
@@ -411,6 +412,12 @@ export default function ChamaDetailsPage() {
                 </h3>
               </div>
               <div className="flex items-center gap-3 flex-shrink-0">
+                <ShareChamaButton
+                  chamaId={chama.id}
+                  chamaName={chama.name}
+                  variant="tealOutline"
+                  size="sm"
+                />
                 <Button
                   variant="tealPrimary"
                   size="sm"
