@@ -27,7 +27,7 @@
     "axios": "^1.9.0",
     "buffer": "^5.7.1",
     "crypto-browserify": "^3.12.1",
-    "expo": "54.0.8",
+    "expo": "~54.0.10",
     "expo-dev-client": "~6.0.12",
     "expo-status-bar": "~3.0.8",
     "react": "19.1.1",
