@@ -35,9 +35,10 @@ export class ChamaApiClient extends BaseApiClient {
 
   /**
    * Update an existing chama
+   * Uses PATCH for partial updates
    */
   async updateChama(request: UpdateChamaRequest): Promise<ApiResponse<Chama>> {
-    return this.put<Chama>(`/chamas/${request.chamaId}`, request.updates);
+    return this.patch<Chama>(`/chamas/${request.chamaId}`, request.updates);
   }
 
   /**
@@ -90,11 +91,12 @@ export class ChamaApiClient extends BaseApiClient {
 
   /**
    * Invite members to a chama
+   * /chamas/:chamaId/invites
    */
   async inviteMembers(
     request: InviteMembersRequest,
   ): Promise<ApiResponse<void>> {
-    return this.post<void>(`/chamas/${request.chamaId}/invite`, {
+    return this.post<void>(`/chamas/${request.chamaId}/invites`, {
       invites: request.invites,
     });
   }
@@ -131,36 +133,39 @@ export class ChamaApiClient extends BaseApiClient {
 
   /**
    * Create a deposit transaction for a chama
+   * /chamas/:chamaId/wallet/deposit
    */
   async createDeposit(
     request: ChamaDepositRequest,
   ): Promise<ApiResponse<ChamaTxsResponse>> {
     return this.post<ChamaTxsResponse>(
-      `/chamas/${request.chamaId}/transactions/deposit`,
+      `/chamas/${request.chamaId}/wallet/deposit`,
       request,
     );
   }
 
   /**
    * Continue a deposit transaction
+   * /chamas/:chamaId/wallet/deposit/continue
    */
   async continueDeposit(
     request: ChamaContinueDepositRequest,
   ): Promise<ApiResponse<ChamaTxsResponse>> {
     return this.post<ChamaTxsResponse>(
-      `/chamas/${request.chamaId}/transactions/${request.txId}/continue`,
+      `/chamas/${request.chamaId}/wallet/deposit/continue`,
       request,
     );
   }
 
   /**
    * Create a withdrawal transaction for a chama
+   * /chamas/:chamaId/wallet/withdraw
    */
   async createWithdrawal(
     request: ChamaWithdrawRequest,
   ): Promise<ApiResponse<ChamaTxsResponse>> {
     return this.post<ChamaTxsResponse>(
-      `/chamas/${request.chamaId}/transactions/withdraw`,
+      `/chamas/${request.chamaId}/wallet/withdraw`,
       request,
     );
   }
@@ -206,11 +211,12 @@ export class ChamaApiClient extends BaseApiClient {
 
   /**
    * Update a transaction
+   * Uses PATCH for partial updates
    */
   async updateTransaction(
     request: ChamaTxUpdateRequest,
   ): Promise<ApiResponse<ChamaTxsResponse>> {
-    return this.put<ChamaTxsResponse>(
+    return this.patch<ChamaTxsResponse>(
       `/chamas/${request.chamaId}/transactions/${request.txId}`,
       request.updates,
     );

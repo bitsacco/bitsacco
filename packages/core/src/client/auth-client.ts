@@ -74,9 +74,10 @@ export class AuthApiClient extends BaseApiClient {
 
   /**
    * Update user profile
+   * Uses PATCH for partial updates
    */
   async updateUser(request: UpdateUserRequest): Promise<ApiResponse<User>> {
-    return this.put<User>(`/users/${request.userId}`, request.updates);
+    return this.patch<User>(`/users/${request.userId}`, request.updates);
   }
 
   /**
