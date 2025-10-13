@@ -17,6 +17,16 @@ export async function GET(req: NextRequest) {
     const startDate = searchParams.get("startDate") || undefined;
     const endDate = searchParams.get("endDate") || undefined;
 
+    console.log("[TRANSACTIONS API] Request params:", {
+      page,
+      size,
+      status,
+      type,
+      startDate,
+      endDate,
+      userId: session.user.id,
+    });
+
     const response = await client.membership.getUserSharesTxs({
       userId: session.user.id,
       pagination: {
@@ -34,23 +44,16 @@ export async function GET(req: NextRequest) {
       dataKeys: response.data ? Object.keys(response.data) : [],
       responseKeys: Object.keys(response),
     });
-    console.log(
-      "[TRANSACTIONS API] Raw response:",
-      JSON.stringify(response, null, 2),
-    );
 
-    // Return the response with minimal transformation
-    if (response.data) {
-      console.log(
-        "[TRANSACTIONS API] Returning response data as-is for debugging:",
-        response.data,
-      );
-
-      // Return the response faithfully without complex transformations
-      return NextResponse.json(response);
+    if (response.error) {
+      console.error("[TRANSACTIONS API] Backend error:", response.error);
+      return NextResponse.json({ error: response.error }, { status: 500 });
     }
 
-    return NextResponse.json(response);
+    return NextResponse.json({
+      data: response.data,
+      error: null,
+    });
   } catch (error) {
     console.error("Failed to fetch user shares transactions:", error);
     return NextResponse.json(

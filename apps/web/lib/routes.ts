@@ -79,7 +79,6 @@ export const Routes = {
         VALIDATE: "/api/membership/shares/validate",
       },
     },
-    PROXY: (path: string) => `/api/proxy/${path}`,
   },
 } as const;
 

@@ -39,9 +39,8 @@ declare module "next-auth/jwt" {
 import type { Session, User } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 
-// API configuration
-const API_URL =
-  typeof window !== "undefined" ? "/api/proxy" : process.env.API_URL || "";
+// API configuration - only for server-side API calls
+const API_URL = process.env.API_URL || "";
 
 // Initialize core services
 // Only create client-side services when in browser

@@ -113,13 +113,14 @@ export class PersonalApiClient extends BaseApiClient {
 
   /**
    * Update wallet settings
+   * Uses PATCH for partial updates
    */
   async updateWallet(
     userId: string,
     walletId: string,
     updates: UpdateWalletDto,
   ): Promise<ApiResponse<WalletResponseDto>> {
-    return this.put<WalletResponseDto>(
+    return this.patch<WalletResponseDto>(
       `/personal/wallets/${userId}/${walletId}`,
       updates,
     );
@@ -189,13 +190,14 @@ export class PersonalApiClient extends BaseApiClient {
 
   /**
    * Update target
+   * Uses PATCH for partial updates
    */
   async updateTarget(
     userId: string,
     walletId: string,
     updates: UpdateTargetDto,
   ): Promise<ApiResponse<TargetResponseDto>> {
-    return this.put<TargetResponseDto>(
+    return this.patch<TargetResponseDto>(
       `/personal/targets/${userId}/${walletId}`,
       updates,
     );
@@ -249,13 +251,14 @@ export class PersonalApiClient extends BaseApiClient {
 
   /**
    * Update locked wallet
+   * Uses PATCH for partial updates
    */
   async updateLockedWallet(
     userId: string,
     walletId: string,
     updates: UpdateLockedWalletDto,
   ): Promise<ApiResponse<LockStatusResponseDto>> {
-    return this.put<LockStatusResponseDto>(
+    return this.patch<LockStatusResponseDto>(
       `/personal/locked/${userId}/${walletId}`,
       updates,
     );

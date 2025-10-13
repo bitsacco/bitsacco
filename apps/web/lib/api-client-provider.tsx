@@ -33,17 +33,15 @@ const ApiClientContext = createContext<ApiClientContextValue | undefined>(
 export function ApiClientProvider({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
 
-  // Create authenticated API client when session is available
+  // Client-side API client uses web app's proxy routes
+  // baseUrl is empty string to use current origin (web app itself)
   const client = useMemo(() => {
     if (status !== "authenticated" || !session?.accessToken) {
       return null;
     }
 
-    // Use the proxy endpoint for client-side requests
-    const baseUrl = "/api/proxy";
-
     return new ApiClient({
-      baseUrl,
+      baseUrl: "/api", // Use web app's API routes which proxy to OS API
       defaultHeaders: {
         Authorization: `Bearer ${session.accessToken}`,
       },

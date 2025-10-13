@@ -11,9 +11,9 @@ export class ExchangeRateService {
   private fxClient: FxApiClient;
 
   private constructor() {
-    // Initialize FX client with base URL from environment
+    // Initialize FX client with OS API base URL
     this.fxClient = new FxApiClient({
-      baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001",
+      baseUrl: process.env.API_URL || "http://localhost:4000",
     });
   }
 
