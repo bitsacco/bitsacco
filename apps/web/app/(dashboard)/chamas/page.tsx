@@ -32,7 +32,7 @@ export default function ChamasPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showGroupTotals, setShowGroupTotals] = useState(false);
   const [depositChama, setDepositChama] = useState<Chama | null>(null);
-  const { chamas, loading, getChamaBalances } = useChamas();
+  const { chamas, loading, getChamaBalances, refetch } = useChamas();
   const { hideBalances } = useHideBalances();
 
   // Unified Transaction Modal state
@@ -443,6 +443,7 @@ export default function ChamasPage() {
       <CreateChamaModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
+        onSuccess={() => refetch()}
       />
 
       {/* Legacy Deposit Modal - kept for backward compatibility */}
