@@ -23,7 +23,9 @@ interface WithdrawModalProps {
   onClose: () => void;
   onSuccess: () => void;
 }
-import { WalletType, useExchangeRate, btcToFiat } from "@bitsacco/core";
+import { WalletType } from "@bitsacco/core";
+import { btcToFiat } from "@bitsacco/core";
+import { useExchangeRate } from "@/lib/hooks/useExchangeRate";
 import { apiClient } from "@/lib/auth";
 // import { useTransactions } from "@/hooks/savings/use-transactions";
 import { usePayment } from "@/hooks/savings/use-payment";

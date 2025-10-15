@@ -1,4 +1,9 @@
-import { SATS_PER_BTC, MSATS_PER_BTC } from "../types/exchange";
+/**
+ * Pure exchange rate and currency conversion utilities
+ * Platform-agnostic functions that can be used by web and mobile
+ */
+
+import { SATS_PER_BTC, MSATS_PER_BTC } from "../types";
 
 /**
  * Convert fiat to Bitcoin

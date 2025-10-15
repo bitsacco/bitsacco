@@ -39,6 +39,7 @@ export interface AuthResponse {
   user: User | undefined;
   accessToken?: string | undefined;
   refreshToken?: string | undefined;
+  authenticated?: boolean | undefined;
 }
 
 export interface RefreshTokenRequest {

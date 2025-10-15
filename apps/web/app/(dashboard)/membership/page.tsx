@@ -37,7 +37,7 @@ import { MembershipBusinessLogic } from "@/lib/membership-business-logic";
 import { fetchMembershipTiers } from "@/lib/membership-tiers-service";
 import { useHideBalances } from "@/hooks/use-hide-balances";
 import { HeaderControls } from "@/components/ui/header-controls";
-import { useExchangeRate } from "@bitsacco/core";
+import { useExchangeRate } from "@/lib/hooks/useExchangeRate";
 import { apiClient } from "@/lib/auth";
 
 // Tab configuration

@@ -7,14 +7,14 @@
 
 import React, { createContext, useContext, useMemo } from "react";
 import { useSession } from "next-auth/react";
-import { ApiClient } from "@bitsacco/core";
+import { WebApiClient } from "./api";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface ApiClientContextValue {
-  client: ApiClient | null;
+  client: WebApiClient | null;
   isAuthenticated: boolean;
 }
 
@@ -40,7 +40,7 @@ export function ApiClientProvider({ children }: { children: React.ReactNode }) {
       return null;
     }
 
-    return new ApiClient({
+    return new WebApiClient({
       baseUrl: "/api", // Use web app's API routes which proxy to OS API
       defaultHeaders: {
         Authorization: `Bearer ${session.accessToken}`,

@@ -5,11 +5,11 @@ import type {
   LoginUserRequest,
   RegisterUserRequest,
   User,
-} from "@bitsacco/core/types";
+} from "@bitsacco/core";
 
 // Create a simple API client using axios instead of the core client to avoid jose dependency
 const apiClient = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000/api",
+  baseURL: process.env.EXPO_PUBLIC_API_URL || "http://localhost:4000",
   timeout: 10000,
 });
 

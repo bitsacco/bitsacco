@@ -5,9 +5,9 @@
 import NextAuth from "next-auth";
 import type { NextAuthConfig } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { ApiClient } from "@bitsacco/core";
-import { AuthService } from "@bitsacco/core";
-import { WebStorageAdapter, type StorageAdapter } from "@bitsacco/core";
+import { WebApiClient } from "./api";
+import { AuthService } from "./services/auth-service";
+import { createStorageAdapter } from "./storage/storage-adapter";
 import type { LoginUserRequest, User as CoreUser } from "@bitsacco/core";
 import { Routes } from "./routes";
 
@@ -42,38 +42,15 @@ import type { JWT } from "next-auth/jwt";
 // API configuration - only for server-side API calls
 const API_URL = process.env.API_URL || "";
 
-// Initialize core services
-// Only create client-side services when in browser
-export const apiClient = new ApiClient({ baseUrl: API_URL });
+// Initialize web API client
+export const apiClient = new WebApiClient({ baseUrl: API_URL });
 
-// Create a no-op storage adapter for server-side
-class ServerStorageAdapter implements StorageAdapter {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async getItem(key: string): Promise<string | null> {
-    return null;
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async setItem(key: string, value: string): Promise<void> {
-    // No-op for server-side
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async removeItem(key: string): Promise<void> {
-    // No-op for server-side
-  }
-  async clear(): Promise<void> {
-    // No-op for server-side
-  }
-}
-
+// Create auth service with environment-aware storage
 export const authService = new AuthService({
-  storage:
-    typeof window !== "undefined"
-      ? new WebStorageAdapter()
-      : new ServerStorageAdapter(),
+  storage: createStorageAdapter("local"),
 });
 
-// Connect auth service to API client for authenticated requests
-apiClient.setAuthService(authService);
+// Note: Authentication is now handled directly in the API client via getAuthHeader
 
 // NextAuth configuration
 export const authConfig: NextAuthConfig = {
@@ -236,9 +213,8 @@ export const authConfig: NextAuthConfig = {
     async signOut(params: any) {
       // Clean up tokens on sign out
       if ("token" in params && params.token) {
-        if (params.token.refreshToken) {
-          await apiClient.auth.logout(params.token.refreshToken);
-        }
+        // Backend uses cookies automatically, no need to pass refresh token
+        await apiClient.auth.logout();
       }
 
       // Clear client-side storage

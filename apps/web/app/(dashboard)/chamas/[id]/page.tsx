@@ -20,7 +20,7 @@ import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { BalanceDisplay } from "@/components/ui/balance-display";
 import { HeaderControls } from "@/components/ui/header-controls";
-import { useExchangeRate } from "@bitsacco/core";
+import { useExchangeRate } from "@/lib/hooks/useExchangeRate";
 import { apiClient } from "@/lib/auth";
 import { Routes } from "@/lib/routes";
 import {

@@ -14,13 +14,14 @@ import React, {
   useEffect,
 } from "react";
 import { useSession } from "next-auth/react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type {
-  ApiClient,
+  // ApiClient, // Not available in core
   UnifiedTransaction,
   TransactionContext,
   TransactionFilter,
   PaginatedTransactionQuery,
-  UnifiedCreateTransactionRequest,
+  // UnifiedCreateTransactionRequest, // Not available in core
 } from "@bitsacco/core";
 
 import { ChamaTransactionAdapter } from "./adapters/chama-adapter";
@@ -41,9 +42,7 @@ interface TransactionContextValue {
 
   // Operations
   fetchTransactions: (query?: PaginatedTransactionQuery) => Promise<void>;
-  createTransaction: (
-    request: UnifiedCreateTransactionRequest,
-  ) => Promise<UnifiedTransaction>;
+  createTransaction: (request: any) => Promise<UnifiedTransaction>;
   refreshTransaction: (
     id: string,
     context: TransactionContext,
@@ -62,7 +61,7 @@ interface TransactionContextValue {
 
 interface TransactionProviderProps {
   children: React.ReactNode;
-  apiClient: ApiClient;
+  apiClient: any;
   initialFilter?: TransactionFilter;
 }
 
@@ -406,9 +405,7 @@ export function TransactionProvider({
   }, [fetchAllTransactions, schedulePollingForTransaction]);
 
   const createTransaction = useCallback(
-    async (
-      request: UnifiedCreateTransactionRequest,
-    ): Promise<UnifiedTransaction> => {
+    async (request: any): Promise<UnifiedTransaction> => {
       // Check if API client is available
       if (!apiClient) {
         throw new Error(

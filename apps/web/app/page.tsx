@@ -9,7 +9,8 @@ import {
   ListIcon,
   XIcon,
 } from "@phosphor-icons/react";
-import { useExchangeRate, formatNumber, btcToFiat } from "@bitsacco/core";
+import { formatNumber, btcToFiat } from "@bitsacco/core";
+import { useExchangeRate } from "@/lib/hooks/useExchangeRate";
 import { apiClient } from "@/lib/auth";
 import { Routes } from "@/lib/routes";
 

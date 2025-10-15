@@ -110,33 +110,47 @@ export async function POST(req: NextRequest) {
       memberId: INTERNAL_USER_ID,
     });
 
-    // Use the chama client (matching webapp API call)
-    const response = await client.chamas.createDeposit(depositRequest);
+    // Call the backend API directly
+    const response = await fetch(`${process.env.API_URL}/chama/deposits`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(depositRequest),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Backend API error: ${response.status} ${response.statusText}`,
+      );
+    }
+
+    const responseData = await response.json();
 
     console.log("Chama deposit response:", {
-      hasData: !!response.data,
-      hasLedger: !!response.data?.ledger,
-      hasTransactions: !!response.data?.ledger?.transactions,
-      firstTx: response.data?.ledger?.transactions?.[0],
-      hasLightning: !!response.data?.ledger?.transactions?.[0]?.lightning,
-      lightningData: response.data?.ledger?.transactions?.[0]?.lightning,
-      fullResponse: JSON.stringify(response.data, null, 2).substring(0, 500),
+      hasData: !!responseData,
+      hasLedger: !!responseData?.ledger,
+      hasTransactions: !!responseData?.ledger?.transactions,
+      firstTx: responseData?.ledger?.transactions?.[0],
+      hasLightning: !!responseData?.ledger?.transactions?.[0]?.lightning,
+      lightningData: responseData?.ledger?.transactions?.[0]?.lightning,
+      fullResponse: JSON.stringify(responseData, null, 2).substring(0, 500),
     });
 
     // Log COMPLETE response data
-    console.log("[CHAMA DEPOSITS API] FULL RESPONSE DATA:", response.data);
+    console.log("[CHAMA DEPOSITS API] FULL RESPONSE DATA:", responseData);
     console.log(
       "[CHAMA DEPOSITS API] FULL RESPONSE (stringified):",
-      JSON.stringify(response.data, null, 2),
+      JSON.stringify(responseData, null, 2),
     );
 
-    if (!response.data) {
+    if (!responseData) {
       throw new Error("Invalid response from chama deposit API");
     }
 
     return NextResponse.json({
       success: true,
-      data: response.data,
+      data: responseData,
       paymentMethod,
       sharesSubscriptionTracker,
     });

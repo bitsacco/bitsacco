@@ -1,11 +1,15 @@
+/**
+ * Web-specific authentication service
+ * Handles JWT verification, token storage, and auth state management
+ */
 import { jwtVerify, type JWTPayload } from "jose";
-import type { StorageAdapter } from "../adapters/storage";
+import type { StorageAdapter } from "../storage/storage-adapter";
 import type {
   AuthResponse,
   TokensResponse,
   User,
   AuthTokenPayload,
-} from "../types/auth";
+} from "@bitsacco/core";
 
 export interface AuthServiceConfig {
   storage: StorageAdapter;

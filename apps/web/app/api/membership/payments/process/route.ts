@@ -132,7 +132,7 @@ export async function GET(req: NextRequest) {
     // Handle successful response and search for the specific payment
     if (response.data && !response.error) {
       const payment = response.data.payments.find(
-        (p) => p.id === paymentIntentId,
+        (p: { id: string }) => p.id === paymentIntentId,
       );
 
       if (payment) {

@@ -41,7 +41,9 @@ export async function POST(req: NextRequest) {
     }
 
     const chama = chamaResponse.data;
-    const member = chama.members.find((m) => m.userId === session.user.id);
+    const member = chama.members.find(
+      (m: { userId: string }) => m.userId === session.user.id,
+    );
 
     if (!member) {
       return NextResponse.json(

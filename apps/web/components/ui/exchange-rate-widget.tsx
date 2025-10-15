@@ -1,6 +1,7 @@
 "use client";
 
-import { useExchangeRate, formatNumber, btcToFiat } from "@bitsacco/core";
+import { formatNumber, btcToFiat } from "@bitsacco/core";
+import { useExchangeRate } from "@/lib/hooks/useExchangeRate";
 import { apiClient } from "@/lib/auth";
 import { ArrowsClockwiseIcon, SpinnerIcon } from "@phosphor-icons/react";
 

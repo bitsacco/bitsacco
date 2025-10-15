@@ -12,7 +12,8 @@ import { useTransactions } from "@/hooks/savings/use-transactions";
 import { usePayment } from "@/hooks/savings/use-payment";
 import { formatAmountInput, formatCurrency } from "@/lib/utils/format";
 import { validateAmount, validatePhoneNumber } from "@/lib/utils/calculations";
-import { useExchangeRate, btcToFiat } from "@bitsacco/core";
+import { btcToFiat } from "@bitsacco/core";
+import { useExchangeRate } from "@/lib/hooks/useExchangeRate";
 import { apiClient } from "@/lib/auth";
 
 interface MpesaWithdrawFormProps {

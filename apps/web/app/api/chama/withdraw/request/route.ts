@@ -41,7 +41,9 @@ export async function POST(req: NextRequest) {
     }
 
     const chama = chamaResponse.data;
-    const member = chama.members.find((m) => m.userId === session.user.id);
+    const member = chama.members.find(
+      (m: { userId: string }) => m.userId === session.user.id,
+    );
 
     if (!member) {
       return NextResponse.json(
@@ -133,7 +135,9 @@ export async function GET(req: NextRequest) {
     }
 
     const chama = chamaResponse.data;
-    const member = chama.members.find((m) => m.userId === session.user.id);
+    const member = chama.members.find(
+      (m: { userId: string }) => m.userId === session.user.id,
+    );
 
     if (!member) {
       return NextResponse.json(
@@ -164,13 +168,15 @@ export async function GET(req: NextRequest) {
 
     // Filter for withdrawal transactions
     let withdrawals = txResponse.data.ledger.transactions.filter(
-      (tx) => tx.type === TransactionType.WITHDRAW,
+      (tx: { type: TransactionType }) => tx.type === TransactionType.WITHDRAW,
     );
 
     // Apply status filter if provided
     if (status) {
       const statusValue = parseInt(status);
-      withdrawals = withdrawals.filter((tx) => tx.status === statusValue);
+      withdrawals = withdrawals.filter(
+        (tx: { status: number }) => tx.status === statusValue,
+      );
     }
 
     // Check if user is admin
@@ -178,7 +184,9 @@ export async function GET(req: NextRequest) {
 
     // If not admin, only show their own withdrawals
     if (!isAdmin && !memberId) {
-      withdrawals = withdrawals.filter((tx) => tx.memberId === session.user.id);
+      withdrawals = withdrawals.filter(
+        (tx: { memberId: string }) => tx.memberId === session.user.id,
+      );
     }
 
     return NextResponse.json({

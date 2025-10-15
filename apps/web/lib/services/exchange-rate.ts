@@ -1,4 +1,4 @@
-import { FxApiClient } from "@bitsacco/core";
+import { FxService } from "../api";
 import { satsToKes } from "@bitsacco/core";
 import type { QuoteResponse } from "@bitsacco/core";
 
@@ -8,11 +8,11 @@ import type { QuoteResponse } from "@bitsacco/core";
  */
 export class ExchangeRateService {
   private static instance: ExchangeRateService;
-  private fxClient: FxApiClient;
+  private fxClient: FxService;
 
   private constructor() {
     // Initialize FX client with OS API base URL
-    this.fxClient = new FxApiClient({
+    this.fxClient = new FxService({
       baseUrl: process.env.API_URL || "http://localhost:4000",
     });
   }
@@ -36,7 +36,8 @@ export class ExchangeRateService {
   } | null> {
     try {
       // Fetch fresh quote from API
-      const quote = await this.fxClient.getQuote("KES");
+      const response = await this.fxClient.getQuoteResponse("BTC", "KES");
+      const quote = response.data as QuoteResponse;
 
       if (!quote) {
         console.error("Failed to fetch exchange rate: API returned null");

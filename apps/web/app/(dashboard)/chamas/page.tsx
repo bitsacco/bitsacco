@@ -18,7 +18,9 @@ import {
 import { EmptyState } from "@/components/ui/empty-state";
 import { BalanceDisplay } from "@/components/ui/balance-display";
 import { formatCurrency } from "@/lib/utils/format";
-import { type Chama, useExchangeRate, satsToKes } from "@bitsacco/core";
+import type { Chama } from "@bitsacco/core";
+import { satsToKes } from "@bitsacco/core";
+import { useExchangeRate } from "@/lib/hooks/useExchangeRate";
 import { apiClient } from "@/lib/auth";
 import {
   PlusIcon,

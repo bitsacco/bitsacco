@@ -1,3 +1,6 @@
+/**
+ * Authentication service for web application
+ */
 import { BaseApiClient } from "./base-client";
 import type {
   LoginUserRequest,
@@ -5,14 +8,13 @@ import type {
   VerifyUserRequest,
   RecoverUserRequest,
   AuthResponse,
-  TokensResponse,
   RevokeTokenResponse,
   UpdateUserRequest,
   User,
-} from "../types/auth";
-import type { ApiResponse } from "../types/lib";
+  ApiResponse,
+} from "@bitsacco/core";
 
-export class AuthApiClient extends BaseApiClient {
+export class AuthService extends BaseApiClient {
   /**
    * Login user with phone/pin or npub/pin
    */
@@ -47,29 +49,28 @@ export class AuthApiClient extends BaseApiClient {
 
   /**
    * Authenticate with existing token
+   * Uses cookies/headers automatically - no body needed
    */
   async authenticate(): Promise<ApiResponse<AuthResponse>> {
     return this.post<AuthResponse>("/auth/authenticate");
   }
 
   /**
-   * Refresh access token using refresh token
+   * Refresh access token using refresh token from cookies
+   * Backend uses cookies automatically - no body needed
    */
-  async refreshToken(
-    refreshToken?: string,
-  ): Promise<ApiResponse<TokensResponse>> {
-    const body = refreshToken ? { refreshToken } : undefined;
-    return this.post<TokensResponse>("/auth/refresh", body);
+  async refreshToken(): Promise<
+    ApiResponse<{ success: boolean; message: string }>
+  > {
+    return this.post<{ success: boolean; message: string }>("/auth/refresh");
   }
 
   /**
    * Logout and revoke tokens
+   * Uses cookies automatically - no body needed
    */
-  async logout(
-    refreshToken?: string,
-  ): Promise<ApiResponse<RevokeTokenResponse>> {
-    const body = refreshToken ? { refreshToken } : undefined;
-    return this.post<RevokeTokenResponse>("/auth/logout", body);
+  async logout(): Promise<ApiResponse<RevokeTokenResponse>> {
+    return this.post<RevokeTokenResponse>("/auth/logout");
   }
 
   /**

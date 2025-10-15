@@ -1,10 +1,10 @@
-// Main exports for the core package
+// Main exports for the @bitsacco/core package
+// This package now only exports types and pure utility functions
+// All services, adapters, and API clients have been moved to their respective applications
+
+// Export all types
 export * from "./types";
-export * from "./client";
-export * from "./auth";
-export * from "./adapters";
-export * from "./hooks/useApiClient";
-export * from "./hooks/useExchangeRate";
-export * from "./hooks/useMembership";
+
+// Export utility functions
 export * from "./utils/fx";
 export * from "./utils/transaction";

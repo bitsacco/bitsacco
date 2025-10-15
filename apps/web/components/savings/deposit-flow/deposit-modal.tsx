@@ -30,7 +30,8 @@ import { useFeatureFlag } from "@/lib/feature-flags-provider";
 import { FEATURE_FLAGS } from "@/lib/features";
 import { MpesaDepositForm } from "./mpesa-deposit-form";
 import { LightningDepositForm } from "./lightning-deposit-form";
-import { useExchangeRate, btcToFiat } from "@bitsacco/core";
+import { btcToFiat } from "@bitsacco/core";
+import { useExchangeRate } from "@/lib/hooks/useExchangeRate";
 import { apiClient } from "@/lib/auth";
 
 export function DepositModal({

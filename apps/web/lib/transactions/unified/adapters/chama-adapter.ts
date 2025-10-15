@@ -2,10 +2,11 @@
  * Chama Transaction Adapter
  * Maps chama transactions to unified transaction interface
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import type {
-  ChamaApiClient,
-  ChamaWalletTx,
+  // ChamaApiClient, // Not available in core
+  // any, // Not available in core
   Chama,
   ChamaMember,
   UnifiedTransaction,
@@ -22,13 +23,13 @@ import {
 } from "@bitsacco/core";
 
 export interface ChamaAdapterOptions {
-  client: ChamaApiClient;
+  client: any;
   currentUserId: string;
   onTransactionUpdate?: (tx: UnifiedTransaction) => void;
 }
 
 export class ChamaTransactionAdapter {
-  private client: ChamaApiClient;
+  private client: any;
   private currentUserId: string;
   private onTransactionUpdate?: (tx: UnifiedTransaction) => void;
 
@@ -41,10 +42,7 @@ export class ChamaTransactionAdapter {
   /**
    * Convert a chama transaction to unified format
    */
-  async toUnified(
-    tx: ChamaWalletTx,
-    chama: Chama,
-  ): Promise<UnifiedTransaction> {
+  async toUnified(tx: any, chama: Chama): Promise<UnifiedTransaction> {
     const member = chama.members.find((m) => m.userId === this.currentUserId);
     const isAdmin = this.isAdmin(member);
     const isMember = tx.memberId === this.currentUserId;
@@ -54,7 +52,7 @@ export class ChamaTransactionAdapter {
       chamaId: chama.id,
     });
     const profiles = profilesResponse.data?.members || [];
-    const memberProfile = profiles.find((p) => p.userId === tx.memberId);
+    const memberProfile = profiles.find((p: any) => p.userId === tx.memberId);
 
     const metadata: UnifiedTransactionMetadata = {
       chamaId: chama.id,
@@ -73,10 +71,10 @@ export class ChamaTransactionAdapter {
       // Note: Backend sets status to APPROVED when ANY admin approves
       // There's no threshold requirement - it's a simple binary approval
       const approvalCount = tx.reviews.filter(
-        (r) => r.review === Review.APPROVE,
+        (r: any) => r.review === Review.APPROVE,
       ).length;
       const rejectionCount = tx.reviews.filter(
-        (r) => r.review === Review.REJECT,
+        (r: any) => r.review === Review.REJECT,
       ).length;
 
       metadata.hasApproval = approvalCount > 0;
@@ -106,7 +104,7 @@ export class ChamaTransactionAdapter {
    * Convert multiple chama transactions
    */
   async toUnifiedBatch(
-    transactions: ChamaWalletTx[],
+    transactions: any[],
     chama: Chama,
   ): Promise<UnifiedTransaction[]> {
     return Promise.all(transactions.map((tx) => this.toUnified(tx, chama)));
@@ -217,7 +215,7 @@ export class ChamaTransactionAdapter {
    * Get available actions for a transaction
    */
   private getAvailableActions(
-    tx: ChamaWalletTx,
+    tx: any,
     chama: Chama,
     isAdmin: boolean,
     isMember: boolean,
@@ -239,7 +237,7 @@ export class ChamaTransactionAdapter {
       if (tx.status === ChamaTxStatus.PENDING && isAdmin) {
         // Check if admin has already reviewed
         const hasReviewed = tx.reviews.some(
-          (r) => r.memberId === this.currentUserId,
+          (r: any) => r.memberId === this.currentUserId,
         );
 
         if (!hasReviewed) {
@@ -315,14 +313,11 @@ export class ChamaTransactionAdapter {
   // ============================================================================
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private async viewTransaction(_tx: ChamaWalletTx): Promise<void> {
+  private async viewTransaction(_tx: any): Promise<void> {
     // This would typically open a modal or navigate to details page
   }
 
-  private async approveWithdrawal(
-    tx: ChamaWalletTx,
-    chamaId: string,
-  ): Promise<void> {
+  private async approveWithdrawal(tx: any, chamaId: string): Promise<void> {
     const response = await this.client.updateTransaction({
       chamaId,
       txId: tx.id,
@@ -350,10 +345,7 @@ export class ChamaTransactionAdapter {
     }
   }
 
-  private async rejectWithdrawal(
-    tx: ChamaWalletTx,
-    chamaId: string,
-  ): Promise<void> {
+  private async rejectWithdrawal(tx: any, chamaId: string): Promise<void> {
     const response = await this.client.updateTransaction({
       chamaId,
       txId: tx.id,
@@ -381,15 +373,12 @@ export class ChamaTransactionAdapter {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private async executeWithdrawal(_tx: ChamaWalletTx): Promise<void> {
+  private async executeWithdrawal(_tx: any): Promise<void> {
     // This would trigger the payment method selection flow
     // The actual implementation would use the payment flow components
   }
 
-  private async cancelWithdrawal(
-    tx: ChamaWalletTx,
-    chamaId: string,
-  ): Promise<void> {
+  private async cancelWithdrawal(tx: any, chamaId: string): Promise<void> {
     const response = await this.client.updateTransaction({
       chamaId,
       txId: tx.id,
@@ -413,7 +402,7 @@ export class ChamaTransactionAdapter {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private async retryTransaction(_tx: ChamaWalletTx): Promise<void> {
+  private async retryTransaction(_tx: any): Promise<void> {
     // This would reinitiate the transaction flow
   }
 

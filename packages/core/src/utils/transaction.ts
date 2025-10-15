@@ -1,13 +1,14 @@
 /**
- * Transaction Utilities
- * All utility functions for working with transactions
+ * Pure transaction utilities
+ * Platform-agnostic functions that can be used by web and mobile
  */
 
 import type {
   UnifiedTransaction,
   UnifiedTransactionStatus,
-} from "../types/transaction";
-import { Currency } from "../types/lib";
+  TransactionStatus,
+} from "../types";
+import { Currency } from "../types";
 
 // ============================================================================
 // Type Guards and Predicates
@@ -85,8 +86,12 @@ export function getStatusColor(status: UnifiedTransactionStatus): string {
   return colors[status] || "gray";
 }
 
-export function getStatusLabel(status: UnifiedTransactionStatus): string {
-  const labels: Record<UnifiedTransactionStatus, string> = {
+export function getStatusLabel(
+  status: UnifiedTransactionStatus | TransactionStatus,
+): string {
+  // Handle both UnifiedTransactionStatus and TransactionStatus
+  const labels: Record<string, string> = {
+    // UnifiedTransactionStatus values
     pending: "Pending",
     pending_approval: "Awaiting Approval",
     approved: "Approved",
@@ -95,6 +100,12 @@ export function getStatusLabel(status: UnifiedTransactionStatus): string {
     failed: "Failed",
     rejected: "Rejected",
     expired: "Expired",
+    // Additional TransactionStatus values
+    PENDING: "Pending",
+    COMPLETED: "Completed",
+    FAILED: "Failed",
+    CANCELLED: "Cancelled",
+    EXPIRED: "Expired",
   };
   return labels[status] || "Unknown";
 }

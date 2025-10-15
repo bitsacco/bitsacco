@@ -1,31 +1,27 @@
-import type { AuthService } from "../auth/auth-service";
-import type { ApiError, ApiResponse, ValidationError } from "../types/lib";
+/**
+ * Base API client for web application
+ * Handles HTTP requests with authentication and error handling
+ */
+import type { ApiResponse, ApiError, ValidationError } from "@bitsacco/core";
 
 export interface ApiClientConfig {
   baseUrl: string;
-  authService?: AuthService;
   defaultHeaders?: Record<string, string>;
+  getAuthHeader?: () => Promise<Record<string, string> | null>;
 }
 
 export class BaseApiClient {
   protected baseUrl: string;
-  protected authService?: AuthService;
   protected defaultHeaders: Record<string, string>;
+  protected getAuthHeader?: () => Promise<Record<string, string> | null>;
 
   constructor(config: ApiClientConfig) {
     this.baseUrl = config.baseUrl.replace(/\/$/, ""); // Remove trailing slash
-    this.authService = config.authService;
     this.defaultHeaders = {
       "Content-Type": "application/json",
       ...config.defaultHeaders,
     };
-  }
-
-  /**
-   * Set the auth service for this client
-   */
-  public setAuthService(authService: AuthService): void {
-    this.authService = authService;
+    this.getAuthHeader = config.getAuthHeader;
   }
 
   /**
@@ -37,28 +33,17 @@ export class BaseApiClient {
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint}`;
 
-    const headers: Record<string, string> = {
+    let headers: Record<string, string> = {
       ...this.defaultHeaders,
       ...((options.headers as Record<string, string>) || {}),
     };
 
     // Add authentication header if available
-    if (this.authService) {
-      const authHeader = await this.authService.getAuthHeader();
-      Object.assign(headers, authHeader);
-    }
-
-    // Debug: Log the request details
-    if (endpoint.includes("shares")) {
-      console.log("[BASE-CLIENT] Request details:", {
-        url,
-        method: options.method || "GET",
-        hasAuthHeader: !!headers["Authorization"],
-        authHeaderPreview: headers["Authorization"]
-          ? `${headers["Authorization"].substring(0, 30)}...`
-          : "NO_AUTH_HEADER",
-        allHeaders: Object.keys(headers),
-      });
+    if (this.getAuthHeader) {
+      const authHeader = await this.getAuthHeader();
+      if (authHeader) {
+        headers = { ...headers, ...authHeader };
+      }
     }
 
     try {
