@@ -27,6 +27,7 @@ const TabIcon = ({ name, focused }: { name: string; focused: boolean }) => (
 const MainNavigator: React.FC = () => {
   return (
     <Tab.Navigator
+      id={"main-tabs" as any}
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
@@ -39,28 +40,28 @@ const MainNavigator: React.FC = () => {
     >
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
+        component={HomeScreen as any}
         options={{
           tabBarIcon: ({ focused }) => <TabIcon name="🏠" focused={focused} />,
         }}
       />
       <Tab.Screen
         name="Wallet"
-        component={WalletScreen}
+        component={WalletScreen as any}
         options={{
           tabBarIcon: ({ focused }) => <TabIcon name="💳" focused={focused} />,
         }}
       />
       <Tab.Screen
         name="Membership"
-        component={MembershipScreen}
+        component={MembershipScreen as any}
         options={{
           tabBarIcon: ({ focused }) => <TabIcon name="👥" focused={focused} />,
         }}
       />
       <Tab.Screen
         name="Profile"
-        component={ProfileScreen}
+        component={ProfileScreen as any}
         options={{
           tabBarIcon: ({ focused }) => <TabIcon name="👤" focused={focused} />,
         }}

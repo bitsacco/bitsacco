@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Bitsacco",
-
+    "main": "index.ts",
     "slug": "bitsacco-mobile",
 
     "version": "1.0.0",

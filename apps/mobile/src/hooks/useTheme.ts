@@ -19,7 +19,7 @@ export const useTheme = () => {
   const themeLoaded = useAppSelector((state) => state.app.themeLoaded);
 
   const darkTheme: ThemeColors = {
-    background: colors.neutral[900], // #0f172a
+    background: "#1A202C", // Custom dark background
     surface: colors.neutral[800], // #1e293b
     text: colors.neutral[0], // #ffffff
     textSecondary: colors.neutral[400], // #94a3b8
