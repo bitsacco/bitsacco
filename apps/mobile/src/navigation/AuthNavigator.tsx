@@ -17,14 +17,15 @@ const Stack = createNativeStackNavigator<AuthStackParamList>();
 const AuthNavigator: React.FC = () => {
   return (
     <Stack.Navigator
+      id={"auth-stack" as any}
       initialRouteName="Login"
       screenOptions={{
         headerShown: false,
       }}
     >
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Register" component={RegisterScreen} />
-      <Stack.Screen name="Webview" component={WebViewScreen} />
+      <Stack.Screen name="Login" component={LoginScreen as any} />
+      <Stack.Screen name="Register" component={RegisterScreen as any} />
+      <Stack.Screen name="Webview" component={WebViewScreen as any} />
     </Stack.Navigator>
   );
 };
