@@ -8,7 +8,6 @@ Financial tools for communities - A modern monorepo containing the Bitsacco web 
 bitsacco/web/
 ├── apps/
 │   ├── home/              # Main website with Sanity CMS integration
-│   ├── web/               # Web application
 │   └── mobile/            # React Native mobile app with Expo
 ├── packages/
 │   ├── core/              # Shared business logic and utilities
@@ -56,12 +55,11 @@ cd ../..
 
 ```bash
 # Run all applications in development mode
-npm run dev      # Runs all apps (web, mobile, home)
+npm run dev      # Runs all apps (mobile, home)
 npm run dev:all  # Alias for npm run dev
 
 # Run specific applications
 npm run dev:home   # Home website (localhost:3000)
-npm run dev:web    # Web application (localhost:3001)
 npm run dev:mobile # Mobile app (Expo dev server)
 
 # Platform-specific mobile development
@@ -69,8 +67,8 @@ npm run dev:mobile:ios     # Launch on iOS simulator
 npm run dev:mobile:android # Launch on Android emulator
 npm run dev:mobile:web     # Launch mobile app in browser
 
-# Full-stack development (web + mobile together)
-npm run dev:fullstack # Runs web and mobile apps simultaneously
+# Full-stack development (mobile only)
+npm run dev:fullstack # Runs mobile app
 
 # Using Docker Compose for backend services
 npm start        # Start all services
@@ -85,18 +83,16 @@ npm run logs     # View logs
 - `npm run dev` - Run all apps in development mode
 - `npm run dev:all` - Alias for npm run dev
 - `npm run dev:home` - Run home website only (port 3000)
-- `npm run dev:web` - Run web application only (port 3001)
 - `npm run dev:mobile` - Run mobile app with Expo dev server
 - `npm run dev:mobile:ios` - Launch mobile app on iOS simulator
 - `npm run dev:mobile:android` - Launch mobile app on Android emulator
 - `npm run dev:mobile:web` - Launch mobile app in browser
-- `npm run dev:fullstack` - Run web + mobile apps simultaneously
+- `npm run dev:fullstack` - Run mobile app
 
 ### Build Commands
 
 - `npm run build` - Build all apps
 - `npm run build:home` - Build home website only
-- `npm run build:web` - Build web application only
 - `npm run build:mobile` - Build mobile app only
 - `npm run build:ui` - Build UI package only
 - `npm run build:core` - Build core package only
@@ -160,38 +156,6 @@ npm run dev:mobile:web     # Web browser
 **Access:**
 - Expo DevTools: http://localhost:19002
 - Metro Bundler: http://localhost:8081
-
-### Web Application (`apps/web`)
-
-The main Bitsacco web application built with Next.js 15.
-
-**Features:**
-
-- Server-side rendering with Next.js App Router
-- Authentication with NextAuth.js
-- TypeScript support
-- Shared components and utilities
-- Modern React 19 features
-
-**Tech Stack:**
-
-- Next.js 15.3.3
-- React 19
-- NextAuth.js 5 (beta)
-- Tailwind CSS
-- TypeScript
-
-**Development:**
-
-```bash
-cd apps/web
-npm run dev
-# or from root
-npm run dev:web
-```
-
-**Access:**
-- Web Application: http://localhost:3001
 
 ### Home Website (`apps/home`)
 

@@ -1,6 +1,6 @@
 # Environment Configuration Guide
 
-This document describes all environment variables used in the Bitsacco web application.
+This document describes all environment variables used in the Bitsacco home application.
 
 ## Environment Variables
 
@@ -103,3 +103,4 @@ This document describes all environment variables used in the Bitsacco web appli
 - Keep sensitive keys like `RESEND_API_KEY` and `API_URL` server-side only
 - Use `NEXT_PUBLIC_` prefix only for non-sensitive configuration
 - Never expose API keys or secrets to the client-side
+git s
