@@ -31,10 +31,6 @@
       "outputs": ["dist/**", ".next/**", "!.next/cache/**", "public/dist/**"],
       "dependsOn": ["^build"]
     },
-    "@bitsacco/web#build": {
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**", "public/dist/**"],
-      "dependsOn": ["^build"]
-    },
     "test": {
       "outputs": ["coverage/**"],
       "dependsOn": []
@@ -66,11 +62,6 @@
       "dependsOn": []
     },
     "@bitsacco/home#dev": {
-      "cache": false,
-      "persistent": true,
-      "dependsOn": ["^build"]
-    },
-    "@bitsacco/web#dev": {
       "cache": false,
       "persistent": true,
       "dependsOn": ["^build"]
