@@ -84,20 +84,16 @@ export async function generateMetadata(props: {
 
 function StepContent({ step, index }: { step: any; index: number }) {
   return (
-    <div className="group relative rounded-lg border border-neutral-200 bg-neutral-50 p-6 dark:border-neutral-800 dark:bg-neutral-900">
+    <div className="group relative rounded-lg border border-gray-700 bg-gray-800 p-6">
       <div className="flex items-start gap-4">
-        <div className="flex size-8 flex-shrink-0 items-center justify-center rounded-full bg-teal-100 text-sm font-bold text-teal-800 dark:bg-teal-900 dark:text-teal-200">
+        <div className="flex size-8 flex-shrink-0 items-center justify-center rounded-full bg-teal-900 text-sm font-bold text-teal-200">
           {index + 1}
         </div>
         <div className="flex-1 space-y-4">
-          <h3 className="text-lg font-semibold text-neutral-950 dark:text-neutral-0">
-            {step.title}
-          </h3>
+          <h3 className="text-lg font-semibold text-white">{step.title}</h3>
 
           {step.description && (
-            <p className="text-neutral-600 dark:text-neutral-300">
-              {step.description}
-            </p>
+            <p className="text-gray-300">{step.description}</p>
           )}
 
           {step.content && (
@@ -123,15 +119,13 @@ function SectionContent({
 }) {
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border border-teal-200 bg-teal-50 p-6 dark:border-teal-800 dark:bg-teal-950">
+      <div className="rounded-lg border border-teal-700 bg-teal-900/20 p-6">
         <div className="flex items-start gap-4">
           <div className="flex size-10 flex-shrink-0 items-center justify-center rounded-full bg-teal-600 text-lg font-bold text-white">
             {sectionIndex + 1}
           </div>
           <div>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-0">
-              {section.title}
-            </h2>
+            <h2 className="text-xl font-bold text-white">{section.title}</h2>
           </div>
         </div>
       </div>
@@ -145,24 +139,24 @@ function SectionContent({
                 alt={section.media.image.alt || section.title}
                 width={400}
                 height={300}
-                className="rounded-lg ring-1 ring-neutral-200 dark:ring-neutral-700"
+                className="rounded-lg ring-1 ring-gray-600"
               />
               {section.media.image.caption && (
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                <p className="text-xs text-gray-400">
                   {section.media.image.caption}
                 </p>
               )}
             </div>
           )}
           {section.media.type === 'video' && section.media.video && (
-            <div className="flex items-center gap-3 rounded-lg border border-neutral-200 p-3 dark:border-neutral-700">
-              <PlayIcon className="size-5 text-orange-600 dark:text-orange-400" />
+            <div className="flex items-center gap-3 rounded-lg border border-gray-700 p-3">
+              <PlayIcon className="size-5 text-orange-400" />
               <div>
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                <p className="text-sm font-medium text-white">
                   Video: {section.media.video.caption || section.title}
                 </p>
                 {section.media.video.alt && (
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                  <p className="text-xs text-gray-400">
                     {section.media.video.alt}
                   </p>
                 )}
@@ -188,7 +182,7 @@ function SectionContent({
                   {(section.media.title || section.media.description) && (
                     <div className="text-xs">
                       {section.media.title && (
-                        <p className="font-medium text-neutral-900 dark:text-neutral-100">
+                        <p className="font-medium text-white">
                           {section.media.title}
                         </p>
                       )}
@@ -221,7 +215,7 @@ function SectionContent({
                   {(section.media.title || section.media.description) && (
                     <div className="text-xs">
                       {section.media.title && (
-                        <p className="font-medium text-neutral-900 dark:text-neutral-100">
+                        <p className="font-medium text-white">
                           {section.media.title}
                         </p>
                       )}
@@ -258,7 +252,7 @@ function SectionContent({
               {(section.media.title || section.media.description) && (
                 <div className="text-xs">
                   {section.media.title && (
-                    <p className="font-medium text-neutral-900 dark:text-neutral-100">
+                    <p className="font-medium text-white">
                       {section.media.title}
                     </p>
                   )}
@@ -310,14 +304,12 @@ export default async function GuidePage(props: {
                           src={image(guide.author.image).size(32, 32).url()}
                           width={32}
                           height={32}
-                          className="size-8 rounded-full object-cover ring-2 ring-neutral-200 dark:ring-neutral-700"
+                          className="size-8 rounded-full object-cover ring-2 ring-gray-600"
                         />
                       )}
                       <div>
-                        <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                          Author
-                        </p>
-                        <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                        <p className="text-xs text-gray-400">Author</p>
+                        <p className="text-sm font-medium text-white">
                           {guide.author.name}
                         </p>
                       </div>
@@ -327,10 +319,8 @@ export default async function GuidePage(props: {
                   <div className="hidden h-8 w-px bg-neutral-200 sm:block dark:bg-neutral-700" />
 
                   <div>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                      Published
-                    </p>
-                    <time className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                    <p className="text-xs text-gray-400">Published</p>
+                    <time className="text-sm font-medium text-white">
                       {dayjs(guide.publishedAt).format('MMMM D, YYYY')}
                     </time>
                   </div>
@@ -341,9 +331,7 @@ export default async function GuidePage(props: {
                     <div className="flex items-center gap-2">
                       <BookOpenIcon className="size-4 text-neutral-400 dark:text-neutral-500" />
                       <div>
-                        <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                          Category
-                        </p>
+                        <p className="text-xs text-gray-400">Category</p>
                         <Link
                           href={`/guides?category=${guide.category.slug}`}
                           className="text-sm font-medium text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300"
@@ -359,10 +347,8 @@ export default async function GuidePage(props: {
                   <div className="flex items-center gap-2">
                     <ListBulletsIcon className="size-4 text-neutral-400 dark:text-neutral-500" />
                     <div>
-                      <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                        Structure
-                      </p>
-                      <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                      <p className="text-xs text-gray-400">Structure</p>
+                      <p className="text-sm font-medium text-white">
                         {guide.hasComplexStructure
                           ? `${guide.sections?.length || 0} sections`
                           : `${guide.steps?.length || 0} steps`}
@@ -374,7 +360,7 @@ export default async function GuidePage(props: {
                 {/* Right side: Featured badge */}
                 {guide.isFeatured && (
                   <div className="flex justify-start sm:justify-end">
-                    <div className="rounded-full border border-teal-200 bg-teal-50 px-3 py-1 dark:border-teal-800 dark:bg-teal-950">
+                    <div className="rounded-full border border-teal-200 bg-teal-900/20 px-3 py-1 dark:border-teal-800 dark:bg-teal-950">
                       <div className="flex items-center gap-1.5 text-teal-700 dark:text-teal-300">
                         <StarIcon className="size-3.5" />
                         <span className="text-xs font-semibold">
@@ -389,14 +375,12 @@ export default async function GuidePage(props: {
 
             {/* Header */}
             <div className="mb-12">
-              <Heading as="h1" className="text-neutral-950 dark:text-neutral-0">
+              <Heading as="h1" className="text-white">
                 {guide.title}
               </Heading>
 
               {guide.excerpt && (
-                <p className="mt-4 text-lg text-neutral-600 dark:text-neutral-300">
-                  {guide.excerpt}
-                </p>
+                <p className="mt-4 text-lg text-gray-300">{guide.excerpt}</p>
               )}
             </div>
 
@@ -409,19 +393,19 @@ export default async function GuidePage(props: {
                     src={image(guide.media.image).size(1600, 900).url()}
                     width={1600}
                     height={900}
-                    className="ring-neutral-700 dark:ring-neutral-700"
+                    className="ring-gray-600"
                   />
                 )}
                 {guide.media.type === 'video' && guide.media.video && (
-                  <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 dark:border-neutral-700 dark:bg-neutral-900">
+                  <div className="rounded-lg border border-gray-700 bg-gray-800 p-6">
                     <div className="flex items-center gap-4">
-                      <PlayIcon className="size-8 text-orange-600 dark:text-orange-400" />
+                      <PlayIcon className="size-8 text-orange-400" />
                       <div>
-                        <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100">
+                        <h3 className="text-lg font-medium text-white">
                           {guide.media.video.caption || guide.title}
                         </h3>
                         {guide.media.video.alt && (
-                          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                          <p className="text-sm text-gray-400">
                             {guide.media.video.alt}
                           </p>
                         )}
@@ -448,7 +432,7 @@ export default async function GuidePage(props: {
                         {(guide.media.title || guide.media.description) && (
                           <div className="text-sm">
                             {guide.media.title && (
-                              <p className="font-medium text-neutral-900 dark:text-neutral-100">
+                              <p className="font-medium text-white">
                                 {guide.media.title}
                               </p>
                             )}
@@ -481,7 +465,7 @@ export default async function GuidePage(props: {
                         {(guide.media.title || guide.media.description) && (
                           <div className="text-sm">
                             {guide.media.title && (
-                              <p className="font-medium text-neutral-900 dark:text-neutral-100">
+                              <p className="font-medium text-white">
                                 {guide.media.title}
                               </p>
                             )}
@@ -518,7 +502,7 @@ export default async function GuidePage(props: {
                     {(guide.media.title || guide.media.description) && (
                       <div className="text-sm">
                         {guide.media.title && (
-                          <p className="font-medium text-neutral-900 dark:text-neutral-100">
+                          <p className="font-medium text-white">
                             {guide.media.title}
                           </p>
                         )}
@@ -540,8 +524,8 @@ export default async function GuidePage(props: {
               <div className="mb-12 grid gap-6 lg:grid-cols-2">
                 {/* Objectives */}
                 {guide.objectives && guide.objectives.length > 0 && (
-                  <div className="rounded-lg border border-teal-400 p-6 dark:border-teal-500">
-                    <h2 className="mb-4 text-lg font-semibold text-neutral-950 dark:text-neutral-0">
+                  <div className="rounded-lg border border-teal-500 p-6">
+                    <h2 className="mb-4 text-lg font-semibold text-white">
                       What you&apos;ll learn
                     </h2>
                     <ul className="space-y-3">
@@ -549,7 +533,7 @@ export default async function GuidePage(props: {
                         (objective: string, index: number) => (
                           <li
                             key={index}
-                            className="flex items-start gap-3 text-neutral-700 dark:text-neutral-300"
+                            className="flex items-start gap-3 text-gray-300"
                           >
                             <PlusIcon className="mt-0.5 size-4 flex-shrink-0 text-teal-500 dark:text-teal-400" />
                             {objective}
@@ -562,18 +546,18 @@ export default async function GuidePage(props: {
 
                 {/* Expected Outcomes */}
                 {guide.outcomes && guide.outcomes.length > 0 && (
-                  <div className="rounded-lg border border-teal-400 bg-teal-50 p-6 dark:border-teal-500 dark:bg-teal-950/50">
-                    <h2 className="mb-4 text-lg font-semibold text-neutral-950 dark:text-neutral-0">
+                  <div className="rounded-lg border border-teal-500 bg-teal-900/20 p-6">
+                    <h2 className="mb-4 text-lg font-semibold text-white">
                       Expected Outcomes
                     </h2>
-                    <p className="mb-4 text-sm text-neutral-600 dark:text-neutral-300">
+                    <p className="mb-4 text-sm text-gray-300">
                       After completing this guide, you should be able to:
                     </p>
                     <ul className="space-y-3">
                       {guide.outcomes.map((outcome: string, index: number) => (
                         <li
                           key={index}
-                          className="flex items-start gap-3 text-neutral-700 dark:text-neutral-300"
+                          className="flex items-start gap-3 text-gray-300"
                         >
                           <CheckIcon className="mt-0.5 size-4 flex-shrink-0 text-teal-500 dark:text-teal-400" />
                           {outcome}
@@ -587,11 +571,11 @@ export default async function GuidePage(props: {
 
             {/* Prerequisites */}
             {guide.prerequisites && guide.prerequisites.length > 0 && (
-              <div className="mb-12 rounded-lg border border-blue-200 bg-blue-50 p-6 dark:border-blue-800 dark:bg-blue-950">
-                <h2 className="mb-4 text-lg font-semibold text-neutral-950 dark:text-neutral-0">
+              <div className="mb-12 rounded-lg border border-blue-500 bg-blue-900/20 p-6">
+                <h2 className="mb-4 text-lg font-semibold text-white">
                   Prerequisites
                 </h2>
-                <p className="mb-4 text-sm text-neutral-600 dark:text-neutral-300">
+                <p className="mb-4 text-sm text-gray-300">
                   Complete these guides first for the best experience:
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -599,7 +583,7 @@ export default async function GuidePage(props: {
                     <Link
                       key={prerequisite.slug}
                       href={`/guides/${prerequisite.slug}`}
-                      className="inline-flex items-center gap-1 rounded-full border border-blue-300 bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 hover:bg-blue-200 dark:border-blue-700 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800"
+                      className="inline-flex items-center gap-1 rounded-full border border-blue-500 bg-blue-900/30 px-3 py-1 text-sm font-medium text-blue-200 hover:bg-blue-800"
                     >
                       {prerequisite.title}
                       <ArrowRightIcon className="size-3" />
@@ -625,7 +609,7 @@ export default async function GuidePage(props: {
               ) : (
                 // Simple steps
                 <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-neutral-950 dark:text-neutral-0">
+                  <h2 className="text-2xl font-bold text-white">
                     Step-by-step instructions
                   </h2>
                   <div className="space-y-4">
@@ -641,8 +625,8 @@ export default async function GuidePage(props: {
 
             {/* Related Guides */}
             {guide.relatedGuides && guide.relatedGuides.length > 0 && (
-              <div className="mt-12 border-t border-neutral-200 pt-8 dark:border-neutral-800">
-                <h2 className="mb-6 text-xl font-semibold text-neutral-950 dark:text-neutral-0">
+              <div className="mt-12 border-t border-gray-700 pt-8 dark:border-neutral-800">
+                <h2 className="mb-6 text-xl font-semibold text-white">
                   Related Guides
                 </h2>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -650,7 +634,7 @@ export default async function GuidePage(props: {
                     <Link
                       key={relatedGuide.slug}
                       href={`/guides/${relatedGuide.slug}`}
-                      className="group rounded-lg border border-neutral-200 p-4 transition-colors hover:border-teal-200 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:border-teal-800 dark:hover:bg-neutral-900"
+                      className="group rounded-lg border border-gray-700 p-4 transition-colors hover:border-teal-200 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:border-teal-800 dark:hover:bg-neutral-900"
                     >
                       <div className="flex gap-4">
                         {relatedGuide.media?.type === 'image' &&
@@ -687,7 +671,7 @@ export default async function GuidePage(props: {
             )}
 
             {/* Navigation */}
-            <div className="mt-12 border-t border-neutral-200 pt-8 dark:border-neutral-800">
+            <div className="mt-12 border-t border-gray-700 pt-8 dark:border-neutral-800">
               <Button variant="outline" href="/guides">
                 <CaretLeftIcon className="size-4" />
                 Back to guides
