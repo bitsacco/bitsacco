@@ -44,11 +44,11 @@ export default async function AboutPage() {
       <main className="overflow-hidden">
         <Container className="py-16 sm:py-24">
           <div className="mb-16 text-center">
-            <Heading className="text-neutral-950 dark:text-neutral-0" as="h1">
+            <Heading className="text-white" as="h1">
               {page.title}
             </Heading>
             {page.excerpt && (
-              <Lead className="mx-auto mt-8 max-w-2xl text-neutral-600 dark:text-neutral-400">
+              <Lead className="mx-auto mt-8 max-w-2xl text-gray-300">
                 {page.excerpt}
               </Lead>
             )}

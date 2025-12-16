@@ -47,22 +47,22 @@ async function Categories({ selected }: { selected?: string }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <Menu>
-        <MenuButton className="flex items-center justify-between gap-2 rounded-lg border border-neutral-200 bg-neutral-0 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800">
+        <MenuButton className="flex items-center justify-between gap-2 rounded-lg border border-slate-600 bg-slate-700 px-4 py-2 text-sm font-medium text-gray-200 hover:bg-slate-600">
           {categories.find(({ slug }) => slug === selected)?.title ||
             'All categories'}
-          <CaretUpDownIcon className="size-4 text-neutral-500" />
+          <CaretUpDownIcon className="size-4 text-gray-400" />
         </MenuButton>
         <MenuItems
           anchor="bottom start"
-          className="min-w-48 rounded-lg border border-neutral-200 bg-neutral-0 p-1 shadow-lg [--anchor-gap:6px] [--anchor-offset:-4px] [--anchor-padding:10px] dark:border-neutral-700 dark:bg-neutral-900"
+          className="min-w-48 rounded-lg border border-slate-600 bg-slate-700 p-1 shadow-lg [--anchor-gap:6px] [--anchor-offset:-4px] [--anchor-padding:10px]"
         >
           <MenuItem>
             <Link
               href="/blog"
               data-selected={selected === undefined ? true : undefined}
-              className="group grid grid-cols-[20px_1fr] items-center gap-3 rounded-md px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
+              className="group grid grid-cols-[20px_1fr] items-center gap-3 rounded-md px-3 py-2 text-sm text-gray-200 hover:bg-slate-600"
             >
-              <CheckIcon className="group-data-selected:block hidden size-4 text-orange-600 dark:text-orange-400" />
+              <CheckIcon className="group-data-selected:block hidden size-4 text-orange-400" />
               <span className="col-start-2">All categories</span>
             </Link>
           </MenuItem>
@@ -71,9 +71,9 @@ async function Categories({ selected }: { selected?: string }) {
               <Link
                 href={`/blog?category=${category.slug}`}
                 data-selected={category.slug === selected ? true : undefined}
-                className="group grid grid-cols-[20px_1fr] items-center gap-3 rounded-md px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                className="group grid grid-cols-[20px_1fr] items-center gap-3 rounded-md px-3 py-2 text-sm text-gray-200 hover:bg-slate-600"
               >
-                <CheckIcon className="group-data-selected:block hidden size-4 text-orange-600 dark:text-orange-400" />
+                <CheckIcon className="group-data-selected:block hidden size-4 text-orange-400" />
                 <span className="col-start-2">{category.title}</span>
               </Link>
             </MenuItem>
@@ -101,7 +101,7 @@ async function Posts({ page, category }: { page: number; category?: string }) {
 
   if (!posts || posts.length === 0) {
     return (
-      <p className="mx-auto text-center text-neutral-500 dark:text-neutral-400">
+      <p className="mx-auto text-center text-gray-400">
         No blog posts have been published yet.
       </p>
     )
@@ -112,11 +112,11 @@ async function Posts({ page, category }: { page: number; category?: string }) {
       {posts.map((post) => (
         <article
           key={post.slug}
-          className="relative border-b border-neutral-200 pb-8 last:border-b-0 dark:border-neutral-800"
+          className="relative border-b border-slate-700 pb-8 last:border-b-0"
         >
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-[200px_1fr]">
             <div className="flex flex-col gap-3">
-              <time className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+              <time className="text-sm font-medium text-gray-400">
                 {dayjs(post.publishedAt).format('MMM D, YYYY')}
               </time>
               {post.author && (
@@ -127,25 +127,25 @@ async function Posts({ page, category }: { page: number; category?: string }) {
                       src={image(post.author.image).width(32).height(32).url()}
                       width={32}
                       height={32}
-                      className="size-8 rounded-full object-cover ring-1 ring-neutral-200 dark:ring-neutral-700"
+                      className="size-8 rounded-full object-cover ring-1 ring-slate-600"
                     />
                   )}
-                  <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                  <span className="text-sm text-gray-300">
                     {post.author.name}
                   </span>
                 </div>
               )}
             </div>
             <div>
-              <h2 className="mb-3 text-xl font-medium tracking-tight text-neutral-950 dark:text-neutral-0">
+              <h2 className="mb-3 text-xl font-medium tracking-tight text-white">
                 {post.title}
               </h2>
-              <p className="mb-4 leading-relaxed text-neutral-600 dark:text-neutral-300">
+              <p className="mb-4 leading-relaxed text-gray-300">
                 {post.excerpt}
               </p>
               <Link
                 href={`/blog/${post.slug}`}
-                className="inline-flex items-center gap-1 text-sm font-medium text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300"
+                className="inline-flex items-center gap-1 text-sm font-medium text-orange-400 hover:text-orange-300"
               >
                 <span className="absolute inset-0" />
                 Read article
@@ -206,10 +206,10 @@ async function Pagination({
             data-active={i + 1 === page ? true : undefined}
             className={clsx(
               'flex size-8 items-center justify-center rounded-lg text-sm font-medium transition-colors',
-              'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-950',
-              'dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-0',
+              'text-gray-300 hover:bg-gray-700 hover:text-white',
+              'hover:bg-gray-700',
               'data-active:bg-orange-600 data-active:text-white',
-              'dark:data-active:bg-orange-500',
+              'data-active:bg-orange-500',
             )}
           >
             {i + 1}
@@ -246,10 +246,10 @@ export default async function Blog(props: {
       <main className="overflow-hidden">
         <Container className="py-16 sm:py-24">
           <div className="mb-16 text-center">
-            <Heading className="text-neutral-950 dark:text-neutral-0" as="h1">
+            <Heading className="text-white" as="h1">
               The Teal Horse
             </Heading>
-            <Lead className="mx-auto mt-8 max-w-2xl text-neutral-600 dark:text-neutral-400">
+            <Lead className="mx-auto mt-8 max-w-2xl text-gray-300">
               The latest stories, updates, and news from Bitsacco.
             </Lead>
           </div>

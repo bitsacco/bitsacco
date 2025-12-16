@@ -83,10 +83,10 @@ export default function ContactPage() {
         <Container className="py-16 sm:py-24">
           <div className="mx-auto max-w-2xl">
             <div className="mb-12 text-center">
-              <Heading className="text-neutral-950 dark:text-neutral-0" as="h1">
+              <Heading className="text-white" as="h1">
                 Contact Us
               </Heading>
-              <Lead className="mx-auto mt-8 max-w-xl text-neutral-600 dark:text-neutral-400">
+              <Lead className="mx-auto mt-8 max-w-xl text-gray-300">
                 Have questions about Bitsacco? We&apos;d love to hear from you.
                 {supportNumber
                   ? ` Choose your preferred contact method below.`

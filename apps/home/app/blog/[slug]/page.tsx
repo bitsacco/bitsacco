@@ -76,13 +76,10 @@ export default async function BlogPost(props: {
         <Container className="py-16 sm:py-24">
           <article className="mx-auto max-w-4xl">
             <div className="mb-12 text-center">
-              <time className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+              <time className="text-sm font-medium text-gray-400">
                 {dayjs(post.publishedAt).format('MMMM D, YYYY')}
               </time>
-              <Heading
-                as="h1"
-                className="mt-4 text-neutral-950 dark:text-neutral-0"
-              >
+              <Heading as="h1" className="mt-4 text-white">
                 {post.title}
               </Heading>
             </div>
@@ -96,10 +93,10 @@ export default async function BlogPost(props: {
                       src={image(post.author.image).size(40, 40).url()}
                       width={40}
                       height={40}
-                      className="size-10 rounded-full object-cover ring-1 ring-neutral-200 dark:ring-neutral-700"
+                      className="size-10 rounded-full object-cover ring-1 ring-gray-600"
                     />
                   )}
-                  <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                  <span className="text-sm font-medium text-gray-300">
                     {post.author.name}
                   </span>
                 </div>
@@ -110,7 +107,7 @@ export default async function BlogPost(props: {
                     <Link
                       key={category.slug}
                       href={`/blog?category=${category.slug}`}
-                      className="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-medium text-neutral-600 hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+                      className="rounded-full border border-gray-600 bg-gray-700 px-3 py-1 text-xs font-medium text-gray-200 hover:bg-gray-600"
                     >
                       {category.title}
                     </Link>
@@ -119,7 +116,7 @@ export default async function BlogPost(props: {
               )}
             </div>
 
-            <ProseContent className="prose-img:rounded-xl prose-img:shadow-sm prose-img:ring-1 prose-img:ring-neutral-200 dark:prose-img:ring-neutral-700 max-w-none">
+            <ProseContent className="prose-img:rounded-xl prose-img:shadow-sm prose-img:ring-1 prose-img:ring-gray-600 max-w-none">
               <div className="max-w-2xl xl:mx-auto">
                 {post.featuredImage && (
                   <div className="mb-12">
@@ -128,7 +125,7 @@ export default async function BlogPost(props: {
                       src={image(post.featuredImage).size(1600, 900).url()}
                       width={1600}
                       height={900}
-                      className="ring-neutral-700 dark:ring-neutral-700"
+                      className="ring-gray-600"
                     />
                   </div>
                 )}
@@ -138,7 +135,7 @@ export default async function BlogPost(props: {
                     components={portableTextComponents}
                   />
                 )}
-                <div className="mt-12 border-t border-neutral-200 pt-8 dark:border-neutral-800">
+                <div className="mt-12 border-t border-gray-700 pt-8">
                   <Button variant="outline" href="/blog">
                     <CaretLeftIcon className="size-4" />
                     Back to blog
