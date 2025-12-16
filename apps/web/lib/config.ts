@@ -12,8 +12,7 @@ export const FEATURES = {
 // App metadata
 export const APP_NAME = "Bitsacco";
 export const APP_DESCRIPTION = "Save and grow with Bitcoin";
-export const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL || "";
+export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "";
 
 // Share configuration - matching webapp exactly
 export const SHARE_VALUE_KES = Number(
@@ -71,18 +70,12 @@ export const LIGHTNING_WITHDRAW_LIMITS = {
 // Chama transaction limits
 export const CHAMA_DEPOSIT_LIMITS = {
   MIN_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MIN_CHAMA_DEPOSIT_KES || ""),
-  MAX_AMOUNT_KES: Number(
-    process.env.NEXT_PUBLIC_MAX_CHAMA_DEPOSIT_KES || "",
-  ),
+  MAX_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MAX_CHAMA_DEPOSIT_KES || ""),
 };
 
 export const CHAMA_WITHDRAW_LIMITS = {
-  MIN_AMOUNT_KES: Number(
-    process.env.NEXT_PUBLIC_MIN_CHAMA_WITHDRAW_KES || "",
-  ),
-  MAX_AMOUNT_KES: Number(
-    process.env.NEXT_PUBLIC_MAX_CHAMA_WITHDRAW_KES || "",
-  ),
+  MIN_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MIN_CHAMA_WITHDRAW_KES || ""),
+  MAX_AMOUNT_KES: Number(process.env.NEXT_PUBLIC_MAX_CHAMA_WITHDRAW_KES || ""),
 };
 
 // Timeouts and intervals
