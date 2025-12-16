@@ -6,6 +6,18 @@ export const structure: StructureResolver = (S) =>
     .title('Studio')
     .items([
       S.listItem()
+        .title('Guides')
+        .child(
+          S.list()
+            .title('Guides')
+            .items([
+              S.documentTypeListItem('guide').title('Guides'),
+              S.documentTypeListItem('guideCategory').title('Categories'),
+              S.documentTypeListItem('guideTag').title('Tags'),
+            ]),
+        ),
+      S.divider(),
+      S.listItem()
         .title('Pages')
         .child(
           S.list()
@@ -47,7 +59,17 @@ export const structure: StructureResolver = (S) =>
         const id = item.getId()
         return (
           id &&
-          !['page', 'post', 'category', 'author', 'tag', 'partner'].includes(id)
+          ![
+            'page',
+            'post',
+            'category',
+            'author',
+            'tag',
+            'partner',
+            'guide',
+            'guideCategory',
+            'guideTag',
+          ].includes(id)
         )
       }),
     ])

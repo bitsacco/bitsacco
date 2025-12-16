@@ -49,8 +49,8 @@ export async function GET(req: Request) {
       id: post.slug,
       link: `${siteUrl}/blog/${post.slug}`,
       content: post.excerpt,
-      image: post.mainImage
-        ? image(post.mainImage)
+      image: post.featuredImage
+        ? image(post.featuredImage)
             .size(1200, 800)
             .format('jpg')
             .url()

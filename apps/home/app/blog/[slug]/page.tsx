@@ -39,13 +39,13 @@ export async function generateMetadata(props: {
         post.categories
           ?.map((category) => category.title ?? '')
           .filter(Boolean) || undefined,
-      images: post.mainImage
+      images: post.featuredImage
         ? [
             {
-              url: image(post.mainImage).width(1200).height(630).url(),
+              url: image(post.featuredImage).width(1200).height(630).url(),
               width: 1200,
               height: 630,
-              alt: post.mainImage.alt ?? post.title ?? undefined,
+              alt: post.featuredImage.alt ?? post.title ?? undefined,
             },
           ]
         : undefined,
@@ -56,8 +56,8 @@ export async function generateMetadata(props: {
       description: post.excerpt ?? undefined,
       site: '@bitsacco',
       creator: '@bitsacco',
-      images: post.mainImage
-        ? [image(post.mainImage).width(1200).height(630).url()]
+      images: post.featuredImage
+        ? [image(post.featuredImage).width(1200).height(630).url()]
         : undefined,
     },
   }
@@ -121,11 +121,11 @@ export default async function BlogPost(props: {
 
             <ProseContent className="prose-img:rounded-xl prose-img:shadow-sm prose-img:ring-1 prose-img:ring-neutral-200 dark:prose-img:ring-neutral-700 max-w-none">
               <div className="max-w-2xl xl:mx-auto">
-                {post.mainImage && (
+                {post.featuredImage && (
                   <div className="mb-12">
                     <HeroImage
-                      alt={post.mainImage.alt || ''}
-                      src={image(post.mainImage).size(1600, 900).url()}
+                      alt={post.featuredImage.alt || ''}
+                      src={image(post.featuredImage).size(1600, 900).url()}
                       width={1600}
                       height={900}
                       className="ring-neutral-700 dark:ring-neutral-700"

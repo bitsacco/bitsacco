@@ -52,7 +52,7 @@ const FEATURED_POSTS_QUERY = defineQuery(/* groq */ `*[
   title,
   "slug": slug.current,
   publishedAt,
-  mainImage,
+  featuredImage,
   excerpt,
   author->{
     name,
@@ -74,7 +74,7 @@ const FEED_POSTS_QUERY = defineQuery(/* groq */ `*[
   title,
   "slug": slug.current,
   publishedAt,
-  mainImage,
+  featuredImage,
   excerpt,
   author->{
     name,
@@ -93,7 +93,7 @@ const POST_QUERY = defineQuery(/* groq */ `*[
 ][0]{
   publishedAt,
   title,
-  mainImage,
+  featuredImage,
   excerpt,
   body,
   author->{
@@ -148,7 +148,7 @@ const PAGE_QUERY = defineQuery(/* groq */ `*[
 ][0]{
   publishedAt,
   title,
-  mainImage,
+  featuredImage,
   excerpt,
   body,
   tag->{
@@ -172,7 +172,7 @@ const PAGES_BY_TAG_QUERY = defineQuery(/* groq */ `*[
   publishedAt,
   title,
   "slug": slug.current,
-  mainImage,
+  featuredImage,
   excerpt,
   body,
   tag->{
@@ -194,7 +194,7 @@ const PARTNERS_QUERY = defineQuery(/* groq */ `*[
   _id,
   name,
   logo,
-  description,
+  excerpt,
   website
 }`)
 
@@ -218,5 +218,273 @@ const FAQS_QUERY = defineQuery(/* groq */ `*[
 export async function getFAQs() {
   return await sanityFetch({
     query: FAQS_QUERY,
+  })
+}
+
+const TOTAL_GUIDES_QUERY = defineQuery(/* groq */ `count(*[
+  _type == "guide"
+  && defined(slug.current)
+  && select(defined($category) => $category == category->slug.current, true)
+])`)
+
+export async function getGuidesCount(category?: string) {
+  return await sanityFetch({
+    query: TOTAL_GUIDES_QUERY,
+    params: {
+      category: category ?? null,
+    },
+  })
+}
+
+const GUIDES_QUERY = defineQuery(/* groq */ `*[
+  _type == "guide"
+  && defined(slug.current)
+  && select(defined($category) => $category == category->slug.current, true)
+]|order(isFeatured desc, publishedAt desc)[$startIndex...$endIndex]{
+  title,
+  "slug": slug.current,
+  publishedAt,
+  excerpt,
+  objectives,
+  media {
+    type,
+    image {
+      asset,
+      alt,
+      caption
+    },
+    video {
+      asset,
+      alt,
+      caption
+    },
+    youtubeUrl,
+    vimeoUrl,
+    externalUrl,
+    title,
+    description
+  },
+  isFeatured,
+  hasComplexStructure,
+  "stepsCount": count(steps),
+  "sectionsCount": count(sections),
+  category->{
+    title,
+    "slug": slug.current,
+  },
+  author->{
+    name,
+    image,
+  },
+}`)
+
+export async function getGuides(
+  startIndex: number,
+  endIndex: number,
+  category?: string,
+) {
+  return await sanityFetch({
+    query: GUIDES_QUERY,
+    params: {
+      startIndex,
+      endIndex,
+      category: category ?? null,
+    },
+  })
+}
+
+const FEATURED_GUIDES_QUERY = defineQuery(/* groq */ `*[
+  _type == "guide"
+  && isFeatured == true
+  && defined(slug.current)
+]|order(publishedAt desc)[0...$quantity]{
+  title,
+  "slug": slug.current,
+  publishedAt,
+  excerpt,
+  objectives,
+  media {
+    type,
+    image {
+      asset,
+      alt,
+      caption
+    },
+    video {
+      asset,
+      alt,
+      caption
+    },
+    youtubeUrl,
+    vimeoUrl,
+    externalUrl,
+    title,
+    description
+  },
+  hasComplexStructure,
+  "stepsCount": count(steps),
+  "sectionsCount": count(sections),
+  category->{
+    title,
+    "slug": slug.current,
+  },
+  author->{
+    name,
+    image,
+  },
+}`)
+
+export async function getFeaturedGuides(quantity: number) {
+  return await sanityFetch({
+    query: FEATURED_GUIDES_QUERY,
+    params: { quantity },
+  })
+}
+
+const GUIDE_QUERY = defineQuery(/* groq */ `*[
+  _type == "guide"
+  && slug.current == $slug
+][0]{
+  publishedAt,
+  title,
+  excerpt,
+  objectives,
+  outcomes,
+  media {
+    type,
+    image {
+      asset,
+      alt,
+      caption
+    },
+    video {
+      asset,
+      alt,
+      caption
+    },
+    youtubeUrl,
+    vimeoUrl,
+    externalUrl,
+    title,
+    description
+  },
+  isFeatured,
+  hasComplexStructure,
+  steps[]{
+    title,
+    excerpt,
+    content,
+    media {
+      type,
+      image {
+        asset,
+        alt,
+        caption
+      },
+      video {
+        asset,
+        alt,
+        caption
+      },
+      youtubeUrl,
+      vimeoUrl,
+      externalUrl,
+      title,
+      description
+    },
+    order
+  },
+  sections[]{
+    title,
+    excerpt,
+    media {
+      type,
+      image {
+        asset,
+        alt,
+        caption
+      },
+      video {
+        asset,
+        alt,
+        caption
+      },
+      youtubeUrl,
+      vimeoUrl,
+      externalUrl,
+      title,
+      description
+    },
+    order,
+    steps[]{
+      title,
+      excerpt,
+      content,
+      media {
+        type,
+        image {
+          asset,
+          alt,
+          caption
+        },
+        video {
+          asset,
+          alt,
+          caption
+        },
+        youtubeUrl,
+        vimeoUrl,
+        externalUrl,
+        title,
+        description
+      },
+      order
+    }
+  },
+  category->{
+    title,
+    "slug": slug.current,
+  },
+  author->{
+    name,
+    image,
+  },
+  tags[]->{
+    title,
+    "slug": slug.current,
+  },
+  prerequisites[]->{
+    title,
+    "slug": slug.current,
+  },
+  relatedGuides[]->{
+    title,
+    "slug": slug.current,
+    media,
+    category->{
+      title,
+      "slug": slug.current,
+    },
+  }
+}`)
+
+export async function getGuide(slug: string) {
+  return await sanityFetch({
+    query: GUIDE_QUERY,
+    params: { slug },
+  })
+}
+
+const GUIDE_CATEGORIES_QUERY = defineQuery(/* groq */ `*[
+  _type == "guideCategory"
+  && count(*[_type == "guide" && defined(slug.current) && ^._id == category._ref]) > 0
+]|order(title asc){
+  title,
+  "slug": slug.current,
+}`)
+
+export async function getGuideCategories() {
+  return await sanityFetch({
+    query: GUIDE_CATEGORIES_QUERY,
   })
 }

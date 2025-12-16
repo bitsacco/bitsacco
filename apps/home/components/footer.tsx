@@ -10,19 +10,20 @@ type NavItem = {
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.bitsacco.com'
 
 const navigation: {
-  products: NavItem[]
-  company: NavItem[]
+  community: NavItem[]
+  resources: NavItem[]
   developers: NavItem[]
   legal: NavItem[]
 } = {
-  products: [
+  community: [
+    { name: 'About', href: '/community' },
     { name: 'Membership', href: `${appUrl}/membership`, external: true },
     { name: 'Personal Savings', href: `${appUrl}/personal`, external: true },
     { name: 'Chama Savings', href: `${appUrl}/chama`, external: true },
     { name: 'Loans', href: `${appUrl}/loans`, external: true },
   ],
-  company: [
-    { name: 'About', href: '/about' },
+  resources: [
+    { name: 'Guides', href: '/guides' },
     { name: 'Blog', href: '/blog' },
     { name: 'Partners', href: '/partners' },
     { name: 'Media Kit', href: '/media' },
@@ -30,7 +31,8 @@ const navigation: {
   ],
   developers: [
     { name: 'Open Source', href: '/open-source' },
-    { name: 'GitHub', href: 'https://github.com/bitsacco', external: true },
+    { name: 'Fedimint Protocol', href: '/fedimint-protocol' },
+    { name: 'Mini Apps', href: '/mini-apps' },
   ],
   legal: [
     { name: 'Privacy Policy', href: '/privacy' },
@@ -55,10 +57,10 @@ export function Footer() {
             <div className="grid grid-cols-2 gap-8 text-center sm:grid-cols-4 sm:text-left lg:flex lg:gap-x-16 xl:gap-x-20">
               <div>
                 <h3 className="mb-1 text-sm font-bold uppercase tracking-wider text-white">
-                  Products
+                  Community
                 </h3>
                 <ul role="list" className="mt-4 space-y-3">
-                  {navigation.products.map((item) => (
+                  {navigation.community.map((item) => (
                     <li key={item.name}>
                       <Link
                         href={item.href}
@@ -75,10 +77,10 @@ export function Footer() {
               </div>
               <div>
                 <h3 className="mb-1 text-sm font-bold uppercase tracking-wider text-white">
-                  Company
+                  Resources
                 </h3>
                 <ul role="list" className="mt-4 space-y-3">
-                  {navigation.company.map((item) => (
+                  {navigation.resources.map((item) => (
                     <li key={item.name}>
                       <Link
                         href={item.href}

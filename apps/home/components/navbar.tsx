@@ -6,7 +6,11 @@ import { ListIcon, XIcon } from '@phosphor-icons/react'
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
 
 const links: Array<{ href: string; label: string; external?: boolean }> = [
-  { href: '/blog', label: 'BLOG' },
+  { href: '/about', label: 'About' },
+  { href: '/guides', label: 'Guides' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/partners', label: 'Partners' },
+  { href: '/open-source', label: 'Developers' },
 ]
 
 const buttons: NavbarButton[] = [
@@ -14,11 +18,6 @@ const buttons: NavbarButton[] = [
     text: 'LOGIN',
     href: `${appUrl}/auth?q=login`,
     variant: 'tealOutline' as const,
-  },
-  {
-    text: 'SIGNUP',
-    href: `${appUrl}/auth?q=signup`,
-    variant: 'tealPrimary' as const,
   },
 ]
 

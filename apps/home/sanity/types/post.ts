@@ -59,7 +59,7 @@ export const postType = defineType({
       to: { type: 'author' },
     }),
     defineField({
-      name: 'mainImage',
+      name: 'featuredImage',
       type: 'image',
       options: {
         hotspot: true,
@@ -90,7 +90,7 @@ export const postType = defineType({
   preview: {
     select: {
       title: 'title',
-      media: 'mainImage',
+      media: 'featuredImage',
       author: 'author.name',
       isFeatured: 'isFeatured',
     },
