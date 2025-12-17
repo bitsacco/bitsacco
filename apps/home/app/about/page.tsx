@@ -19,7 +19,8 @@ export async function generateMetadata(): Promise<Metadata> {
   if (!page) {
     return {
       title: 'About Bitsacco',
-      description: 'We are a Savings and Credit Cooperative built on Bitcoin',
+      description:
+        'Community-first Bitcoin financial education and tools for Africa',
     }
   }
 
@@ -27,7 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: `${page.title} - Bitsacco`,
     description:
       page.excerpt ||
-      'We are a Savings and Credit Cooperative built on Bitcoin',
+      'Community-first Bitcoin financial education and tools for Africa',
   }
 }
 
