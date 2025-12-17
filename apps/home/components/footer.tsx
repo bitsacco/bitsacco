@@ -49,9 +49,8 @@ export function Footer() {
             <div className="mb-12 space-y-4 text-center lg:mb-0 lg:max-w-sm lg:text-left">
               <Logo className="h-18 w-auto" />
               <p className="mx-auto max-w-sm text-sm leading-relaxed text-slate-400 lg:mx-0">
-                Bitcoin-powered Savings and Credit Cooperative.
-                <br />
-                We build better money experiences for communities.
+                Empowering communities through Bitcoin financial education and
+                tooling.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-8 text-center sm:grid-cols-4 sm:text-left lg:flex lg:gap-x-16 xl:gap-x-20">

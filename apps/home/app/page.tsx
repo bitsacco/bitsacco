@@ -6,7 +6,7 @@ import type { Metadata } from 'next'
 
 const title = 'Bitsacco'
 const description =
-  'Bitsacco provides Bitcoin-powered financial services for Africa. Plan your finances. Save towards targets. Grow your finances together with community, friends and family.'
+  'Bitsacco empowers communities through Bitcoin financial education and tools. Learn, Save, and Grow together, using community-first financial solutions.'
 const canonical = 'https://www.bitsacco.com'
 
 export const metadata: Metadata = {
@@ -27,12 +27,12 @@ function Hero() {
   return (
     <SharedHero
       title={{
-        first: 'PLAN',
+        first: 'LEARN',
         highlight: 'SAVE',
         last: 'GROW',
       }}
       badge="USING BITCOIN"
-      description="Plan your finances. Save towards targets. Grow your finances together with community, friends and family."
+      description="Empower your community with Bitcoin financial education and tools. Learn together, Save together, Grow together."
       buttons={[
         {
           text: 'LOGIN',

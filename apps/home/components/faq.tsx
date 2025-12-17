@@ -31,13 +31,13 @@ export async function FAQSection() {
             Frequently Asked Questions
           </Heading>
           <p className="mt-4 text-lg text-slate-400">
-            These are the most frequently asked questions about Bitsacco and
-            related topics. Have a query not listed here, please{' '}
+            Learn more about how Bitsacco empowers communities through Bitcoin
+            financial education and tools. Have a question not listed here?{' '}
             <a
               href={`mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@bitsacco.com'}`}
               className="text-teal-500 hover:text-teal-400"
             >
-              contact us
+              Contact us
             </a>
           </p>
         </div>
