@@ -5,38 +5,37 @@ import { portableTextComponents } from '@/components/portable-text'
 import { ProseContent } from '@/components/prose-content'
 import { Heading, Lead } from '@/components/text'
 import { image } from '@/sanity/image'
-import { getPage } from '@/sanity/queries'
 import { Container } from '@bitsacco/ui'
-import type { Metadata } from 'next'
 import { PortableText } from 'next-sanity'
-import { notFound } from 'next/navigation'
 
-const KNOWN_PAGE_SLUG = 'media-and-press-kit'
-
-export async function generateMetadata(): Promise<Metadata> {
-  const page = await getPage(KNOWN_PAGE_SLUG)
-
-  if (!page) {
-    return {
-      title: 'Media - Bitsacco',
-      description: 'Media resources, press kit, and brand assets for Bitsacco.',
-    }
+interface SanityPageData {
+  title?: string
+  excerpt?: string
+  featuredImage?: {
+    alt?: string
+    asset: any
   }
-
-  return {
-    title: `${page.title} - Bitsacco`,
-    description:
-      page.excerpt ||
-      'Media resources, press kit, and brand assets for Bitsacco.',
+  mainImage?: {
+    alt?: string
+    asset: any
   }
+  body?: any[]
 }
 
-export default async function MediaPage() {
-  const page = await getPage(KNOWN_PAGE_SLUG)
+interface SanityPageProps {
+  page?: SanityPageData | null
+  fallbackTitle: string
+  fallbackDescription: string
+}
 
-  if (!page) {
-    notFound()
-  }
+export function SanityPage({
+  page,
+  fallbackTitle,
+  fallbackDescription,
+}: SanityPageProps) {
+  const title = page?.title || fallbackTitle
+  const description = page?.excerpt || fallbackDescription
+  const featuredImage = page?.featuredImage || page?.mainImage
 
   return (
     <>
@@ -45,20 +44,18 @@ export default async function MediaPage() {
         <Container className="py-16 sm:py-24">
           <div className="mb-16 text-center">
             <Heading className="text-white" as="h1">
-              {page.title}
+              {title}
             </Heading>
-            {page.excerpt && (
-              <Lead className="mx-auto mt-8 max-w-2xl text-gray-300">
-                {page.excerpt}
-              </Lead>
-            )}
+            <Lead className="mx-auto mt-8 max-w-2xl text-gray-300">
+              {description}
+            </Lead>
           </div>
 
-          {page.mainImage && (
+          {featuredImage && (
             <div className="mx-auto mb-12 max-w-4xl">
               <HeroImage
-                alt={page.mainImage.alt || page.title || ''}
-                src={image(page.mainImage).width(1200).height(600).url()}
+                alt={featuredImage.alt || title || ''}
+                src={image(featuredImage).width(1200).height(600).url()}
                 width={1200}
                 height={600}
               />
@@ -67,7 +64,7 @@ export default async function MediaPage() {
 
           <div className="mx-auto max-w-2xl">
             <ProseContent>
-              {page.body && (
+              {page?.body && (
                 <PortableText
                   value={page.body}
                   components={portableTextComponents}
