@@ -1,7 +1,7 @@
 import { FAQSection } from '@/components/faq'
 import { Footer } from '@/components/footer'
 import { Navbar } from '@/components/navbar'
-import { Hero as SharedHero } from '@bitsacco/ui'
+import { Hero } from '@bitsacco/ui'
 import type { Metadata } from 'next'
 
 const title = 'Bitsacco'
@@ -21,35 +21,32 @@ export const metadata: Metadata = {
   },
 }
 
-function Hero() {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
-
-  return (
-    <SharedHero
-      title={{
-        first: 'LEARN',
-        highlight: 'SAVE',
-        last: 'GROW',
-      }}
-      badge="USING BITCOIN"
-      description="Empower your community with Bitcoin financial education and tools. Learn together, Save together, Grow together."
-      buttons={[
-        {
-          text: 'LOGIN',
-          href: `${appUrl}/auth?q=login`,
-          variant: 'tealOutline',
-        },
-      ]}
-    />
-  )
-}
-
 export default function Home() {
   return (
     <>
       <Navbar />
       <main className="overflow-hidden">
-        <Hero />
+        <Hero
+          title={{
+            first: 'LEARN',
+            highlight: 'SAVE',
+            last: 'GROW',
+          }}
+          badge="USING BITCOIN"
+          description="Empower your community with Bitcoin financial education and tools. Learn together, Save together, Grow together."
+          buttons={[
+            {
+              text: 'Join the Community',
+              href: `/guides`,
+              variant: 'tealOutline',
+            },
+            {
+              text: 'Become a Partner',
+              href: `/partners`,
+              variant: 'tealOutline',
+            },
+          ]}
+        />
         <FAQSection />
         <Footer />
       </main>
