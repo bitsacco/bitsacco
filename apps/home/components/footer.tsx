@@ -7,8 +7,6 @@ type NavItem = {
   external?: boolean
 }
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.bitsacco.com'
-
 const navigation: {
   community: NavItem[]
   resources: NavItem[]
@@ -17,10 +15,10 @@ const navigation: {
 } = {
   community: [
     { name: 'About', href: '/community' },
-    { name: 'Membership', href: `${appUrl}/membership`, external: true },
-    { name: 'Personal Savings', href: `${appUrl}/personal`, external: true },
-    { name: 'Chama Savings', href: `${appUrl}/chama`, external: true },
-    { name: 'Loans', href: `${appUrl}/loans`, external: true },
+    { name: 'Membership', href: '/membership' },
+    { name: 'Personal Savings', href: '/personal-savings' },
+    { name: 'Group Savings', href: '/group-savings' },
+    { name: 'Loans & Credit', href: '/loans-credit' },
   ],
   resources: [
     { name: 'Guides', href: '/guides' },
