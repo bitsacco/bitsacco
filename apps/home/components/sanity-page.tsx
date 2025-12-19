@@ -42,17 +42,15 @@ export function SanityPage({
       <Navbar />
       <main className="overflow-hidden">
         <Container className="py-16 sm:py-24">
-          <div className="mb-16 text-center">
+          <div className="mb-16">
             <Heading className="text-white" as="h1">
               {title}
             </Heading>
-            <Lead className="mx-auto mt-8 max-w-2xl text-gray-300">
-              {description}
-            </Lead>
+            <Lead className="mt-8 text-gray-300">{description}</Lead>
           </div>
 
           {featuredImage && (
-            <div className="mx-auto mb-12 max-w-4xl">
+            <div className="mb-12">
               <HeroImage
                 alt={featuredImage.alt || title || ''}
                 src={image(featuredImage).width(1200).height(600).url()}
@@ -62,7 +60,7 @@ export function SanityPage({
             </div>
           )}
 
-          <div className="mx-auto max-w-2xl">
+          <div>
             <ProseContent>
               {page?.body && (
                 <PortableText

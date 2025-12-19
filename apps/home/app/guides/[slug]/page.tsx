@@ -290,7 +290,7 @@ export default async function GuidePage(props: {
       <Navbar />
       <main className="overflow-hidden">
         <Container className="py-16 sm:py-24">
-          <article className="mx-auto max-w-4xl">
+          <article>
             {/* Guide metadata - optimized horizontal layout */}
             <div className="mb-8">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
