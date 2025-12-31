@@ -134,13 +134,16 @@ function SectionContent({
         <div className="mb-6 overflow-hidden">
           {section.media.type === 'image' && section.media.image && (
             <div className="space-y-2">
-              <Image
-                src={image(section.media.image).width(400).height(300).url()}
-                alt={section.media.image.alt || section.title}
-                width={400}
-                height={300}
-                className="rounded-lg ring-1 ring-gray-600"
-              />
+              <div className="rounded-lg bg-gray-100 p-4 ring-1 ring-gray-600 dark:bg-gray-800">
+                <Image
+                  src={image(section.media.image).width(800).url()}
+                  alt={section.media.image.alt || section.title}
+                  width={800}
+                  height={600}
+                  className="h-auto w-full object-contain"
+                  style={{ width: '100%', height: 'auto' }}
+                />
+              </div>
               {section.media.image.caption && (
                 <p className="text-xs text-gray-400">
                   {section.media.image.caption}
@@ -385,17 +388,21 @@ export default async function GuidePage(props: {
             </div>
 
             {/* Featured Media */}
+            {guide.media?.type === 'image' && guide.media?.image && (
+              <div className="mb-12 rounded-xl bg-gray-100 p-6 dark:bg-gray-800">
+                <HeroImage
+                  alt={guide.media.image.alt || guide.title}
+                  src={image(guide.media.image).width(1200).url()}
+                  width={1200}
+                  height={800}
+                  className="h-auto w-full object-contain"
+                />
+              </div>
+            )}
+
+            {/* Other media types */}
             {guide.media && (
-              <div className="mb-12">
-                {guide.media.type === 'image' && guide.media.image && (
-                  <HeroImage
-                    alt={guide.media.image.alt || guide.title}
-                    src={image(guide.media.image).size(1600, 900).url()}
-                    width={1600}
-                    height={900}
-                    className="ring-gray-600"
-                  />
-                )}
+              <>
                 {guide.media.type === 'video' && guide.media.video && (
                   <div className="rounded-lg border border-gray-700 bg-gray-800 p-6">
                     <div className="flex items-center gap-4">
@@ -515,7 +522,7 @@ export default async function GuidePage(props: {
                     )}
                   </div>
                 )}
-              </div>
+              </>
             )}
 
             {/* Objectives and Outcomes side by side */}

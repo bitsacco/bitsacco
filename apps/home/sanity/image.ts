@@ -21,5 +21,17 @@ export function image(source: SanityImageSource) {
     console.warn('Sanity image builder not configured.')
     return mockImageBuilder
   }
+
+  // Check if source has required properties
+  if (
+    !source ||
+    typeof source !== 'object' ||
+    !('asset' in source) ||
+    !source.asset
+  ) {
+    console.warn('Invalid image source provided:', source)
+    return mockImageBuilder
+  }
+
   return builder.image(source).auto('format')
 }
