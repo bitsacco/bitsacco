@@ -26,7 +26,7 @@ export function HeroImage({
       height={height}
       priority={priority}
       className={clsx(
-        'w-full rounded-xl object-cover shadow-sm ring-1 ring-neutral-200 dark:ring-neutral-800',
+        'w-full rounded-xl object-contain shadow-sm ring-1 ring-neutral-200 dark:ring-neutral-800',
         className,
       )}
     />

@@ -1,10 +1,35 @@
+import { image } from '@/sanity/image'
 import type { PortableTextComponents } from '@portabletext/react'
+import Image from 'next/image'
 
 export const portableTextComponents: PortableTextComponents = {
   types: {
     separator: () => (
       <hr className="my-8 border-t border-gray-200 dark:border-gray-700" />
     ),
+    image: ({ value }) => {
+      if (!value?.asset) {
+        return null
+      }
+
+      return (
+        <figure className="my-6">
+          <Image
+            src={image(value).width(800).url()}
+            alt={value.alt || 'Guide image'}
+            width={800}
+            height={600}
+            className="h-auto w-full rounded-lg object-contain"
+            style={{ width: '100%', height: 'auto' }}
+          />
+          {value.caption && (
+            <figcaption className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+              {value.caption}
+            </figcaption>
+          )}
+        </figure>
+      )
+    },
   },
   block: {
     normal: ({ children }) => (

@@ -132,14 +132,15 @@ async function Guides({ page, category }: { page: number; category?: string }) {
             </div>
           )}
 
-          {guide.media && guide.media.type === 'image' && guide.media.image && (
-            <div className="mb-4 aspect-video overflow-hidden rounded-lg">
+          {guide.media?.type === 'image' && guide.media?.image && (
+            <div className="mb-4 overflow-hidden rounded-lg">
               <Image
-                src={image(guide.media.image).width(300).height(200).url()}
+                src={image(guide.media.image).width(300).url()}
                 alt={guide.media.image.alt || guide.title}
                 width={300}
                 height={200}
-                className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                className="h-auto w-full object-contain transition-transform group-hover:scale-105"
+                style={{ width: '100%', height: 'auto' }}
               />
             </div>
           )}
