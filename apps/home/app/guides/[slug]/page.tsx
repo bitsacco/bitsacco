@@ -85,26 +85,32 @@ export async function generateMetadata(props: {
 function StepContent({ step, index }: { step: any; index: number }) {
   return (
     <div className="group relative rounded-lg border border-gray-700 bg-gray-800 p-6">
-      <div className="flex items-start gap-4">
-        <div className="flex size-8 flex-shrink-0 items-center justify-center rounded-full bg-teal-900 text-sm font-bold text-teal-200">
+      {/* Step number and title in horizontal flex */}
+      <div className="mb-4 flex items-center gap-3">
+        <div className="flex size-7 flex-shrink-0 items-center justify-center rounded-full bg-teal-900 text-sm font-bold text-teal-200">
           {index + 1}
         </div>
-        <div className="flex-1 space-y-4">
-          <h3 className="text-lg font-semibold text-white">{step.title}</h3>
+        <h3 className="flex-1 break-words text-lg font-semibold text-white">
+          {step.title}
+        </h3>
+      </div>
 
-          {step.description && (
-            <p className="text-gray-300">{step.description}</p>
-          )}
+      {/* Step content as sibling */}
+      <div className="space-y-4">
+        {step.description && (
+          <p className="break-words text-gray-300">{step.description}</p>
+        )}
 
-          {step.content && (
-            <ProseContent className="prose-sm max-w-none">
+        {step.content && (
+          <div className="overflow-hidden">
+            <ProseContent className="prose-sm max-w-full">
               <PortableText
                 value={step.content}
                 components={portableTextComponents}
               />
             </ProseContent>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -118,20 +124,20 @@ function SectionContent({
   sectionIndex: number
 }) {
   return (
-    <div className="space-y-6">
-      <div className="rounded-lg border border-teal-700 bg-teal-900/20 p-6">
-        <div className="flex items-start gap-4">
-          <div className="flex size-10 flex-shrink-0 items-center justify-center rounded-full bg-teal-600 text-lg font-bold text-white">
+    <div className="space-y-4">
+      <div className="rounded-lg border border-teal-700 bg-teal-900/20 p-4">
+        <div className="flex items-start gap-3">
+          <div className="flex size-8 flex-shrink-0 items-center justify-center rounded-full bg-teal-600 text-sm font-bold text-white">
             {sectionIndex + 1}
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white">{section.title}</h2>
+            <h2 className="text-lg font-bold text-white">{section.title}</h2>
           </div>
         </div>
       </div>
 
       {section.media && (
-        <div className="mb-6 overflow-hidden">
+        <div className="mb-4 overflow-hidden">
           {section.media.type === 'image' && section.media.image && (
             <div className="space-y-2">
               <div className="rounded-lg bg-gray-100 p-4 ring-1 ring-gray-600 dark:bg-gray-800">
@@ -271,7 +277,7 @@ function SectionContent({
         </div>
       )}
 
-      <div className="ml-6 space-y-4 border-l-2 border-teal-200 pl-6 dark:border-teal-800">
+      <div className="ml-2 space-y-3 overflow-hidden border-l border-teal-200 pl-4 dark:border-teal-800">
         {section.steps
           ?.sort((a: any, b: any) => a.order - b.order)
           ?.map((step: any, stepIndex: number) => (
@@ -291,7 +297,7 @@ export default async function GuidePage(props: {
   return (
     <>
       <Navbar />
-      <main className="overflow-hidden">
+      <main className="min-w-0 overflow-hidden">
         <Container className="py-16 sm:py-24">
           <article>
             {/* Guide metadata - optimized horizontal layout */}
@@ -616,7 +622,7 @@ export default async function GuidePage(props: {
                   <h2 className="text-2xl font-bold text-white">
                     Step-by-step instructions
                   </h2>
-                  <div className="space-y-4">
+                  <div className="space-y-3 overflow-hidden">
                     {guide.steps
                       ?.sort((a: any, b: any) => a.order - b.order)
                       ?.map((step: any, index: number) => (
