@@ -557,9 +557,6 @@ export default async function GuidePage(props: {
                     <h2 className="mb-4 text-lg font-semibold text-white">
                       Expected Outcomes
                     </h2>
-                    <p className="mb-4 text-sm text-gray-300">
-                      After completing this guide, you should be able to:
-                    </p>
                     <ul className="space-y-3">
                       {guide.outcomes.map((outcome: string, index: number) => (
                         <li
