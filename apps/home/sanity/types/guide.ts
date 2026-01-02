@@ -101,6 +101,11 @@ export const guideType = defineType({
       of: [{ type: 'reference', to: { type: 'guide' } }],
       description: 'Related or follow-up guides',
     }),
+    defineField({
+      name: 'conclusion',
+      type: 'blockContent',
+      description: 'Conclusion content that appears after the guide steps',
+    }),
   ],
   preview: {
     select: {
