@@ -388,6 +388,30 @@ export default async function GuidePage(props: {
                 {guide.title}
               </Heading>
 
+              {/* Prerequisites */}
+              {guide.prerequisites && guide.prerequisites.length > 0 && (
+                <div className="mb-6 mt-6 rounded-lg border border-orange-500 p-6">
+                  <h2 className="mb-4 text-lg font-semibold text-white">
+                    Prerequisites
+                  </h2>
+                  <p className="mb-4 text-sm text-gray-300">
+                    Complete these guides first for the best experience:
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {guide.prerequisites.map((prerequisite: any) => (
+                      <Link
+                        key={prerequisite.slug}
+                        href={`/guides/${prerequisite.slug}`}
+                        className="inline-flex items-center gap-1 rounded-full border border-orange-500 px-3 py-1 text-sm font-medium text-orange-200 hover:bg-orange-900/20"
+                      >
+                        {prerequisite.title}
+                        <ArrowRightIcon className="size-3" />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {guide.excerpt && (
                 <p className="mt-4 text-lg text-gray-300">{guide.excerpt}</p>
               )}
@@ -576,30 +600,6 @@ export default async function GuidePage(props: {
                     </ul>
                   </div>
                 )}
-              </div>
-            )}
-
-            {/* Prerequisites */}
-            {guide.prerequisites && guide.prerequisites.length > 0 && (
-              <div className="mb-12 rounded-lg border border-orange-500 p-6">
-                <h2 className="mb-4 text-lg font-semibold text-white">
-                  Prerequisites
-                </h2>
-                <p className="mb-4 text-sm text-gray-300">
-                  Complete these guides first for the best experience:
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {guide.prerequisites.map((prerequisite: any) => (
-                    <Link
-                      key={prerequisite.slug}
-                      href={`/guides/${prerequisite.slug}`}
-                      className="inline-flex items-center gap-1 rounded-full border border-orange-500 px-3 py-1 text-sm font-medium text-orange-200 hover:bg-orange-900/20"
-                    >
-                      {prerequisite.title}
-                      <ArrowRightIcon className="size-3" />
-                    </Link>
-                  ))}
-                </div>
               </div>
             )}
 
