@@ -4,7 +4,16 @@ import { Navbar } from '@/components/navbar'
 import { Heading, Lead } from '@/components/text'
 import { image } from '@/sanity/image'
 import { getGuideCategories, getGuides, getGuidesCount } from '@/sanity/queries'
-import { Button, Container } from '@bitsacco/ui'
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Container,
+} from '@bitsacco/ui'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import {
   BookOpenIcon,
@@ -120,33 +129,20 @@ async function Guides({ page, category }: { page: number; category?: string }) {
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
       {guides.map((guide) => (
-        <article
+        <Card
           key={guide.slug}
-          className="group relative rounded-lg border border-gray-700 bg-gray-800 p-6 shadow-sm transition-all hover:border-teal-400 hover:shadow-md"
+          className="group relative flex flex-col transition-all hover:border-teal-400 hover:shadow-md"
         >
           <Link href={`/guides/${guide.slug}`} className="absolute inset-0" />
 
           {guide.isFeatured && (
-            <div className="absolute right-4 top-4">
+            <div className="absolute right-4 top-4 z-10">
               <StarIcon className="size-5 text-teal-500" />
             </div>
           )}
 
-          {guide.media?.type === 'image' && guide.media?.image && (
-            <div className="mb-4 overflow-hidden rounded-lg">
-              <Image
-                src={image(guide.media.image).width(300).url()}
-                alt={guide.media.image.alt || guide.title}
-                width={300}
-                height={200}
-                className="h-auto w-full object-contain transition-transform group-hover:scale-105"
-                style={{ width: '100%', height: 'auto' }}
-              />
-            </div>
-          )}
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
+          <CardHeader className="pb-4">
+            <div className="mb-3 flex items-center justify-between">
               {guide.category && (
                 <span className="inline-flex items-center rounded-full bg-teal-900 px-2.5 py-0.5 text-xs font-medium text-teal-200">
                   {guide.category.title}
@@ -154,13 +150,28 @@ async function Guides({ page, category }: { page: number; category?: string }) {
               )}
             </div>
 
-            <h3 className="text-lg font-semibold text-white transition-colors group-hover:text-teal-400">
+            <CardTitle className="text-lg font-semibold transition-colors group-hover:text-teal-400">
               {guide.title}
-            </h3>
+            </CardTitle>
+          </CardHeader>
 
-            <p className="line-clamp-2 text-sm text-gray-300">
+          <CardContent className="flex-1">
+            <CardDescription className="mb-4 line-clamp-2 text-sm">
               {guide.excerpt}
-            </p>
+            </CardDescription>
+
+            {guide.media?.type === 'image' && guide.media?.image && (
+              <div className="mb-4 overflow-hidden rounded-lg">
+                <Image
+                  src={image(guide.media.image).width(300).url()}
+                  alt={guide.media.image.alt || guide.title}
+                  width={300}
+                  height={200}
+                  className="h-auto w-full object-contain transition-transform group-hover:scale-105"
+                  style={{ width: '100%', height: 'auto' }}
+                />
+              </div>
+            )}
 
             {guide.objectives && guide.objectives.length > 0 && (
               <div className="space-y-2">
@@ -185,36 +196,36 @@ async function Guides({ page, category }: { page: number; category?: string }) {
                 </ul>
               </div>
             )}
+          </CardContent>
 
-            <div className="flex items-center justify-between border-t border-gray-700 pt-3">
-              <div className="flex items-center gap-4 text-xs text-gray-400">
-                <div className="flex items-center gap-1">
-                  <ListBulletsIcon className="size-3" />
-                  {guide.hasComplexStructure
-                    ? `${guide.sectionsCount} sections`
-                    : `${guide.stepsCount} steps`}
-                </div>
-              </div>
-
-              {guide.author && (
-                <div className="flex items-center gap-2">
-                  {guide.author.image && (
-                    <Image
-                      alt=""
-                      src={image(guide.author.image).width(20).height(20).url()}
-                      width={20}
-                      height={20}
-                      className="size-5 rounded-full object-cover"
-                    />
-                  )}
-                  <span className="text-xs text-gray-400">
-                    {guide.author.name}
-                  </span>
-                </div>
-              )}
+          <CardFooter className="mt-auto justify-between border-t border-gray-700 pt-4">
+            <div className="flex items-center gap-1.5 text-xs text-gray-500">
+              <ListBulletsIcon className="size-3.5 text-gray-400" />
+              <span className="font-medium">
+                {guide.hasComplexStructure
+                  ? `${guide.sectionsCount} sections`
+                  : `${guide.stepsCount} steps`}
+              </span>
             </div>
-          </div>
-        </article>
+
+            {guide.author && (
+              <div className="flex items-center gap-2">
+                {guide.author.image && (
+                  <Image
+                    alt=""
+                    src={image(guide.author.image).width(24).height(24).url()}
+                    width={24}
+                    height={24}
+                    className="size-6 rounded-full object-cover ring-1 ring-gray-600"
+                  />
+                )}
+                <span className="text-xs font-medium text-gray-400">
+                  {guide.author.name}
+                </span>
+              </div>
+            )}
+          </CardFooter>
+        </Card>
       ))}
     </div>
   )
