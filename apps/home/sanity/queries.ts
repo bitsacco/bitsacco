@@ -465,7 +465,8 @@ const GUIDE_QUERY = defineQuery(/* groq */ `*[
       title,
       "slug": slug.current,
     },
-  }
+  },
+  conclusion
 }`)
 
 export async function getGuide(slug: string) {

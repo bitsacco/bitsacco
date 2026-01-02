@@ -575,7 +575,7 @@ export default async function GuidePage(props: {
 
             {/* Prerequisites */}
             {guide.prerequisites && guide.prerequisites.length > 0 && (
-              <div className="mb-12 rounded-lg border border-blue-500 bg-blue-900/20 p-6">
+              <div className="mb-12 rounded-lg border border-orange-500 p-6">
                 <h2 className="mb-4 text-lg font-semibold text-white">
                   Prerequisites
                 </h2>
@@ -587,7 +587,7 @@ export default async function GuidePage(props: {
                     <Link
                       key={prerequisite.slug}
                       href={`/guides/${prerequisite.slug}`}
-                      className="inline-flex items-center gap-1 rounded-full border border-blue-500 bg-blue-900/30 px-3 py-1 text-sm font-medium text-blue-200 hover:bg-blue-800"
+                      className="inline-flex items-center gap-1 rounded-full border border-orange-500 px-3 py-1 text-sm font-medium text-orange-200 hover:bg-orange-900/20"
                     >
                       {prerequisite.title}
                       <ArrowRightIcon className="size-3" />
@@ -627,9 +627,26 @@ export default async function GuidePage(props: {
               )}
             </div>
 
+            {/* Conclusion Section */}
+            {guide.conclusion && guide.conclusion.length > 0 && (
+              <div className="mt-12 space-y-6">
+                <div className="rounded-lg border border-teal-500 bg-teal-900/20 p-6">
+                  <h2 className="mb-6 text-xl font-semibold text-white">
+                    Conclusion
+                  </h2>
+                  <ProseContent className="max-w-none">
+                    <PortableText
+                      value={guide.conclusion}
+                      components={portableTextComponents}
+                    />
+                  </ProseContent>
+                </div>
+              </div>
+            )}
+
             {/* Related Guides */}
             {guide.relatedGuides && guide.relatedGuides.length > 0 && (
-              <div className="mt-12 border-t border-gray-700 pt-8 dark:border-neutral-800">
+              <div className="mt-12 border-t border-gray-700 pt-8">
                 <h2 className="mb-6 text-xl font-semibold text-white">
                   Related Guides
                 </h2>
@@ -638,7 +655,7 @@ export default async function GuidePage(props: {
                     <Link
                       key={relatedGuide.slug}
                       href={`/guides/${relatedGuide.slug}`}
-                      className="group rounded-lg border border-gray-700 p-4 transition-colors hover:border-teal-200 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:border-teal-800 dark:hover:bg-neutral-900"
+                      className="hover:bg-gray-750 group rounded-lg border border-gray-700 bg-gray-800 p-4 transition-colors hover:border-teal-400"
                     >
                       <div className="flex gap-4">
                         {relatedGuide.media?.type === 'image' &&
@@ -658,10 +675,10 @@ export default async function GuidePage(props: {
                             />
                           )}
                         <div className="flex-1">
-                          <h3 className="font-medium text-neutral-950 group-hover:text-teal-600 dark:text-neutral-0 dark:group-hover:text-teal-400">
+                          <h3 className="font-medium text-white group-hover:text-teal-400">
                             {relatedGuide.title}
                           </h3>
-                          <div className="mt-1 flex items-center gap-3 text-xs text-neutral-500">
+                          <div className="mt-1 flex items-center gap-3 text-xs text-gray-400">
                             {relatedGuide.category && (
                               <span>{relatedGuide.category.title}</span>
                             )}
