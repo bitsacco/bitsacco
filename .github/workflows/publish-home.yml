@@ -56,7 +56,6 @@ jobs:
           NEXT_PUBLIC_SUPPORT_WHATSAPP: ${{ secrets.NEXT_PUBLIC_SUPPORT_WHATSAPP }}
           NEXT_PUBLIC_SUPPORT_EMAIL: ${{ secrets.NEXT_PUBLIC_SUPPORT_EMAIL }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
-          NEXT_PUBLIC_PARTNERS_FORM_URL: ${{ secrets.NEXT_PUBLIC_PARTNERS_FORM_URL }}
 
       - name: Set up Docker Buildx
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -87,4 +86,3 @@ jobs:
             NEXT_PUBLIC_SUPPORT_WHATSAPP=${{ secrets.NEXT_PUBLIC_SUPPORT_WHATSAPP }}
             NEXT_PUBLIC_SUPPORT_EMAIL=${{ secrets.NEXT_PUBLIC_SUPPORT_EMAIL }}
             NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}
-            NEXT_PUBLIC_PARTNERS_FORM_URL=${{ secrets.NEXT_PUBLIC_PARTNERS_FORM_URL }}
