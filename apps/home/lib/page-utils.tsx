@@ -24,9 +24,11 @@ export async function generatePageMetadata({
     }
   }
 
+  const description = page.excerpt || fallbackDescription
+
   return {
     title: `${page.title}${brandSuffix}`,
-    description: page.excerpt || fallbackDescription,
+    description: description,
   }
 }
 

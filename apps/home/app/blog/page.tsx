@@ -3,7 +3,7 @@ import { Link } from '@/components/link'
 import { Navbar } from '@/components/navbar'
 import { Heading, Lead } from '@/components/text'
 import { image } from '@/sanity/image'
-import { getCategories, getPosts, getPostsCount } from '@/sanity/queries'
+import { getBlogs, getBlogsCount, getCategories } from '@/sanity/queries'
 import { Button, Container } from '@bitsacco/ui'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import {
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   },
 }
 
-const postsPerPage = 5
+const blogsPerPage = 5
 
 async function Categories({ selected }: { selected?: string }) {
   const categories = await getCategories()
@@ -88,63 +88,68 @@ async function Categories({ selected }: { selected?: string }) {
   )
 }
 
-async function Posts({ page, category }: { page: number; category?: string }) {
-  const posts = await getPosts(
-    (page - 1) * postsPerPage,
-    page * postsPerPage,
+async function Blogs({ page, category }: { page: number; category?: string }) {
+  const blogs = await getBlogs(
+    (page - 1) * blogsPerPage,
+    page * blogsPerPage,
     category,
   )
 
-  if (!posts || (posts.length === 0 && (page > 1 || category))) {
+  if (!blogs || (blogs.length === 0 && (page > 1 || category))) {
     notFound()
   }
 
-  if (!posts || posts.length === 0) {
+  if (!blogs || blogs.length === 0) {
     return (
       <p className="mx-auto text-center text-gray-400">
-        No blog posts have been published yet.
+        No blog articles have been published yet.
       </p>
     )
   }
 
   return (
     <div className="space-y-8">
-      {posts.map((post) => (
+      {blogs.map((blog) => (
         <article
-          key={post.slug}
+          key={blog.slug}
           className="relative border-b border-slate-700 pb-8 last:border-b-0"
         >
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-[200px_1fr]">
             <div className="flex flex-col gap-3">
               <time className="text-sm font-medium text-gray-400">
-                {dayjs(post.publishedAt).format('MMM D, YYYY')}
+                {dayjs(blog.publishedAt).format('MMM D, YYYY')}
               </time>
-              {post.author && (
+              {blog.author && (
                 <div className="flex items-center gap-3">
-                  {post.author.image && (
+                  {blog.author.image && (
                     <Image
                       alt=""
-                      src={image(post.author.image).width(32).height(32).url()}
+                      src={image(blog.author.image).width(32).height(32).url()}
                       width={32}
                       height={32}
                       className="size-8 rounded-full object-cover ring-1 ring-slate-600"
                     />
                   )}
                   <span className="text-sm text-gray-300">
-                    {post.author.name}
+                    {blog.author.name}
                   </span>
                 </div>
               )}
             </div>
             <div>
               <h2 className="mb-3 text-xl font-medium tracking-tight text-white">
-                {post.title}
+                {blog.title}
               </h2>
+              {blog.subtitle && (
+                <p className="mb-3 text-lg italic text-gray-400">
+                  {blog.subtitle}
+                </p>
+              )}
               <p className="mb-4 leading-relaxed text-gray-300">
-                {post.excerpt}
+                {blog.excerpt}
               </p>
               <Link
-                href={`/blog/${post.slug}`}
+                href={`/blog/${blog.slug}`}
                 className="inline-flex items-center gap-1 text-sm font-medium text-orange-400 hover:text-orange-300"
               >
                 <span className="absolute inset-0" />
@@ -175,14 +180,14 @@ async function Pagination({
     return params.size !== 0 ? `/blog?${params.toString()}` : '/blog'
   }
 
-  let totalPosts = await getPostsCount(category)
-  if (!totalPosts) totalPosts = 0
+  let totalBlogs = await getBlogsCount(category)
+  if (!totalBlogs) totalBlogs = 0
 
   const hasPreviousPage = page - 1
   const previousPageUrl = hasPreviousPage ? url(page - 1) : undefined
-  const hasNextPage = page * postsPerPage < totalPosts
+  const hasNextPage = page * blogsPerPage < totalBlogs
   const nextPageUrl = hasNextPage ? url(page + 1) : undefined
-  const pageCount = Math.ceil(totalPosts / postsPerPage)
+  const pageCount = Math.ceil(totalBlogs / blogsPerPage)
 
   if (pageCount < 2) {
     return null
@@ -255,7 +260,7 @@ export default async function Blog(props: {
           </div>
           <div className="space-y-12">
             <Categories selected={category} />
-            <Posts page={page} category={category} />
+            <Blogs page={page} category={category} />
             <Pagination page={page} category={category} />
           </div>
         </Container>

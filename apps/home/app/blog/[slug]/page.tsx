@@ -6,7 +6,7 @@ import { portableTextComponents } from '@/components/portable-text'
 import { ProseContent } from '@/components/prose-content'
 import { Heading } from '@/components/text'
 import { image } from '@/sanity/image'
-import { getPost } from '@/sanity/queries'
+import { getBlog } from '@/sanity/queries'
 import { Button, Container } from '@bitsacco/ui'
 import { CaretLeftIcon } from '@phosphor-icons/react/dist/ssr'
 import dayjs from 'dayjs'
@@ -19,45 +19,47 @@ export async function generateMetadata(props: {
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const params = await props.params
-  const post = await getPost(params.slug)
+  const blog = await getBlog(params.slug)
 
-  if (!post) {
+  if (!blog) {
     return {}
   }
 
+  const description = blog.subtitle || blog.excerpt
+
   return {
-    title: post.title ?? undefined,
-    description: post.excerpt ?? undefined,
+    title: blog.title ?? undefined,
+    description: description ?? undefined,
     openGraph: {
-      title: post.title ?? undefined,
-      description: post.excerpt ?? undefined,
+      title: blog.title ?? undefined,
+      description: description ?? undefined,
       url: `/blog/${params.slug ?? undefined}`,
       type: 'article',
-      publishedTime: post.publishedAt ?? undefined,
-      authors: post.author ? [`${post.author.name}`] : undefined,
+      publishedTime: blog.publishedAt ?? undefined,
+      authors: blog.author ? [`${blog.author.name}`] : undefined,
       tags:
-        post.categories
+        blog.categories
           ?.map((category) => category.title ?? '')
           .filter(Boolean) || undefined,
-      images: post.featuredImage
+      images: blog.featuredImage
         ? [
             {
-              url: image(post.featuredImage).width(1200).height(630).url(),
+              url: image(blog.featuredImage).width(1200).height(630).url(),
               width: 1200,
               height: 630,
-              alt: post.featuredImage.alt ?? post.title ?? undefined,
+              alt: blog.featuredImage.alt ?? blog.title ?? undefined,
             },
           ]
         : undefined,
     },
     twitter: {
       card: 'summary_large_image',
-      title: post.title ?? undefined,
-      description: post.excerpt ?? undefined,
+      title: blog.title ?? undefined,
+      description: description ?? undefined,
       site: '@bitsacco',
       creator: '@bitsacco',
-      images: post.featuredImage
-        ? [image(post.featuredImage).width(1200).height(630).url()]
+      images: blog.featuredImage
+        ? [image(blog.featuredImage).width(1200).height(630).url()]
         : undefined,
     },
   }
@@ -67,7 +69,7 @@ export default async function BlogPost(props: {
   params: Promise<{ slug: string }>
 }) {
   const params = await props.params
-  const post = (await getPost(params.slug)) || notFound()
+  const blog = (await getBlog(params.slug)) || notFound()
 
   return (
     <>
@@ -77,33 +79,38 @@ export default async function BlogPost(props: {
           <article className="mx-auto max-w-4xl">
             <div className="mb-12 text-center">
               <time className="text-sm font-medium text-gray-400">
-                {dayjs(post.publishedAt).format('MMMM D, YYYY')}
+                {dayjs(blog.publishedAt).format('MMMM D, YYYY')}
               </time>
               <Heading as="h1" className="mt-4 text-white">
-                {post.title}
+                {blog.title}
               </Heading>
+              {blog.subtitle && (
+                <p className="mt-4 text-xl italic text-gray-400">
+                  {blog.subtitle}
+                </p>
+              )}
             </div>
 
             <div className="mb-12 flex flex-wrap items-center justify-center gap-6">
-              {post.author && (
+              {blog.author && (
                 <div className="flex items-center gap-3">
-                  {post.author.image && (
+                  {blog.author.image && (
                     <Image
                       alt=""
-                      src={image(post.author.image).size(40, 40).url()}
+                      src={image(blog.author.image).size(40, 40).url()}
                       width={40}
                       height={40}
                       className="size-10 rounded-full object-cover ring-1 ring-gray-600"
                     />
                   )}
                   <span className="text-sm font-medium text-gray-300">
-                    {post.author.name}
+                    {blog.author.name}
                   </span>
                 </div>
               )}
-              {Array.isArray(post.categories) && post.categories.length > 0 && (
+              {Array.isArray(blog.categories) && blog.categories.length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  {post.categories.map((category) => (
+                  {blog.categories.map((category) => (
                     <Link
                       key={category.slug}
                       href={`/blog?category=${category.slug}`}
@@ -118,20 +125,20 @@ export default async function BlogPost(props: {
 
             <ProseContent className="prose-img:rounded-xl prose-img:shadow-sm prose-img:ring-1 prose-img:ring-gray-600 max-w-none">
               <div className="max-w-2xl xl:mx-auto">
-                {post.featuredImage && (
+                {blog.featuredImage && (
                   <div className="mb-12">
                     <HeroImage
-                      alt={post.featuredImage.alt || ''}
-                      src={image(post.featuredImage).size(1600, 900).url()}
+                      alt={blog.featuredImage.alt || ''}
+                      src={image(blog.featuredImage).size(1600, 900).url()}
                       width={1600}
                       height={900}
                       className="ring-gray-600"
                     />
                   </div>
                 )}
-                {post.body && (
+                {blog.body && (
                   <PortableText
-                    value={post.body}
+                    value={blog.body}
                     components={portableTextComponents}
                   />
                 )}
