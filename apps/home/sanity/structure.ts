@@ -29,12 +29,12 @@ export const structure: StructureResolver = (S) =>
         ),
       S.divider(),
       S.listItem()
-        .title('Posts')
+        .title('Blog')
         .child(
           S.list()
-            .title('Posts')
+            .title('Blog')
             .items([
-              S.documentTypeListItem('post').title('Posts'),
+              S.documentTypeListItem('blog').title('Blog'),
               S.documentTypeListItem('category').title('Categories'),
             ]),
         ),
@@ -61,7 +61,7 @@ export const structure: StructureResolver = (S) =>
           id &&
           ![
             'page',
-            'post',
+            'blog',
             'category',
             'author',
             'tag',

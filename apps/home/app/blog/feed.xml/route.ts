@@ -1,5 +1,5 @@
 import { image } from '@/sanity/image'
-import { getPostsForFeed } from '@/sanity/queries'
+import { getBlogsForFeed } from '@/sanity/queries'
 import { Feed } from 'feed'
 import assert from 'node:assert'
 
@@ -23,9 +23,9 @@ export async function GET(req: Request) {
     },
   })
 
-  const posts = await getPostsForFeed()
+  const blogs = await getBlogsForFeed()
 
-  if (!posts) {
+  if (!blogs) {
     return new Response(feed.rss2(), {
       headers: {
         'content-type': 'application/rss+xml; charset=utf-8',
@@ -33,32 +33,32 @@ export async function GET(req: Request) {
     })
   }
 
-  posts.forEach((post) => {
+  blogs.forEach((blog) => {
     try {
-      assert(typeof post.title === 'string')
-      assert(typeof post.slug === 'string')
-      assert(typeof post.excerpt === 'string')
-      assert(typeof post.publishedAt === 'string')
+      assert(typeof blog.title === 'string')
+      assert(typeof blog.slug === 'string')
+      assert(typeof blog.excerpt === 'string')
+      assert(typeof blog.publishedAt === 'string')
     } catch {
-      console.log('Post is missing required fields for RSS feed:', post)
+      console.log('Blog is missing required fields for RSS feed:', blog)
       return
     }
 
     feed.addItem({
-      title: post.title,
-      id: post.slug,
-      link: `${siteUrl}/blog/${post.slug}`,
-      content: post.excerpt,
-      image: post.featuredImage
-        ? image(post.featuredImage)
+      title: blog.title,
+      id: blog.slug,
+      link: `${siteUrl}/blog/${blog.slug}`,
+      content: blog.subtitle || blog.excerpt,
+      image: blog.featuredImage
+        ? image(blog.featuredImage)
             .size(1200, 800)
             .format('jpg')
             .url()
             .replaceAll('&', '&amp;')
         : undefined,
-      author: post.author?.name ? [{ name: post.author.name }] : [],
-      contributor: post.author?.name ? [{ name: post.author.name }] : [],
-      date: new Date(post.publishedAt),
+      author: blog.author?.name ? [{ name: blog.author.name }] : [],
+      contributor: blog.author?.name ? [{ name: blog.author.name }] : [],
+      date: new Date(blog.publishedAt),
     })
   })
 

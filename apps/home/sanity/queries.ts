@@ -1,25 +1,26 @@
 import { defineQuery } from 'next-sanity'
 import { sanityFetch } from './client'
 
-const TOTAL_POSTS_QUERY = defineQuery(/* groq */ `count(*[
-  _type == "post"
+const TOTAL_BLOGS_QUERY = defineQuery(/* groq */ `count(*[
+  _type == "blog"
   && defined(slug.current)
   && select(defined($category) => $category in categories[]->slug.current, true)
 ])`)
 
-export async function getPostsCount(category?: string) {
+export async function getBlogsCount(category?: string) {
   return await sanityFetch({
-    query: TOTAL_POSTS_QUERY,
+    query: TOTAL_BLOGS_QUERY,
     params: { category: category ?? null },
   })
 }
 
-const POSTS_QUERY = defineQuery(/* groq */ `*[
-  _type == "post"
+const BLOGS_QUERY = defineQuery(/* groq */ `*[
+  _type == "blog"
   && defined(slug.current)
   && select(defined($category) => $category in categories[]->slug.current, true)
 ]|order(publishedAt desc)[$startIndex...$endIndex]{
   title,
+  subtitle,
   "slug": slug.current,
   publishedAt,
   excerpt,
@@ -29,13 +30,13 @@ const POSTS_QUERY = defineQuery(/* groq */ `*[
   },
 }`)
 
-export async function getPosts(
+export async function getBlogs(
   startIndex: number,
   endIndex: number,
   category?: string,
 ) {
   return await sanityFetch({
-    query: POSTS_QUERY,
+    query: BLOGS_QUERY,
     params: {
       startIndex,
       endIndex,
@@ -44,12 +45,13 @@ export async function getPosts(
   })
 }
 
-const FEATURED_POSTS_QUERY = defineQuery(/* groq */ `*[
-  _type == "post"
+const FEATURED_BLOGS_QUERY = defineQuery(/* groq */ `*[
+  _type == "blog"
   && isFeatured == true
   && defined(slug.current)
 ]|order(publishedAt desc)[0...$quantity]{
   title,
+  subtitle,
   "slug": slug.current,
   publishedAt,
   featuredImage,
@@ -60,18 +62,19 @@ const FEATURED_POSTS_QUERY = defineQuery(/* groq */ `*[
   },
 }`)
 
-export async function getFeaturedPosts(quantity: number) {
+export async function getFeaturedBlogs(quantity: number) {
   return await sanityFetch({
-    query: FEATURED_POSTS_QUERY,
+    query: FEATURED_BLOGS_QUERY,
     params: { quantity },
   })
 }
 
-const FEED_POSTS_QUERY = defineQuery(/* groq */ `*[
-  _type == "post"
+const FEED_BLOGS_QUERY = defineQuery(/* groq */ `*[
+  _type == "blog"
   && defined(slug.current)
 ]|order(isFeatured, publishedAt desc){
   title,
+  subtitle,
   "slug": slug.current,
   publishedAt,
   featuredImage,
@@ -81,18 +84,19 @@ const FEED_POSTS_QUERY = defineQuery(/* groq */ `*[
   },
 }`)
 
-export async function getPostsForFeed() {
+export async function getBlogsForFeed() {
   return await sanityFetch({
-    query: FEED_POSTS_QUERY,
+    query: FEED_BLOGS_QUERY,
   })
 }
 
-const POST_QUERY = defineQuery(/* groq */ `*[
-  _type == "post"
+const BLOG_QUERY = defineQuery(/* groq */ `*[
+  _type == "blog"
   && slug.current == $slug
 ][0]{
   publishedAt,
   title,
+  subtitle,
   featuredImage,
   excerpt,
   body,
@@ -107,16 +111,16 @@ const POST_QUERY = defineQuery(/* groq */ `*[
 }
 `)
 
-export async function getPost(slug: string) {
+export async function getBlog(slug: string) {
   return await sanityFetch({
-    query: POST_QUERY,
+    query: BLOG_QUERY,
     params: { slug },
   })
 }
 
 const CATEGORIES_QUERY = defineQuery(/* groq */ `*[
   _type == "category"
-  && count(*[_type == "post" && defined(slug.current) && ^._id in categories[]._ref]) > 0
+  && count(*[_type == "blog" && defined(slug.current) && ^._id in categories[]._ref]) > 0
 ]|order(title asc){
   title,
   "slug": slug.current,
@@ -148,6 +152,7 @@ const PAGE_QUERY = defineQuery(/* groq */ `*[
 ][0]{
   publishedAt,
   title,
+  subtitle,
   featuredImage,
   excerpt,
   body,
@@ -171,6 +176,7 @@ const PAGES_BY_TAG_QUERY = defineQuery(/* groq */ `*[
 ]|order(publishedAt desc){
   publishedAt,
   title,
+  subtitle,
   "slug": slug.current,
   featuredImage,
   excerpt,

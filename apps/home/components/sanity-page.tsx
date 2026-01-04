@@ -10,6 +10,7 @@ import { PortableText } from 'next-sanity'
 
 interface SanityPageData {
   title?: string
+  subtitle?: string
   excerpt?: string
   featuredImage?: {
     alt?: string
@@ -34,6 +35,7 @@ export function SanityPage({
   fallbackDescription,
 }: SanityPageProps) {
   const title = page?.title || fallbackTitle
+  const subtitle = page?.subtitle
   const description = page?.excerpt || fallbackDescription
   const featuredImage = page?.featuredImage || page?.mainImage
 
@@ -46,6 +48,11 @@ export function SanityPage({
             <Heading className="text-white" as="h1">
               {title}
             </Heading>
+            {subtitle && (
+              <p className="mt-4 text-xl italic text-gray-400">
+                {subtitle}
+              </p>
+            )}
             <Lead className="mt-8 text-gray-300">{description}</Lead>
           </div>
 
