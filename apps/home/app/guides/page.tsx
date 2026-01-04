@@ -22,6 +22,7 @@ import {
   CaretUpDownIcon,
   CheckIcon,
   ListBulletsIcon,
+  PenIcon,
   StarIcon,
 } from '@phosphor-icons/react/dist/ssr'
 import { clsx } from 'clsx'
@@ -329,6 +330,18 @@ export default async function GuidesPage(props: {
           <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap gap-4">
               <Categories selected={category} />
+            </div>
+            <div className="flex items-center">
+              <Button
+                variant="outline"
+                href="https://forms.gle/7Vz3QiVgeAUZzVLQA"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-teal-400 border-teal-400 hover:bg-teal-400 hover:text-white transition-all duration-200 ease-in-out hover:shadow-md hover:shadow-teal-400/20"
+              >
+                <PenIcon className="size-4 flex-shrink-0" />
+                <span>Contribute</span>
+              </Button>
             </div>
           </div>
 
