@@ -53,7 +53,7 @@ export default function WhitepaperPage() {
             >
               <div className="flex h-full flex-col items-center justify-center p-8 text-center">
                 <p className="mb-4 text-gray-400">
-                  It appears you don't have a PDF plugin for this browser.
+                  It appears you don&apos;t have a PDF plugin for this browser.
                 </p>
                 <a href={currentPdf} className="text-teal-500 hover:underline">
                   Click here to download the PDF file.
