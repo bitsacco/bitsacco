@@ -10,7 +10,6 @@ const links: Array<{ href: string; label: string; external?: boolean }> = [
   { href: '/guides', label: 'Guides' },
   { href: '/blog', label: 'Blog' },
   { href: '/partners', label: 'Partners' },
-  { href: '/open-source', label: 'Developers' },
 ]
 
 const buttons: NavbarButton[] = [

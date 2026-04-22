@@ -45,6 +45,7 @@ const navigation: {
     { name: 'Loans & Credit', href: '/loans-credit' },
   ],
   resources: [
+    { name: 'Bitcoin Whitepaper', href: '/whitepaper' },
     { name: 'About', href: '/about' },
     { name: 'Blog', href: '/blog' },
     { name: 'Partners', href: '/partners' },
