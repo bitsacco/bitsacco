@@ -49,9 +49,7 @@ export function SanityPage({
               {title}
             </Heading>
             {subtitle && (
-              <p className="mt-4 text-xl italic text-gray-400">
-                {subtitle}
-              </p>
+              <p className="mt-4 text-xl italic text-gray-400">{subtitle}</p>
             )}
             <Lead className="mt-8 text-gray-300">{description}</Lead>
           </div>
