@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename)
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@bitsacco/ui', "@bitsacco/core"],
+  allowedDevOrigins: ['*.ngrok-free.app'],
   output: 'standalone',
   outputFileTracingRoot: path.join(__dirname, '../../'),
   images: {

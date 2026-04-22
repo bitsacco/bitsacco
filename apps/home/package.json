@@ -27,6 +27,7 @@
     "next-sanity": "^10.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-pdf": "^9.2.1",
     "react-use-measure": "^2.1.1",
     "resend": "^4.6.0",
     "sanity": "^4.6.0",
