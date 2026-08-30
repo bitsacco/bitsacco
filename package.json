@@ -1,49 +1,63 @@
 {
-  "name": "bitsacco",
-  "version": "0.0.0",
+  "name": "bitsacco-home",
+  "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
-    "start": "docker compose -p bitsacco up",
-    "stop": "docker compose -p bitsacco down",
-    "dc": "docker compose -p bitsacco",
-    "dev": "turbo run dev",
-    "dev:all": "turbo run dev",
-    "dev:home": "turbo dev --filter=@bitsacco/home...",
-    "build": "turbo run build",
-    "build:ui": "turbo run build --filter=@bitsacco/ui...",
-    "build:core": "turbo run build --filter=@bitsacco/core...",
-    "build:home": "turbo run build --filter=@bitsacco/home...",
-    "clean": "turbo run clean",
-    "clean:docker": "docker compose -p bitsacco down --volumes --remove-orphans && docker system prune -f",
-    "lint": "turbo run lint",
-    "lint:fix": "turbo run lint -- --fix",
-    "typecheck": "turbo run typecheck",
-    "test": "turbo run test",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "logs": "docker compose -p bitsacco logs -f"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .next",
+    "format": "prettier --write .",
+    "sanity:extract": "sanity schema extract --path=sanity/extract.json",
+    "sanity:typegen": "npm run sanity:extract && sanity typegen generate",
+    "docker:up": "docker compose -p bitsacco up --build -d",
+    "docker:down": "docker compose -p bitsacco down",
+    "docker:logs": "docker compose -p bitsacco logs -f"
   },
   "dependencies": {
-    "@headlessui/react": "^2.2.7",
-    "@types/jsonwebtoken": "^9.0.9",
-    "@types/qrcode": "^1.5.5",
-    "axios": "^1.9.0",
-    "jsonwebtoken": "^9.0.2",
-    "qrcode": "^1.5.4"
+    "@headlessui/react": "^2.2.10",
+    "@phosphor-icons/react": "^2.1.10",
+    "@sanity/icons": "^5.2.1",
+    "@sanity/image-url": "^2.1.1",
+    "@sanity/vision": "^6.11.0",
+    "clsx": "^2.1.1",
+    "dayjs": "^1.11.23",
+    "feed": "^6.0.0",
+    "next": "^16.3.3",
+    "next-sanity": "^13.3.3",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-pdf": "^10.5.0",
+    "react-use-measure": "^2.1.7",
+    "resend": "^6.25.0",
+    "sanity": "^6.11.0"
   },
   "devDependencies": {
-    "@svgr/webpack": "^8.1.0",
-    "concurrently": "^8.2.2",
-    "prettier": "^3.3.2",
-    "turbo": "^2.3.0",
-    "url-loader": "^4.1.1"
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.3",
+    "postcss": "^8.5.26",
+    "prettier": "^3.9.6",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3"
   },
-  "packageManager": "npm@10.9.3",
+  "overrides": {
+    "@vercel/frameworks": {
+      "js-yaml": "^4.3.2",
+      "smol-toml": "^1.8.0"
+    },
+    "typeid-js": {
+      "uuid": "^11.1.1"
+    }
+  },
   "engines": {
-    "node": ">=20.0.0",
-    "npm": ">=7.0.0"
+    "node": ">=24.20.0 <25",
+    "npm": ">=12.0.2"
   }
 }
