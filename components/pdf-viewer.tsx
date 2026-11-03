@@ -1,5 +1,6 @@
 'use client'
 
+import type { PdfViewerProps } from '@/components/pdf-viewer-client'
 import dynamic from 'next/dynamic'
 
 function ViewerShellShimmer() {
@@ -21,14 +22,14 @@ function ViewerShellShimmer() {
   )
 }
 
-const WhitepaperViewerClient = dynamic(
-  () => import('@/components/whitepaper-viewer-client'),
+const PdfViewerClient = dynamic(
+  () => import('@/components/pdf-viewer-client'),
   {
     ssr: false,
     loading: () => <ViewerShellShimmer />,
   },
 )
 
-export default function WhitepaperViewer() {
-  return <WhitepaperViewerClient />
+export default function PdfViewer(props: PdfViewerProps) {
+  return <PdfViewerClient {...props} />
 }

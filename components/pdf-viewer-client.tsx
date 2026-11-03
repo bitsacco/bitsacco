@@ -1,7 +1,6 @@
 'use client'
 
 import { ArrowSquareOutIcon, DownloadSimpleIcon } from '@phosphor-icons/react'
-import Link from 'next/link'
 import { useState } from 'react'
 import { Document, Page, pdfjs } from 'react-pdf'
 import useMeasure from 'react-use-measure'
@@ -9,12 +8,20 @@ import useMeasure from 'react-use-measure'
 pdfjs.GlobalWorkerOptions.workerSrc =
   `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`
 
-const PDF_SOURCES = {
-  en: '/bitcoin-en.pdf',
-  sw: '/bitcoin-sw.pdf',
-} as const
+export type PdfSource = {
+  /** Language button label, e.g. "English" */
+  label: string
+  /** Path to the PDF under /public */
+  href: string
+  /** Optional human-readable file size shown on the download button */
+  size?: string
+}
 
-type Language = keyof typeof PDF_SOURCES
+export type PdfViewerProps = {
+  /** Short document name used in loading labels */
+  title: string
+  sources: readonly PdfSource[]
+}
 
 function ViewerShimmer({ label }: { label: string }) {
   return (
@@ -30,17 +37,18 @@ function ViewerShimmer({ label }: { label: string }) {
   )
 }
 
-export default function WhitepaperViewerClient() {
-  const [lang, setLang] = useState<Language>('en')
+export default function PdfViewerClient({ title, sources }: PdfViewerProps) {
+  const [sourceIndex, setSourceIndex] = useState(0)
   const [numPages, setNumPages] = useState<number>()
   const [pageNumber, setPageNumber] = useState(1)
   const [viewerRef, bounds] = useMeasure()
 
-  const currentPdf = PDF_SOURCES[lang]
+  const current = sources[sourceIndex] ?? sources[0]
+  const currentPdf = current.href
   const pageWidth = Math.max(280, Math.floor(bounds.width || 0) - 32)
 
-  function handleLanguageChange(language: Language) {
-    setLang(language)
+  function handleSourceChange(index: number) {
+    setSourceIndex(index)
     setPageNumber(1)
     setNumPages(undefined)
   }
@@ -62,41 +70,41 @@ export default function WhitepaperViewerClient() {
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-center gap-4">
-        <button
-          onClick={() => handleLanguageChange('en')}
-          className={`rounded-lg px-4 py-2 font-medium transition-colors ${
-            lang === 'en'
-              ? 'bg-teal-500 text-white'
-              : 'bg-gray-800 text-gray-400 hover:text-white'
-          }`}
-        >
-          English
-        </button>
-        <button
-          onClick={() => handleLanguageChange('sw')}
-          className={`rounded-lg px-4 py-2 font-medium transition-colors ${
-            lang === 'sw'
-              ? 'bg-teal-500 text-white'
-              : 'bg-gray-800 text-gray-400 hover:text-white'
-          }`}
-        >
-          Kiswahili
-        </button>
-      </div>
+      {sources.length > 1 && (
+        <div className="mb-4 flex items-center justify-center gap-4">
+          {sources.map((source, index) => (
+            <button
+              key={source.href}
+              type="button"
+              onClick={() => handleSourceChange(index)}
+              aria-pressed={index === sourceIndex}
+              className={`rounded-lg px-4 py-2 font-medium transition-colors ${
+                index === sourceIndex
+                  ? 'bg-teal-500 text-white'
+                  : 'bg-gray-800 text-gray-400 hover:text-white'
+              }`}
+            >
+              {source.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="rounded-xl border border-gray-800 bg-gray-800/50 p-4 sm:p-6">
         <div className="mb-4 flex items-start justify-between gap-3">
-          <Link
+          <a
             href={currentPdf}
             download
             className="inline-flex items-center gap-2 rounded-lg bg-gray-700 px-3 py-2 text-sm font-medium text-white transition hover:bg-gray-600"
           >
             <DownloadSimpleIcon size={18} weight="bold" />
             Download PDF
-          </Link>
+            {current.size ? (
+              <span className="text-gray-300">({current.size})</span>
+            ) : null}
+          </a>
 
-          <Link
+          <a
             href={currentPdf}
             target="_blank"
             rel="noreferrer"
@@ -104,7 +112,7 @@ export default function WhitepaperViewerClient() {
           >
             <ArrowSquareOutIcon size={18} weight="bold" />
             Open PDF
-          </Link>
+          </a>
         </div>
 
         <div
@@ -114,20 +122,20 @@ export default function WhitepaperViewerClient() {
           <Document
             file={currentPdf}
             onLoadSuccess={handleLoadSuccess}
-            loading={<ViewerShimmer label="Loading whitepaper" />}
+            loading={<ViewerShimmer label={`Loading ${title}`} />}
             error={
               <div className="flex min-h-[24rem] flex-col items-center justify-center gap-4 text-center">
                 <p className="text-gray-400">
                   The PDF could not be displayed in this browser.
                 </p>
-                <Link
+                <a
                   href={currentPdf}
                   target="_blank"
                   rel="noreferrer"
                   className="text-teal-400 hover:text-teal-300 hover:underline"
                 >
                   Open the PDF directly
-                </Link>
+                </a>
               </div>
             }
           >
@@ -136,12 +144,13 @@ export default function WhitepaperViewerClient() {
               width={pageWidth}
               renderAnnotationLayer={false}
               renderTextLayer={false}
-              loading={<ViewerShimmer label="Rendering whitepaper page" />}
+              loading={<ViewerShimmer label={`Rendering ${title} page`} />}
             />
           </Document>
 
           <div className="flex w-full max-w-xl items-center justify-between gap-3">
             <button
+              type="button"
               onClick={handlePreviousPage}
               disabled={pageNumber <= 1}
               className="rounded-lg bg-gray-700 px-4 py-2 text-sm font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-50"
@@ -153,6 +162,7 @@ export default function WhitepaperViewerClient() {
               {numPages ? ` of ${numPages}` : ''}
             </p>
             <button
+              type="button"
               onClick={handleNextPage}
               disabled={!numPages || pageNumber >= numPages}
               className="rounded-lg bg-gray-700 px-4 py-2 text-sm font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-50"
