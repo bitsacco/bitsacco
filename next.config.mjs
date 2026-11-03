@@ -6,6 +6,15 @@ const nextConfig = {
   turbopack: {
     root: import.meta.dirname,
   },
+  async redirects() {
+    return [
+      {
+        source: '/whitepaper',
+        destination: '/learn-bitcoin',
+        permanent: true,
+      },
+    ]
+  },
   images: {
     remotePatterns: [
       {
